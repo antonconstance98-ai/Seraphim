@@ -1,6 +1,6 @@
 {
   "codex": {
-    "routing_enabled": false,
+    "routing_enabled": true,
     "fallback_on_error": "prompt_user",
     "attribution_enabled": true,
     "timeout_seconds": 300,
