@@ -46,7 +46,11 @@ Plans:
   3. GSD `plan-phase` workflow triggers a Codex review before the plan is finalized; Codex feedback appears in the plan file
   4. GSD wave-boundary Codex validation runs non-blocking during execution and results are available at natural stopping points
   5. All routing in general Claude workflows (not just GSD) goes through the global hook so Codex-specialized tasks are caught project-wide
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Stop hook review gate, global routing extension, and settings registration (REVW-01, REVW-02, ROUT-02, GSD-04)
+- [ ] 02-02-PLAN.md — GSD wave-boundary validation hook and plan-phase review script (GSD-01, GSD-02, GSD-03)
 
 ### Phase 3: Plan Review Loop & Superpowers
 **Goal**: Before any phase plan or task plan is finalized, a 2-3 round Opus-Codex review loop has run; Superpowers parallel agents can route to cheaper models
@@ -77,6 +81,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-04-02 |
-| 2. Review Gate & GSD Integration | 0/TBD | Not started | - |
+| 2. Review Gate & GSD Integration | 0/2 | Planned | - |
 | 3. Plan Review Loop & Superpowers | 0/TBD | Not started | - |
 | 4. Cost Reporting | 0/TBD | Not started | - |
