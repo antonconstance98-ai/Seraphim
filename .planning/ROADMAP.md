@@ -77,7 +77,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 04-01-PLAN.md — Cost reporter script and SessionStart hook registration (TRCK-03, TRCK-04)
+- [x] 04-01-PLAN.md — Cost reporter script and SessionStart hook registration (TRCK-03, TRCK-04)
 
 ## Progress
 

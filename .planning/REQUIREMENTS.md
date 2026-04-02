@@ -48,8 +48,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **TRCK-01**: Every model call logged with: model name, task type, tokens_in, tokens_out, cost, timestamp
 - [x] **TRCK-02**: Token tracking covers both Claude (from session JSONL) and Codex (from `--json` JSONL output)
-- [ ] **TRCK-03**: Session cost report generated showing actual cost vs estimated Opus-only baseline cost
-- [ ] **TRCK-04**: Cost reports written to `.planning/session-reports/YYYY-MM-DD.md` in human-readable format
+- [x] **TRCK-03**: Session cost report generated showing actual cost vs estimated Opus-only baseline cost
+- [x] **TRCK-04**: Cost reports written to `.planning/session-reports/YYYY-MM-DD.md` in human-readable format
 
 ## v2 Requirements
 
@@ -107,8 +107,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | SPWR-01 | Phase 3 | Complete |
 | SPWR-02 | Phase 3 | Complete |
 | SPWR-03 | Phase 3 | Complete |
-| TRCK-03 | Phase 4 | Pending |
-| TRCK-04 | Phase 4 | Pending |
+| TRCK-03 | Phase 4 | Complete |
+| TRCK-04 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 26 total
