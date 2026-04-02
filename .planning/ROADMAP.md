@@ -29,7 +29,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. PreToolUse hook intercepts clearly-defined implementation and test-generation tasks and routes them to Codex instead of Opus
   4. Claude Code version is verified at 2.0.65+ with `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1` set; no API keys appear in any hook script source
   5. Every Codex call appends a JSONL record to `.planning/token-log.jsonl` with model, task type, tokens in/out, cost, and timestamp — for both CLI and API calls
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+- [x] 01-01-PLAN.md — Security baseline and Codex project brief (AGENTS.md, .claude/settings.json)
+- [x] 01-02-PLAN.md — Codex execution wrapper and token tracking infrastructure
+- [ ] 01-03-PLAN.md — Gap closure: PreToolUse routing hook and hook registration (FNDTN-03, ROUT-03, ROUT-04, TRCK-01, TRCK-02)
 
 ### Phase 2: Review Gate & GSD Integration
 **Goal**: Every Claude session ends with a Codex review, and the GSD workflow has Codex checkpoints at plan-write and wave-boundary events
@@ -71,7 +76,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 1/2 | In Progress|  |
+| 1. Foundation | 2/3 | In Progress |  |
 | 2. Review Gate & GSD Integration | 0/TBD | Not started | - |
 | 3. Plan Review Loop & Superpowers | 0/TBD | Not started | - |
 | 4. Cost Reporting | 0/TBD | Not started | - |
