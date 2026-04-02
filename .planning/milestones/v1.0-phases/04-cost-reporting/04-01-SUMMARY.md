@@ -124,3 +124,11 @@ All requirements from the project are now satisfied:
 ---
 *Phase: 04-cost-reporting*
 *Completed: 2026-04-02*
+
+## Self-Check: PASSED
+
+- FOUND: `/home/alucard/.claude/hooks/codex-cost-reporter.js` (238 lines, syntax valid, all required content present)
+- FOUND: `codex-cost-reporter.js` in `~/.claude/settings.json` SessionStart hooks with timeout:15
+- FOUND: `.planning/phases/04-cost-reporting/04-01-SUMMARY.md`
+- FOUND: commit `04f4eb0` — docs(04-01): complete cost reporting
+- Functional test: 3-record synthetic log produced correct Markdown report with 86.7% savings ($0.1526 saved)
