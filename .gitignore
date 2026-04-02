@@ -1,0 +1,10 @@
+# Token tracking log — contains session-specific data, do not commit
+.planning/token-log.jsonl
+
+# Node modules
+node_modules/
+
+# Environment files — never commit secrets
+.env
+.env.local
+.env.*.local
