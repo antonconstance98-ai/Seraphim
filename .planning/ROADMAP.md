@@ -74,7 +74,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. A session cost report is generated reading `.planning/token-log.jsonl` and shows: actual total cost, estimated Opus-only equivalent cost, and savings amount/percentage
   2. Report is written to `.planning/session-reports/YYYY-MM-DD.md` in human-readable Markdown within seconds of session end
-**Plans**: TBD
+**Plans:** 1 plan
+
+Plans:
+- [ ] 04-01-PLAN.md — Cost reporter script and SessionStart hook registration (TRCK-03, TRCK-04)
 
 ## Progress
 
@@ -86,4 +89,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 1. Foundation | 3/3 | Complete   | 2026-04-02 |
 | 2. Review Gate & GSD Integration | 2/2 | Complete   | 2026-04-02 |
 | 3. Plan Review Loop & Superpowers | 2/2 | Complete   | 2026-04-02 |
-| 4. Cost Reporting | 0/TBD | Not started | - |
+| 4. Cost Reporting | 0/1 | Not started | - |
