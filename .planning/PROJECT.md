@@ -22,10 +22,11 @@ Every task goes to the model that's best at it — Opus for reasoning and archit
 - [x] Opus-Codex plan review loop (2-3 rounds) triggers before every phase plan and every individual task plan — *Validated in Phase 3: Multi-round loop with constructive + adversarial rounds*
 - [x] OpenAI API used only for quick model-to-model communication where CLI overhead is impractical — *Validated in Phase 3: GPT-5.4-mini API for Superpowers parallel dispatch*
 
+- [x] Token tracking generates session reports showing savings vs Opus-only baseline — *Validated in Phase 4: Cost Reporting (86.7% savings in functional test)*
+
 ### Active
 
 - [ ] Opus generates adaptive handoff specs (file-level for complex, feature-level for simple) for Codex execution
-- [ ] Token tracking generates session reports showing savings vs Opus-only baseline
 
 ### Out of Scope
 
@@ -81,4 +82,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after Phase 3 completion*
+*Last updated: 2026-04-02 after Phase 4 completion — all milestone phases complete*
