@@ -88,25 +88,25 @@ Deferred to future release. Tracked but not in current roadmap.
 | FNDTN-03 | Phase 1 | Pending |
 | FNDTN-04 | Phase 1 | Pending |
 | FNDTN-05 | Phase 1 | Pending |
-| REVW-01 | Phase 2 | Pending |
-| REVW-02 | Phase 2 | Pending |
-| REVW-03 | Phase 2 | Pending |
-| REVW-04 | Phase 2 | Pending |
-| REVW-05 | Phase 3 | Pending |
-| REVW-06 | Phase 2 | Pending |
 | ROUT-01 | Phase 1 | Pending |
-| ROUT-02 | Phase 1 | Pending |
 | ROUT-03 | Phase 1 | Pending |
 | ROUT-04 | Phase 1 | Pending |
+| TRCK-01 | Phase 1 | Pending |
+| TRCK-02 | Phase 1 | Pending |
+| REVW-01 | Phase 2 | Pending |
+| REVW-02 | Phase 2 | Pending |
+| ROUT-02 | Phase 2 | Pending |
 | GSD-01 | Phase 2 | Pending |
 | GSD-02 | Phase 2 | Pending |
 | GSD-03 | Phase 2 | Pending |
 | GSD-04 | Phase 2 | Pending |
+| REVW-03 | Phase 3 | Pending |
+| REVW-04 | Phase 3 | Pending |
+| REVW-05 | Phase 3 | Pending |
+| REVW-06 | Phase 3 | Pending |
 | SPWR-01 | Phase 3 | Pending |
 | SPWR-02 | Phase 3 | Pending |
 | SPWR-03 | Phase 3 | Pending |
-| TRCK-01 | Phase 1 | Pending |
-| TRCK-02 | Phase 1 | Pending |
 | TRCK-03 | Phase 4 | Pending |
 | TRCK-04 | Phase 4 | Pending |
 
@@ -117,4 +117,4 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-04-02*
-*Last updated: 2026-04-02 after initial definition*
+*Last updated: 2026-04-02 after roadmap creation*
