@@ -19,10 +19,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **REVW-01**: Stop hook review gate blocks Claude from finishing until Codex reviews the output, with `stop_hook_active` guard preventing infinite loops
 - [x] **REVW-02**: Cross-model code review works bidirectionally — Claude reviews Codex output AND Codex reviews Claude output
-- [ ] **REVW-03**: Opus-Codex plan review loop (2-3 rounds) triggers before every GSD phase plan, with hard 3-round cap
-- [ ] **REVW-04**: Opus-Codex plan review loop (2-3 rounds) triggers before every GSD individual task plan
+- [x] **REVW-03**: Opus-Codex plan review loop (2-3 rounds) triggers before every GSD phase plan, with hard 3-round cap
+- [x] **REVW-04**: Opus-Codex plan review loop (2-3 rounds) triggers before every GSD individual task plan
 - [ ] **REVW-05**: Opus-Codex plan review loop integrates into Superpowers planning/implementation design phases
-- [ ] **REVW-06**: Review loop produces a typed handoff spec with decisions-not-taken section, and Opus has final authority after round 3
+- [x] **REVW-06**: Review loop produces a typed handoff spec with decisions-not-taken section, and Opus has final authority after round 3
 
 ### Routing & Orchestration
 
@@ -100,10 +100,10 @@ Deferred to future release. Tracked but not in current roadmap.
 | GSD-02 | Phase 2 | Complete |
 | GSD-03 | Phase 2 | Complete |
 | GSD-04 | Phase 2 | Complete |
-| REVW-03 | Phase 3 | Pending |
-| REVW-04 | Phase 3 | Pending |
+| REVW-03 | Phase 3 | Complete |
+| REVW-04 | Phase 3 | Complete |
 | REVW-05 | Phase 3 | Pending |
-| REVW-06 | Phase 3 | Pending |
+| REVW-06 | Phase 3 | Complete |
 | SPWR-01 | Phase 3 | Pending |
 | SPWR-02 | Phase 3 | Pending |
 | SPWR-03 | Phase 3 | Pending |
