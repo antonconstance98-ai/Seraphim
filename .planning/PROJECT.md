@@ -15,14 +15,14 @@ Every task goes to the model that's best at it — Opus for reasoning and archit
 - [x] Claude config hooks auto-route simple/defined tasks to Codex CLI — *Validated in Phase 1: Foundation*
 - [x] Built-in token usage tracking logs every model call with tokens used, cost, and task type — *Validated in Phase 1: Foundation*
 - [x] Opus remains the sole model for architectural decisions and complex reasoning tasks — *Validated in Phase 1: Foundation (AGENTS.md hard-stop rule)*
+- [x] GSD plugin modified to use Codex at specific workflow points (post-execution review, background validation, cross-wave integration checking) — *Validated in Phase 2: Review Gate & GSD Integration*
+- [x] Codex CLI preferred over API calls wherever possible (maximizing $20/mo ChatGPT Plus subscription) — *Validated in Phase 2: All hooks use codex-exec.js CLI wrapper*
 
 ### Active
 
-- [ ] GSD plugin modified to use Codex at specific workflow points (post-execution review, background validation, cross-wave integration checking)
 - [ ] Superpowers plugin modified to use Codex for parallel hypothesis testing, parallel code reviews, and parallel verification
 - [ ] Opus-Codex plan review loop (2-3 rounds) triggers before every phase plan and every individual task plan
 - [ ] Opus generates adaptive handoff specs (file-level for complex, feature-level for simple) for Codex execution
-- [ ] Codex CLI preferred over API calls wherever possible (maximizing $20/mo ChatGPT Plus subscription)
 - [ ] OpenAI API used only for quick model-to-model communication where CLI overhead is impractical
 - [ ] Token tracking generates session reports showing savings vs Opus-only baseline
 
@@ -80,4 +80,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after Phase 1 completion*
+*Last updated: 2026-04-02 after Phase 2 completion*
