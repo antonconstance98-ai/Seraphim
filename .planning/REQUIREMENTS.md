@@ -17,8 +17,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Review & Quality
 
-- [ ] **REVW-01**: Stop hook review gate blocks Claude from finishing until Codex reviews the output, with `stop_hook_active` guard preventing infinite loops
-- [ ] **REVW-02**: Cross-model code review works bidirectionally — Claude reviews Codex output AND Codex reviews Claude output
+- [x] **REVW-01**: Stop hook review gate blocks Claude from finishing until Codex reviews the output, with `stop_hook_active` guard preventing infinite loops
+- [x] **REVW-02**: Cross-model code review works bidirectionally — Claude reviews Codex output AND Codex reviews Claude output
 - [ ] **REVW-03**: Opus-Codex plan review loop (2-3 rounds) triggers before every GSD phase plan, with hard 3-round cap
 - [ ] **REVW-04**: Opus-Codex plan review loop (2-3 rounds) triggers before every GSD individual task plan
 - [ ] **REVW-05**: Opus-Codex plan review loop integrates into Superpowers planning/implementation design phases
@@ -27,7 +27,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Routing & Orchestration
 
 - [x] **ROUT-01**: Opus remains sole model for architectural decisions and complex reasoning — enforced by hooks and AGENTS.md, not just convention
-- [ ] **ROUT-02**: Global Claude hooks auto-route Codex-specialized tasks in general workflows (not just GSD/Superpowers)
+- [x] **ROUT-02**: Global Claude hooks auto-route Codex-specialized tasks in general workflows (not just GSD/Superpowers)
 - [x] **ROUT-03**: Fallback routing gracefully degrades to Opus when Codex CLI rate-limits or fails
 - [x] **ROUT-04**: Codex CLI (subscription) preferred over API calls; API used only for quick model-to-model communication
 
@@ -36,7 +36,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **GSD-01**: GSD plugin source modified to dispatch Codex validation at wave boundaries (post-wave-execution)
 - [ ] **GSD-02**: Background Codex validation runs non-blocking during Claude execution, results available at natural stopping points
 - [ ] **GSD-03**: GSD plan-phase workflow triggers the Opus-Codex review loop before plan finalization
-- [ ] **GSD-04**: GSD execute-phase workflow routes clearly-defined implementation tasks to Codex where appropriate
+- [x] **GSD-04**: GSD execute-phase workflow routes clearly-defined implementation tasks to Codex where appropriate
 
 ### Superpowers Integration
 
@@ -93,13 +93,13 @@ Deferred to future release. Tracked but not in current roadmap.
 | ROUT-04 | Phase 1 | Complete |
 | TRCK-01 | Phase 1 | Complete |
 | TRCK-02 | Phase 1 | Complete |
-| REVW-01 | Phase 2 | Pending |
-| REVW-02 | Phase 2 | Pending |
-| ROUT-02 | Phase 2 | Pending |
+| REVW-01 | Phase 2 | Complete |
+| REVW-02 | Phase 2 | Complete |
+| ROUT-02 | Phase 2 | Complete |
 | GSD-01 | Phase 2 | Pending |
 | GSD-02 | Phase 2 | Pending |
 | GSD-03 | Phase 2 | Pending |
-| GSD-04 | Phase 2 | Pending |
+| GSD-04 | Phase 2 | Complete |
 | REVW-03 | Phase 3 | Pending |
 | REVW-04 | Phase 3 | Pending |
 | REVW-05 | Phase 3 | Pending |

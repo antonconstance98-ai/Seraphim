@@ -49,7 +49,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Stop hook review gate, global routing extension, and settings registration (REVW-01, REVW-02, ROUT-02, GSD-04)
+- [x] 02-01-PLAN.md — Stop hook review gate, global routing extension, and settings registration (REVW-01, REVW-02, ROUT-02, GSD-04)
 - [ ] 02-02-PLAN.md — GSD wave-boundary validation hook and plan-phase review script (GSD-01, GSD-02, GSD-03)
 
 ### Phase 3: Plan Review Loop & Superpowers
