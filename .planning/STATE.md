@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Global Metrics Dashboard
-status: defining-requirements
+status: ready-to-plan
 stopped_at: null
-last_updated: "2026-04-02T22:00:00.000Z"
+last_updated: "2026-04-02T22:30:00.000Z"
 last_activity: 2026-04-02
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,45 +21,40 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution — with cross-model review catching what either model misses alone.
-**Current focus:** Defining requirements for v1.1
+**Current focus:** Phase 5 — Data Pipeline
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-02 — Milestone v1.1 started
+Phase: 5 of 7 (Data Pipeline)
+Plan: 0 of ? in current phase
+Status: Ready to plan
+Last activity: 2026-04-02 — v1.1 roadmap created (Phases 5-7, 21 requirements mapped)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [████░░░░░░] 40% (v1.0 complete, 4/7 phases done)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 8 (all v1.0)
+- Average duration: ~5 min/plan (estimated from v1.0 data)
+- Total execution time: ~40 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 1. Foundation | 3 | ~10 min | ~3 min |
+| 2. Review Gate & GSD | 2 | ~18 min | ~9 min |
+| 3. Plan Review Loop | 2 | ~8 min | ~4 min |
+| 4. Cost Reporting | 1 | ~3 min | 3 min |
 
 **Recent Trend:**
 
-- Last 5 plans: -
-- Trend: -
+- Last 5 plans: 3, 6, 4, 4, 3 min
+- Trend: Stable
 
 *Updated after each plan completion*
-| Phase 01-foundation P01 | 2min | 2 tasks | 2 files |
-| Phase 01-foundation P02 | 5 | 2 tasks | 4 files |
-| Phase 01-foundation P03 | 3 | 2 tasks | 2 files |
-| Phase 02-review-gate-gsd-integration P01 | 12 | 2 tasks | 3 files |
-| Phase 02-review-gate-gsd-integration P02 | 6 | 2 tasks | 4 files |
-| Phase 03-plan-review-loop-superpowers P01 | 4 | 2 tasks | 3 files |
-| Phase 03-plan-review-loop-superpowers P02 | 4 | 2 tasks | 4 files |
-| Phase 04-cost-reporting P01 | 3 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -68,30 +63,12 @@ Progress: [░░░░░░░░░░] 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Init: Research confirmed token tracking and security must precede any routing logic — Phase 1 covers both before Phase 2 activates any hooks
-- Init: Codex-Spark is Pro-only; all routing rules use `gpt-5.4-mini` via API instead (noted in REQUIREMENTS.md and research SUMMARY.md)
-- Init: Research flags Phase 2 (GSD wave state schema) and Phase 4 (Superpowers skill symlink path) as needing `/gsd:research-phase` before planning
-- [Phase 01-foundation]: D-07 opt-in routing: routing_enabled=false by default; user enables per project
-- [Phase 01-foundation]: ROUT-03 fail-closed: fallback_on_error=prompt_user, not silent auto-route to Opus
-- [Phase 01-foundation]: Hard-stop phrase exact wording for architectural decisions enables automated detection in hook scripts
-- [Phase 01-foundation]: spawn over exec: streams JSONL output instead of buffering; prevents memory issues on long Codex runs
-- [Phase 01-foundation]: Last token_count event: parseCodexTokens takes final event with non-null info (cumulative total — Pitfall 3 mitigation)
-- [Phase 01-foundation]: CODEX_RESULT marker pattern: token logger detects Codex calls via tool_result prefix rather than tool_name
-- [Phase 01-foundation]: Advisory-only routing in Phase 1: codex-router.js injects context, Opus decides whether to delegate — universal auto-routing via keyword analysis deferred (fragile)
-- [Phase 01-foundation]: Router does not invoke codex-exec.js directly: hook advises only, Opus calls runCodexExec when it decides to delegate — cleaner separation of concerns
-- [Phase 02-review-gate-gsd-integration]: Fail-open on all errors: process.exit(0) in Stop hook outer catch — never block user when Codex is unavailable
-- [Phase 02-review-gate-gsd-integration]: Phase 2 routing is opt-out not opt-in: fires for all projects unless routing_disabled=true; backward compat for routing_enabled=false
-- [Phase 02-review-gate-gsd-integration]: Stop hook 300s timeout: Codex review takes 30-120s; 120s runCodexExec timeout within 300s hook timeout leaves overhead buffer
-- [Phase 02-review-gate-gsd-integration]: temp file for prompt: wave validator writes prompt to .planning/wave-N-prompt.tmp before spawning worker, avoids shell-escaping multi-line prompts as argv
-- [Phase 02-review-gate-gsd-integration]: fail-open in SubagentStop: plan reviewer exits 0 with advisory context on Codex failure — prevents permanent planner paralysis when Codex is unavailable
-- [Phase 03-plan-review-loop-superpowers]: Two distinct Codex prompts: constructive (find issues) vs adversarial (poke holes) — prevents Round 2 being redundant
-- [Phase 03-plan-review-loop-superpowers]: State written BEFORE each Codex call (advanceRound) to prevent re-entry on crash/restart — Pitfall 1 mitigation
-- [Phase 03-plan-review-loop-superpowers]: reviewsPath null from runMultiRoundReview — caller writes REVIEWS.md, maintaining single responsibility for Superpowers reuse
-- [Phase 03-plan-review-loop-superpowers]: GPT-5.4-mini model ID verified via models.list() API — exact string 'gpt-5.4-mini' confirmed as of 2026-04-02
-- [Phase 03-plan-review-loop-superpowers]: Lazy require fallback for openai package: try standard require, fall back to absolute global path since NODE_PATH not set in hook runtime
-- [Phase 03-plan-review-loop-superpowers]: SKILL.md override at ~/.claude/skills/ (not ~/.agents/skills/) — correct Claude Code skill loading path that survives plugin updates
-- [Phase 04-cost-reporting]: OPUS_PRICING inline in cost reporter rather than extending computeCost PRICING table — keeps codex-exec.js Codex-only, avoids cross-model pricing confusion
-- [Phase 04-cost-reporting]: Cumulative report (all token-log records) rather than per-session delta — simpler, always accurate, overwrites with latest cumulative on repeated runs same day
+- [v1.1 Roadmap]: INTG-02 (SessionStart hook wiring) goes in Phase 7 — register hook only after standalone generator verified correct in Phase 6
+- [v1.1 Roadmap]: Phase 5 must include centralized `pricing.js` module before dashboard consumes pricing (prevents silent $0 inflation of savings %)
+- [v1.1 Research]: `fs.glob()` on Node.js v22 returns AsyncIterator — must use `for await...of`, NOT `.then()`
+- [v1.1 Research]: 25% of live records have `session_id: null` (codex-multi-round-reviewer.js) — treat as "Unattributed", never drop
+- [v1.1 Research]: All dashboard writes must use write-to-temp-then-renameSync (atomic on Linux) — prevents concurrent session corruption
+- [Phase 04-cost-reporting]: OPUS_PRICING inline in cost reporter — keeps codex-exec.js Codex-only, avoids cross-model pricing confusion
 
 ### Pending Todos
 
@@ -99,11 +76,11 @@ None yet.
 
 ### Blockers/Concerns
 
-- Phase 2: GSD wave state schema field names in `.planning/STATE.md` not verified from source — confirm before writing wave-boundary hook
-- Phase 3: Superpowers `~/.agents/skills/` symlink and Codex CLI skill loading path must be verified with Codex CLI 0.118.0 before modifying skill files
+- [Phase 5]: Decide whether to fix `session_id` propagation in `codex-multi-round-reviewer.js` (pass from callers) or use "Unattributed" label — both acceptable; affects Phase 5 scope
+- [Phase 6]: Validate Chart.js `<canvas>` renders from `file://` during Phase 6 verification; SVG fallback path exists if canvas is blocked by browser security
 
 ## Session Continuity
 
-Last session: 2026-04-02T21:29:54.317Z
-Stopped at: Completed 04-01-PLAN.md (Cost reporting — codex-cost-reporter.js SessionStart hook with Opus baseline savings)
+Last session: 2026-04-02
+Stopped at: v1.1 roadmap created — ready to plan Phase 5 (Data Pipeline)
 Resume file: None

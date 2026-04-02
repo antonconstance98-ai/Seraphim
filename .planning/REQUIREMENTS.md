@@ -70,33 +70,33 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PIPE-01 | Pending | Pending |
-| PIPE-02 | Pending | Pending |
-| PIPE-03 | Pending | Pending |
-| PIPE-04 | Pending | Pending |
-| DASH-01 | Pending | Pending |
-| DASH-02 | Pending | Pending |
-| DASH-03 | Pending | Pending |
-| DASH-04 | Pending | Pending |
-| DASH-05 | Pending | Pending |
-| DASH-06 | Pending | Pending |
-| DASH-07 | Pending | Pending |
-| CHART-01 | Pending | Pending |
-| CHART-02 | Pending | Pending |
-| CHART-03 | Pending | Pending |
-| SESS-01 | Pending | Pending |
-| SESS-02 | Pending | Pending |
-| INTG-01 | Pending | Pending |
-| INTG-02 | Pending | Pending |
-| INTG-03 | Pending | Pending |
-| INTG-04 | Pending | Pending |
-| INTG-05 | Pending | Pending |
+| PIPE-01 | Phase 5 | Pending |
+| PIPE-02 | Phase 5 | Pending |
+| PIPE-03 | Phase 5 | Pending |
+| PIPE-04 | Phase 5 | Pending |
+| DASH-01 | Phase 6 | Pending |
+| DASH-02 | Phase 6 | Pending |
+| DASH-03 | Phase 6 | Pending |
+| DASH-04 | Phase 6 | Pending |
+| DASH-05 | Phase 6 | Pending |
+| DASH-06 | Phase 6 | Pending |
+| DASH-07 | Phase 6 | Pending |
+| SESS-01 | Phase 6 | Pending |
+| SESS-02 | Phase 6 | Pending |
+| INTG-01 | Phase 6 | Pending |
+| INTG-03 | Phase 6 | Pending |
+| INTG-04 | Phase 6 | Pending |
+| INTG-05 | Phase 6 | Pending |
+| CHART-01 | Phase 7 | Pending |
+| CHART-02 | Phase 7 | Pending |
+| CHART-03 | Phase 7 | Pending |
+| INTG-02 | Phase 7 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 21 total
-- Mapped to phases: 0
-- Unmapped: 21
+- Mapped to phases: 21
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-02*
-*Last updated: 2026-04-02 after initial definition*
+*Last updated: 2026-04-02 after roadmap creation — all 21 requirements mapped*
