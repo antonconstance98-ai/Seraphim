@@ -18,12 +18,13 @@ Every task goes to the model that's best at it — Opus for reasoning and archit
 - [x] GSD plugin modified to use Codex at specific workflow points (post-execution review, background validation, cross-wave integration checking) — *Validated in Phase 2: Review Gate & GSD Integration*
 - [x] Codex CLI preferred over API calls wherever possible (maximizing $20/mo ChatGPT Plus subscription) — *Validated in Phase 2: All hooks use codex-exec.js CLI wrapper*
 
+- [x] Superpowers plugin modified to use Codex for parallel hypothesis testing, parallel code reviews, and parallel verification — *Validated in Phase 3: Plan Review Loop & Superpowers*
+- [x] Opus-Codex plan review loop (2-3 rounds) triggers before every phase plan and every individual task plan — *Validated in Phase 3: Multi-round loop with constructive + adversarial rounds*
+- [x] OpenAI API used only for quick model-to-model communication where CLI overhead is impractical — *Validated in Phase 3: GPT-5.4-mini API for Superpowers parallel dispatch*
+
 ### Active
 
-- [ ] Superpowers plugin modified to use Codex for parallel hypothesis testing, parallel code reviews, and parallel verification
-- [ ] Opus-Codex plan review loop (2-3 rounds) triggers before every phase plan and every individual task plan
 - [ ] Opus generates adaptive handoff specs (file-level for complex, feature-level for simple) for Codex execution
-- [ ] OpenAI API used only for quick model-to-model communication where CLI overhead is impractical
 - [ ] Token tracking generates session reports showing savings vs Opus-only baseline
 
 ### Out of Scope
@@ -80,4 +81,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after Phase 2 completion*
+*Last updated: 2026-04-02 after Phase 3 completion*
