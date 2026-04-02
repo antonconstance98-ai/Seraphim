@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: verifying
-stopped_at: Completed 04-01-PLAN.md (Cost reporting — codex-cost-reporter.js SessionStart hook with Opus baseline savings)
-last_updated: "2026-04-02T21:56:36.072Z"
+milestone: v1.1
+milestone_name: Global Metrics Dashboard
+status: defining-requirements
+stopped_at: null
+last_updated: "2026-04-02T22:00:00.000Z"
 last_activity: 2026-04-02
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 8
-  completed_plans: 8
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution — with cross-model review catching what either model misses alone.
-**Current focus:** Phase 04 — cost-reporting
+**Current focus:** Defining requirements for v1.1
 
 ## Current Position
 
-Phase: 04
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-04-02
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-02 — Milestone v1.1 started
 
 Progress: [░░░░░░░░░░] 0%
 

@@ -8,6 +8,18 @@ A multi-model integration that wires OpenAI Codex (GPT-5.4) into an existing Cla
 
 Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution — with cross-model review catching what either model misses alone.
 
+## Current Milestone: v1.1 Global Metrics Dashboard
+
+**Goal:** A single HTML dashboard at `~/.claude/dashboard/` showing Codex usage, costs, savings, and review activity across every project on this machine — auto-updated on every session start.
+
+**Target features:**
+- Global token log aggregator scanning all projects for `token-log.jsonl` files
+- Per-project metrics breakdown (costs, savings, tokens, models, review catch rates)
+- Time trend charts showing costs and savings over time (daily/weekly)
+- Session history listing recent sessions per project with individual stats
+- Self-contained HTML dashboard (inline CSS/JS, no server needed)
+- SessionStart hook integration to auto-regenerate the dashboard
+
 ## Current State
 
 **v1.0 shipped 2026-04-02.** All 4 phases complete (8 plans, 14 tasks, 8,694 lines added).
@@ -39,6 +51,12 @@ Hook scripts installed at `~/.claude/hooks/`:
 
 ### Active
 
+- [ ] Global token log aggregator scans all projects for token-log.jsonl files
+- [ ] Per-project metrics breakdown (costs, savings, tokens, models, review catch rates)
+- [ ] Time trend charts showing costs and savings over time (daily/weekly)
+- [ ] Session history listing recent sessions per project with individual stats
+- [ ] Self-contained HTML dashboard at ~/.claude/dashboard/ (inline CSS/JS, no server)
+- [ ] SessionStart hook auto-regenerates the dashboard on every session
 - [ ] Opus generates adaptive handoff specs (file-level for complex, feature-level for simple) for Codex execution
 
 ### Out of Scope
@@ -96,4 +114,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after v1.0 milestone completion*
+*Last updated: 2026-04-02 after v1.1 milestone start*
