@@ -10,7 +10,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Foundation
 
 - [x] **FNDTN-01**: AGENTS.md spec file exists at repo root, giving Codex project context, conventions, and the hard rule that Codex never makes architectural decisions
-- [ ] **FNDTN-02**: Codex CLI can be invoked from Claude Code hooks via `codex exec --json` with timeout wrapper (300s max)
+- [x] **FNDTN-02**: Codex CLI can be invoked from Claude Code hooks via `codex exec --json` with timeout wrapper (300s max)
 - [ ] **FNDTN-03**: PreToolUse hook intercepts Claude tool calls and routes Codex-appropriate tasks (clearly-defined implementation, test generation, bulk operations) to Codex CLI
 - [x] **FNDTN-04**: Claude Code security is verified (version 2.0.65+ for CVE patches, API keys in env vars only)
 - [x] **FNDTN-05**: Headless Codex CLI authentication works via API key (not ChatGPT web login) for hook-triggered invocations
@@ -46,8 +46,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Tracking & Reporting
 
-- [ ] **TRCK-01**: Every model call logged with: model name, task type, tokens_in, tokens_out, cost, timestamp
-- [ ] **TRCK-02**: Token tracking covers both Claude (from session JSONL) and Codex (from `--json` JSONL output)
+- [x] **TRCK-01**: Every model call logged with: model name, task type, tokens_in, tokens_out, cost, timestamp
+- [x] **TRCK-02**: Token tracking covers both Claude (from session JSONL) and Codex (from `--json` JSONL output)
 - [ ] **TRCK-03**: Session cost report generated showing actual cost vs estimated Opus-only baseline cost
 - [ ] **TRCK-04**: Cost reports written to `.planning/session-reports/YYYY-MM-DD.md` in human-readable format
 
@@ -84,15 +84,15 @@ Deferred to future release. Tracked but not in current roadmap.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | FNDTN-01 | Phase 1 | Complete |
-| FNDTN-02 | Phase 1 | Pending |
+| FNDTN-02 | Phase 1 | Complete |
 | FNDTN-03 | Phase 1 | Pending |
 | FNDTN-04 | Phase 1 | Complete |
 | FNDTN-05 | Phase 1 | Complete |
 | ROUT-01 | Phase 1 | Complete |
 | ROUT-03 | Phase 1 | Pending |
 | ROUT-04 | Phase 1 | Pending |
-| TRCK-01 | Phase 1 | Pending |
-| TRCK-02 | Phase 1 | Pending |
+| TRCK-01 | Phase 1 | Complete |
+| TRCK-02 | Phase 1 | Complete |
 | REVW-01 | Phase 2 | Pending |
 | REVW-02 | Phase 2 | Pending |
 | ROUT-02 | Phase 2 | Pending |

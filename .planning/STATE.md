@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-01-PLAN.md (awaiting Task 3 human-action checkpoint)
-last_updated: "2026-04-02T17:29:24.339Z"
+status: verifying
+stopped_at: Completed 01-02-PLAN.md (execution wrapper and token tracking)
+last_updated: "2026-04-02T17:50:37.603Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 
 Phase: 01 (foundation) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-02
 
 Progress: [░░░░░░░░░░] 0%
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 2min | 2 tasks | 2 files |
+| Phase 01-foundation P02 | 5 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: D-07 opt-in routing: routing_enabled=false by default; user enables per project
 - [Phase 01-foundation]: ROUT-03 fail-closed: fallback_on_error=prompt_user, not silent auto-route to Opus
 - [Phase 01-foundation]: Hard-stop phrase exact wording for architectural decisions enables automated detection in hook scripts
+- [Phase 01-foundation]: spawn over exec: streams JSONL output instead of buffering; prevents memory issues on long Codex runs
+- [Phase 01-foundation]: Last token_count event: parseCodexTokens takes final event with non-null info (cumulative total — Pitfall 3 mitigation)
+- [Phase 01-foundation]: CODEX_RESULT marker pattern: token logger detects Codex calls via tool_result prefix rather than tool_name
 
 ### Pending Todos
 
@@ -79,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T17:29:24.337Z
-Stopped at: Completed 01-01-PLAN.md (awaiting Task 3 human-action checkpoint)
+Last session: 2026-04-02T17:50:37.601Z
+Stopped at: Completed 01-02-PLAN.md (execution wrapper and token tracking)
 Resume file: None
