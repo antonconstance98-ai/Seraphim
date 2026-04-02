@@ -425,4 +425,213 @@ These are facts (not opinions) that the roadmap must treat as fixed:
 
 ---
 
-*Research based on GitHub issues (openai/codex, anthropics/claude-code, gsd-build/get-shit-done), CVE disclosures (CVE-2025-59536, CVE-2026-21852), OpenAI Developer Community reports, Check Point Research, and multi-source web verification. All pitfalls confirmed by at least two independent sources.*
+## v1.1 Addendum: Global Metrics Dashboard Pitfalls
+
+*Added: 2026-04-02. These pitfalls are specific to adding global JSONL aggregation and HTML dashboard generation to the existing hook-based system. All findings verified by live codebase inspection and timed experiments on this machine.*
+
+---
+
+### v1.1 Pitfall A: SessionStart Hook Blocking on Unbounded Filesystem Scan
+
+**What goes wrong:**
+A global aggregator placed inside the `SessionStart` hook performs a recursive filesystem scan before returning. The user's session does not open until the hook completes. A scan of `~/` without depth limits hits `node_modules`, `.git`, and cloud-sync directories. Timed experiment: scanning `~/` recursively via `find` takes 462 ms (projects only) but scales non-linearly with nested node_modules. The existing `codex-cost-reporter.js` has a hard 15 s timeout — an unbounded scan can exhaust that timeout with no user-visible error, just a delayed session start.
+
+**Why it happens:**
+The existing per-project pattern touches one fixed path (`{cwd}/.planning/token-log.jsonl`). A global aggregator has no fixed path — it must discover files. Developers copy the existing simple pattern without accounting for the unbounded I/O of the new pattern.
+
+**How to avoid:**
+Hard-code the scan to specific base directories (e.g., `~/projects`, `~/gsd-workspaces`) rather than scanning from `~/`. Exclude `node_modules`, `.git`, `.npm`, `.cache` at the first `readdirSync` level before descending. Use `maxDepth = 2` — `token-log.jsonl` is always exactly two levels deep under a project root (`.planning/token-log.jsonl`). Set an explicit `timeout: 30` on the hook in `settings.json`.
+
+**Warning signs:**
+- Session open noticeably delayed (> 1–2 s) when starting Claude Code.
+- Hook timeout errors in stderr logs.
+- CPU spike visible during session open.
+
+**Phase to address:** Phase 1 (Aggregator) — bake in scan bounds before writing any aggregation logic.
+
+---
+
+### v1.1 Pitfall B: Concurrent Dashboard HTML Write Corruption
+
+**What goes wrong:**
+Two Claude Code sessions opening simultaneously (one per project) both trigger `SessionStart` hooks. Both hooks try to `writeFileSync` to the same shared file (`~/.claude/dashboard/index.html`). Unlike `appendFileSync` (which is atomic via `O_APPEND` for records under 4,096 bytes), `writeFileSync` does a truncate + write sequence — not atomic. The second writer truncates the file before the first writer finishes, producing an empty or corrupt dashboard.
+
+**Why it happens:**
+All existing per-project log writes go to per-project paths — no shared output file exists in v1.0. The dashboard is the first shared output file in the system, introducing the first write-write conflict. The pattern used everywhere else (appendFileSync for JSONL) is safe, but writeFileSync for the dashboard is not.
+
+**How to avoid:**
+Write-then-rename pattern: write to a temp file named `index.html.tmp.{pid}`, then `fs.renameSync()` it into place. On Linux, `rename(2)` is atomic for same-filesystem moves. This guarantees the dashboard is always either the old version or the new version, never a torn write.
+
+```javascript
+const tmpPath = dashboardPath + '.tmp.' + process.pid;
+fs.writeFileSync(tmpPath, htmlContent, 'utf8');
+fs.renameSync(tmpPath, dashboardPath);
+```
+
+**Warning signs:**
+- Dashboard opens as a blank page after a session where two projects were started simultaneously.
+- `index.html` file size is suspiciously small (a few bytes).
+
+**Phase to address:** Phase 2 (Dashboard HTML Generator) — implement write-then-rename from day one; do not retrofit.
+
+---
+
+### v1.1 Pitfall C: Session History Is Incomplete Due to Null session_id in Existing Log Records
+
+**What goes wrong:**
+The v1.1 requirement calls for "session history listing recent sessions per project." However, 25% of existing `token-log.jsonl` records have `session_id: null` — specifically, all records emitted by `codex-multi-round-reviewer.js`, which is called as a library by `codex-plan-reviewer.js` and `codex-superpowers-plan-reviewer.js`. These hooks do not pass `session_id` through to the shared library. A session grouping that naively groups by `session_id` silently drops 25% of records, making session costs appear 25% lower than reality.
+
+**Confirmed from live data:** 3 of 12 records in the current `token-log.jsonl` have `session_id: null`, all from multi-round plan reviews — exactly the most expensive call type.
+
+**How to avoid:**
+Option 1 (fix the root cause): pass `session_id` from `codex-plan-reviewer.js` and `codex-superpowers-plan-reviewer.js` into `codex-multi-round-reviewer.js` as a parameter. Small, targeted change to two existing hook files.
+
+Option 2 (accept and document): treat records with `session_id: null` as "unattributed" and show them in a separate "Unattributed Calls" row in session history, clearly labelled. Do not silently drop them.
+
+Option 1 is preferred; Option 2 is acceptable only if Option 1 is deferred to a later phase.
+
+**Warning signs:**
+- Session cost totals in the dashboard do not match the JSONL file total.
+- Multi-round plan review events are absent from session history even though they appear in per-project breakdowns.
+
+**Phase to address:** Phase 1 (Aggregator) — decide between options before designing session grouping logic.
+
+---
+
+### v1.1 Pitfall D: Inlining a Full Chart Library Makes the Dashboard Unmanageable
+
+**What goes wrong:**
+A self-contained dashboard that inlines Chart.js 4.5.1 adds 204 KB of JavaScript to every regeneration (verified: `chart.umd.min.js` is 204 KB). With 1,000 log records the total HTML file is ~240 KB. At 10,000 records (realistic at 6 months of daily use) it is ~2.6 MB. This means: every session start writes 2.6 MB to disk, the browser takes noticeable time to parse the file, and the HTML generator must re-embed the full library on every run. Additionally, Chart.js requires a `<canvas>` element and may silently fail to render when opened via `file://` in some browser security configurations.
+
+**How to avoid:**
+Option 1 (recommended): SVG path charts with vanilla JS — no library. D3-style line charts are 50–100 lines of SVG path math. Zero dependencies, zero bundle size, no canvas issues, works from `file://` universally.
+
+Option 2: Sidecar library — write `chart.umd.min.js` once to `~/.claude/dashboard/lib/chart.umd.min.js` and reference it with a relative `<script src="./lib/chart.umd.min.js">`. Only regenerate the data HTML. The 204 KB file is written once, not on every session.
+
+Option 3: uplot — if a real canvas chart library is needed, uplot minified (`uPlot.iife.min.js`) is 50 KB vs Chart.js at 204 KB.
+
+Do not use CDN URLs — the dashboard must work offline in a terminal environment.
+
+**Warning signs:**
+- `index.html` exceeds 500 KB after a few hundred records.
+- Charts show nothing with no error when opened from `file://`.
+- Dashboard takes > 2 s to open in a browser.
+
+**Phase to address:** Phase 2 (Dashboard HTML Generator) — choose chart approach before writing any template code.
+
+---
+
+### v1.1 Pitfall E: Re-Parsing All Records on Every Session Start (No Incremental State)
+
+**What goes wrong:**
+The current `codex-cost-reporter.js` reads the entire `token-log.jsonl` from scratch on every `SessionStart`. For 11 records this takes < 1 ms. For a global aggregator across all projects at 10,000 total records (timed: 18 ms), it is still fast. At 100,000 records (realistic at 12–18 months of active use), parsing the full dataset every session start approaches 200 ms and adds up over a day of frequent session opens. More importantly, past records are immutable — re-parsing them produces the same result every time.
+
+**How to avoid:**
+Store a summary cache file at `~/.claude/dashboard/cache.json` containing pre-aggregated totals and the `mtime` + byte size of each log file at last read. On each run, `fs.statSync` each log file. If `mtime` and `size` match the cache, skip re-parsing — use cached totals directly. If changed, seek to the last known byte offset and parse only new lines. This bounds incremental work to records written since the last session.
+
+```javascript
+// Pseudocode for incremental read
+const stat = fs.statSync(logPath);
+if (cached[logPath] && cached[logPath].mtime === stat.mtimeMs && cached[logPath].size === stat.size) {
+  return cached[logPath].totals; // nothing new
+}
+// else: read from cached[logPath].lastOffset onward
+```
+
+**Warning signs:**
+- Session start time grows linearly with total record count across all projects.
+- Profiling shows > 50 ms in the `SessionStart` hook after months of use.
+
+**Phase to address:** Phase 1 (Aggregator) — design incremental logic in from the start; it is much harder to retrofit.
+
+---
+
+### v1.1 Pitfall F: Hardcoded Pricing Constants Silently Produce Wrong Savings Figures
+
+**What goes wrong:**
+`codex-cost-reporter.js` hardcodes `OPUS_PRICING` and GPT model pricing as of 2026-04-02. The global dashboard will either duplicate these constants or import them from `codex-exec.js`. When OpenAI or Anthropic changes pricing (they do, without notice), the "savings" percentage becomes misleading. The specific failure mode to watch for: if a new model name (e.g., `gpt-5.5`) appears in the log and the pricing table has no entry, `computeCost()` in the existing code returns `0` silently — making all calls from that model appear free, inflating the savings figure to 100%.
+
+**How to avoid:**
+Centralise all pricing in a single shared module (`~/.claude/hooks/pricing.js` or `~/.claude/dashboard/pricing.json`) — the only source of truth for all hooks and the dashboard generator. Add a guard: if a model name is not in the pricing table, write a warning to stderr and record cost as `null` (not `0`). Surface `"pricing unknown for model X"` in the dashboard rather than a misleadingly low cost. Add a `priceDate` field so the dashboard can show "Prices as of YYYY-MM-DD."
+
+**Warning signs:**
+- A new model name appears in logs but all its cost fields show `$0.0000`.
+- Savings percentage is 100% with no explanation.
+- The dashboard total cost does not match the OpenAI billing page.
+
+**Phase to address:** Phase 1 (Aggregator) — centralise pricing before the dashboard uses it.
+
+---
+
+### v1.1 Pitfall G: Dashboard Regenerated Even When No New Data Exists
+
+**What goes wrong:**
+On every `SessionStart`, the hook regenerates the full dashboard even when no new records exist. For a 2.6 MB file, this means a 2.6 MB disk write, HTML generation time, and a session-open delay — all for a dashboard that is byte-for-byte identical to what was already there. The existing `codex-cost-reporter.js` has the same flaw but at 4 KB per Markdown report it is negligible; at dashboard scale it is not.
+
+**How to avoid:**
+Write a sentinel file at `~/.claude/dashboard/last-generated.json` containing the `mtime` of every log file scanned when the dashboard was last built. On `SessionStart`, compare current `mtime` values against the sentinel. If all match, exit in < 1 ms — skip regeneration entirely. Only regenerate (and only print the `additionalContext` message) when new records exist.
+
+**Warning signs:**
+- `index.html` has an updated `mtime` on sessions where no Codex calls were made.
+- `SessionStart` hook always takes 15–30 ms even in projects with no recent activity.
+
+**Phase to address:** Phase 2 (Dashboard HTML Generator) — add sentinel check before finalising `SessionStart` integration.
+
+---
+
+### v1.1 Technical Debt Patterns (Dashboard-Specific)
+
+| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
+|----------|-------------------|----------------|-----------------|
+| Copy pricing constants into dashboard generator instead of importing from shared module | Faster to write | Two sources of truth drift when prices change; bugs are invisible | Never — centralise pricing in Phase 1 |
+| Read all JSONL records on every session start | No state management complexity | Session open slows at scale; 100K records reaches 200 ms+ | MVP only, with Phase 1 ticket to add incremental reads |
+| Inline Chart.js 204 KB into every HTML regeneration | Truly self-contained single file | 2–3x larger file writes every session; canvas issues on `file://` | Never — use SVG or sidecar file |
+| Skip write-then-rename for dashboard HTML | One fewer line of code | Concurrent session starts produce corrupt/empty dashboard | Never — rename is atomic and costs one line |
+| Scan from `~/` without depth limit or directory exclusions | Finds all token logs regardless of location | Hits node_modules and .git; scan time spikes unpredictably | Never — always configure explicit base directories |
+| Treat `session_id: null` records as belonging to the previous session | Avoids a schema fix | Session cost totals are wrong; catch rate per session is wrong | Never — label as unattributed or fix the schema |
+
+---
+
+### v1.1 Integration Gotchas (Dashboard-Specific)
+
+| Integration | Common Mistake | Correct Approach |
+|-------------|----------------|------------------|
+| `codex-multi-round-reviewer.js` | Called as a library, so it never receives `session_id` from Claude Code's hook stdin | Pass `session_id` as a parameter from the calling hook scripts; emit it to every log record |
+| Multiple `SessionStart` hooks | Assuming the new dashboard hook and `codex-cost-reporter.js` share state or run sequentially | They run in separate Node.js processes with no shared memory; each reads its own stdin |
+| `fs.writeFileSync` for dashboard HTML | Assuming it is atomic | It is not — use write-then-`renameSync` for any shared output file |
+| Hook timeout configuration | Assuming unset `timeout` is generous | Dashboard hook should set explicit `timeout: 30` in `settings.json` |
+| `data.cwd` for project root resolution | Assuming `data.cwd` is always the project root | `data.cwd` is where Claude Code was launched; resolve against git root or a canonical anchor |
+| Chart rendering from `file://` | Using Chart.js `<canvas>` with CDN fallback | `file://` may block canvas in some browser security modes; SVG avoids this entirely |
+
+---
+
+### v1.1 "Looks Done But Isn't" Checklist
+
+- [ ] **Global scan coverage:** Verify the scan base dir list includes `~/gsd-workspaces/` and all other non-`~/projects/` locations — not just `~/projects/`.
+- [ ] **Session grouping:** Verify that records with `session_id: null` appear as "unattributed" (not silently missing) in session history totals.
+- [ ] **Concurrent write safety:** Verify `index.html` is written via write-then-rename, not direct `writeFileSync`.
+- [ ] **Stale dashboard guard:** Verify the hook exits in < 1 ms when no token logs have changed since the last build.
+- [ ] **Unknown model pricing:** Verify that an unknown model name in the log produces a visible warning in the dashboard, not a `$0.0000` cost.
+- [ ] **HTML special character safety:** Verify that project paths with `<`, `>`, `&`, or `"` do not corrupt the HTML output.
+- [ ] **Chart rendering from `file://`:** Verify charts render correctly when the file is opened with `file://` URL, not a dev server.
+- [ ] **Timeout guard:** Verify the hook exits cleanly within its configured timeout even when some token logs are corrupt.
+- [ ] **Scan exclusions:** Verify opening Claude Code in a project with large `node_modules/` does not cause scan time > 100 ms.
+- [ ] **Incremental reads:** Verify a second consecutive session start with no new log entries completes the aggregator in < 5 ms.
+
+---
+
+### v1.1 Pitfall-to-Phase Mapping
+
+| Pitfall | Prevention Phase | Verification |
+|---------|------------------|--------------|
+| Unbounded SessionStart scan (Pitfall A) | Phase 1: Aggregator — configure scan bounds first | Time the hook in isolation: must complete in < 100 ms with 20 projects |
+| Concurrent dashboard write corruption (Pitfall B) | Phase 2: Dashboard HTML Generator — write-then-rename from day one | Start two Claude Code sessions simultaneously; verify dashboard is not corrupt |
+| Null session_id in log records (Pitfall C) | Phase 1: Aggregator — fix or document schema gap | Count null `session_id` records; verify they appear as "unattributed" not missing |
+| Chart library bloat (Pitfall D) | Phase 2: Dashboard HTML Generator — choose SVG or sidecar | Verify `index.html` < 500 KB for a 1,000-record dataset |
+| Full re-parse on every session (Pitfall E) | Phase 1: Aggregator — implement mtime-gated incremental reads | Verify second consecutive session start completes in < 5 ms |
+| Hardcoded pricing drift (Pitfall F) | Phase 1: Aggregator — centralise pricing in shared config | Verify unknown model name produces visible warning, not $0 |
+| Regeneration when no new data (Pitfall G) | Phase 2: Dashboard HTML Generator — add sentinel file check | Verify `index.html` mtime does not update on sessions with no new Codex calls |
+
+---
+
+*Research basis for v1.1 addendum: live codebase inspection (`codex-cost-reporter.js`, `codex-token-logger.js`, `codex-review-gate.js`, `codex-multi-round-reviewer.js`), live JSONL schema analysis (25% null session_id confirmed), timed filesystem experiments (scan, parse, HTML generation), chart library bundle inspection (Chart.js 204 KB, uplot 50 KB verified by extracting npm tarballs). All experiments run on this machine, 2026-04-02.*

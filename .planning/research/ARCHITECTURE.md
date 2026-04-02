@@ -1,451 +1,510 @@
-# Architecture Patterns: Multi-Model Claude Code Integration
+# Architecture Research: v1.1 Global Metrics Dashboard Integration
 
-**Domain:** Claude Code plugin modification — multi-model orchestration (Opus + Codex)
+**Domain:** Global aggregation layer over per-project hook-generated JSONL data, with HTML dashboard output
 **Researched:** 2026-04-02
-**Sources:** Live codebase inspection (GSD plugin, Superpowers plugin, Codex plugin), official Claude Code hooks documentation, existing model comparison research
+**Confidence:** HIGH — based on live codebase inspection, not assumptions
 
 ---
 
-## Recommended Architecture
+## System Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    CLAUDE CODE SESSION                          │
-│                 (Opus 4.6 — primary context)                    │
-│                                                                 │
-│  settings.json hooks                                            │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ PreToolUse  ─► guard scripts (block/allow/modify)       │   │
-│  │ PostToolUse ─► context-monitor.js (inject warnings)     │   │
-│  │ Stop        ─► stop-review-gate-hook.mjs (BLOCK/ALLOW)  │   │
-│  │ SessionStart ─► gsd-check-update.js                     │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  GSD Plugin (.planning/ filesystem state)                       │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ Orchestrator (Opus) reads STATE.md / ROADMAP.md         │   │
-│  │ Spawns: Task(subagent_type="gsd-executor", ...)         │   │
-│  │ Spawns: Task(subagent_type="gsd-verifier", ...)         │   │
-│  │ File handoff: PLAN.md ─► executor ─► SUMMARY.md        │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│  Superpowers Plugin (skills system)                             │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │ Skills loaded from ~/.claude/skills/ at startup         │   │
-│  │ dispatching-parallel-agents: Task() x N in parallel     │   │
-│  │ systematic-debugging: parallel hypothesis agents        │   │
-│  │ requesting-code-review: spawns reviewer agents          │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │ spawnSync / spawn (Node.js child_process)
-                       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│               CODEX PLUGIN RUNTIME LAYER                        │
-│         (codex-companion.mjs — the bridge process)              │
-│                                                                 │
-│  Commands: setup | review | adversarial-review | task |        │
-│            task-worker | status | result | cancel              │
-│                                                                 │
-│  Job state: $CLAUDE_PLUGIN_DATA/state/{workspace-hash}/        │
-│   ├── state.json       (config: stopReviewGate)               │
-│   └── jobs/            (per-job JSON files)                    │
-│        └── {job-id}.json (queued/running/completed/cancelled)  │
-│                                                                 │
-│  Execution modes:                                               │
-│   ├── Foreground: spawnSync → blocks caller until done         │
-│   ├── Background: spawn detached → worker process, polled      │
-│   └── Stop gate: blocking hook (up to 15 min timeout)          │
-│                                                                 │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │ JSON-RPC over Unix socket (app-server broker)
-                       │ CODEX_COMPANION_APP_SERVER_ENDPOINT env var
-                       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              CODEX APP SERVER (broker process)                  │
-│         OpenAI Codex CLI — @openai/codex npm package           │
-│                                                                 │
-│  Protocol: JSON-RPC 2.0 over Unix socket                       │
-│  Methods: thread/start, thread/resume, turn/start,             │
-│           turn/interrupt, review/start, thread/list            │
-│                                                                 │
-│  Sandbox modes: read-only | workspace-write                    │
-│  OS-level sandboxing: Seatbelt (macOS) / Landlock (Linux)     │
-│  Reasoning effort: none|minimal|low|medium|high|xhigh          │
-│  Model selection: gpt-5.4 | gpt-5.3-codex | gpt-5.3-codex-spark│
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Component Boundaries
-
-### Component 1: Claude Code Session (Opus 4.6)
-
-**Responsibility:** Primary orchestrator — all architectural decisions, planning, complex reasoning, and agent coordination. Reads and writes `.planning/` filesystem state. Spawns subagents via `Task()` tool.
-
-**Communicates with:**
-- Hook scripts (via hooks system — JSON on stdin, JSON on stdout)
-- GSD subagents (via `Task()` spawning — blocking, returns result)
-- Superpowers skills (loaded into context, shape behavior)
-- Codex plugin (via `Bash(node ... codex-companion.mjs ...)` calls)
-
-**Does NOT:**
-- Make low-level tool calls inside Codex CLI
-- Directly call OpenAI API for execution tasks
-- Manage Codex job state files
-
----
-
-### Component 2: Hook Scripts (Node.js processes)
-
-**Responsibility:** Intercept Claude's tool use and session lifecycle events. Can inject context Claude sees, block/allow tool calls, or trigger side effects (like a Codex review).
-
-**Communicates with:**
-- Claude Code: stdin/stdout JSON protocol
-- Filesystem: reads/writes `/tmp/claude-ctx-{session_id}.json` for metrics
-- Codex companion: the Stop hook calls `codex-companion.mjs task` via `spawnSync`
-
-**Existing hooks in production:**
-- `gsd-context-monitor.js` — PostToolUse — injects context warnings when token window fills
-- `gsd-prompt-guard.js` — PreToolUse — advisory scan of `.planning/` writes for injection patterns
-- `claude-settings-guard.js` — PreToolUse — guards claude settings files
-- `stop-review-gate-hook.mjs` — Stop — can BLOCK Claude from stopping (calls Codex synchronously, waits up to 15 minutes, returns `{ decision: "block", reason: "..." }` or passes)
-
-**Key protocol facts (verified from official docs):**
-- Hook input arrives on stdin as JSON
-- `{ decision: "block", reason: "..." }` on stdout prevents the event (Stop hooks use this to keep session running)
-- `{ hookSpecificOutput: { hookEventName: "...", additionalContext: "..." } }` injects text Claude sees
-- `{ hookSpecificOutput: { hookEventName: "PreToolUse", permissionDecision: "deny" } }` blocks tool calls
-- Exit code 2 = blocking error (stderr shown to user, stdout ignored)
-- Token usage data is NOT available in hook input (confirmed in official docs)
-
----
-
-### Component 3: GSD Plugin (Filesystem Orchestration)
-
-**Responsibility:** Phase-based project execution. Breaks work into PLAN.md files, spawns specialized subagents (`gsd-executor`, `gsd-verifier`, etc.), tracks state in `.planning/STATE.md`, and manages wave-based parallelism.
-
-**Communicates with:**
-- Opus orchestrator: PLAN.md / SUMMARY.md / STATE.md files (filesystem handoff)
-- Subagents: `Task(subagent_type="gsd-executor", model="...", isolation="worktree", prompt="...")` — blocks until complete
-- `gsd-tools.cjs` binary: CLI tool for state management operations
-
-**Subagent spawning pattern (from execute-phase.md source):**
-```
-Task(
-  subagent_type="gsd-executor",
-  model="{executor_model}",
-  isolation="worktree",        // isolated git worktree per agent
-  prompt="... @path/to/PLAN.md ..."
-)
-```
-
-**Key architectural constraint:** Each subagent gets a fresh 200k-1M token context window. Orchestrator stays lean (~10-15% of context). Subagents read their plan files directly — paths are passed, not content.
-
----
-
-### Component 4: Superpowers Plugin (Skills System)
-
-**Responsibility:** Behavioral skills that shape how Opus executes tasks. Skills are loaded from `~/.claude/skills/` at session start and activated by name or matching description. Skills for parallel agents, systematic debugging, code review, and plan execution are the most relevant.
-
-**Communicates with:**
-- Claude context: skills inject into the agent's instruction set
-- Codex (via skill rules): `dispatching-parallel-agents` skill includes model routing hints — `model: "claude-opus-4-0"` for judgment tasks, `model: "claude-sonnet-4-5"` for mechanical tasks
-- Codex CLI for Superpowers: `~/.agents/skills/` — Codex CLI natively scans this directory and loads SKILL.md files (separate path from Claude Code's `~/.claude/skills/`)
-
-**Key fact for Codex integration:** Superpowers already has a path (`docs/README.codex.md`) for running skills inside Codex CLI via `~/.agents/skills/` symlink. This is the injection point for adding Superpowers-compatible skills that run when Codex executes.
-
----
-
-### Component 5: Codex Companion Runtime (codex-companion.mjs)
-
-**Responsibility:** The bridge between Claude Code and the Codex CLI. Manages jobs (queued/running/completed state), provides foreground and background execution modes, handles review and adversarial review workflows, and exposes a CLI interface callable from hooks and Bash tool calls.
-
-**Communicates with:**
-- Claude Code: called via `Bash(node ... codex-companion.mjs <subcommand> <args>)` tool calls
-- Codex App Server: JSON-RPC over Unix socket (`CODEX_COMPANION_APP_SERVER_ENDPOINT` env var)
-- Job state files: `$CLAUDE_PLUGIN_DATA/state/{workspace-hash}/jobs/`
-- Stop hook: called via `spawnSync` from `stop-review-gate-hook.mjs`
-
-**Available subcommands:**
-- `task [--background] [--write] [--model X] [--effort X] [prompt]` — run a task in Codex
-- `review [--wait|--background] [--scope auto|working-tree|branch]` — native Codex reviewer
-- `adversarial-review [focus text]` — adversarial review with custom prompt
-- `status [job-id] [--wait]` — check job status (polls until complete with `--wait`)
-- `result [job-id]` — fetch completed job output
-- `cancel [job-id]` — interrupt a running job
-
-**Execution model:** Background tasks spawn a detached `task-worker` child process. The worker writes job state to disk. Polling via `status --wait` checks the file. No streaming — async handoff.
-
----
-
-### Component 6: Codex App Server (Broker Process)
-
-**Responsibility:** The actual Codex CLI process managed by the companion. Runs Codex turns in sandboxed contexts. Exposes JSON-RPC methods for starting threads, running turns, and interrupting in-progress work.
-
-**Communicates with:**
-- Codex companion: JSON-RPC over Unix socket
-- OpenAI API: outbound HTTPS calls for model inference
-- Local filesystem: reads/writes files in sandbox modes (read-only or workspace-write)
-
-**Thread model:** Each `task` call either starts a new thread or resumes an existing one (via `--resume-last`). Thread IDs are stored in job files, enabling multi-turn conversations with Codex across Claude sessions.
-
----
-
-## Data Flow: Opus-Codex Plan Review Loop
-
-This is the core interaction pattern the project needs to build. Based on how the existing Codex plugin handles review:
-
-```
-1. OPUS generates plan document
-   └── Writes to: .planning/phases/XX-name/XX-YY-PLAN.md
-
-2. REVIEW TRIGGER (hook or explicit command)
-   └── Options:
-       a. PostToolUse hook fires on Write to .planning/**-PLAN.md
-          ─► hook calls: codex-companion.mjs task --json "[review prompt]"
-          ─► OR: hook injects additionalContext telling Opus to trigger review
-       b. GSD workflow step explicitly calls Bash(codex-companion.mjs task ...)
-       c. Opus reads plan, constructs prompt, calls Bash directly
-
-3. HANDOFF SPEC written to file (recommended pattern)
-   └── File: .planning/codex-handoff/{plan-id}-handoff.md
-       Content: objective, constraints, files to touch, success criteria
-       Why file: avoids token overhead of passing large plans in prompt string
-
-4. CODEX receives task
-   └── codex-companion.mjs task --write "[read .planning/codex-handoff/X.md and respond]"
-   └── Codex reads handoff file, writes response to stdout (captured as rawOutput)
-
-5. CODEX response captured
-   └── codex-companion.mjs exits → stdout contains JSON { rawOutput, status, touchedFiles }
-   └── If background: poll with `codex-companion.mjs status --wait {job-id}`
-       then: `codex-companion.mjs result {job-id}`
-
-6. OPUS reads Codex response
-   └── Options:
-       a. Codex writes response file: .planning/codex-responses/{plan-id}-review.md
-          Opus reads it with Read tool
-       b. Hook captures stdout and injects as additionalContext (for short responses)
-       c. Bash tool returns output inline (for foreground calls)
-
-7. OPUS incorporates feedback
-   └── Updates PLAN.md with revisions
-   └── Round 2: repeat steps 2-6 (2-3 rounds total per research findings)
-
-8. PLAN APPROVED
-   └── Opus marks plan as reviewed, proceeds to execution
-```
-
-**Confidence:** HIGH — based on actual codex-companion.mjs source code and Stop hook pattern
-
----
-
-## Data Flow: Token Tracking
-
-Token usage is NOT exposed in hook input (confirmed by official docs). The viable architectures are:
-
-```
-Option A: Wrapper Script (Recommended)
-─────────────────────────────────────
-Before calling codex-companion.mjs:
-  - Record timestamp, task type, model
-
-After call returns:
-  - Parse stdout for rawOutput length (proxy for output tokens)
-  - Append to: .planning/token-log.jsonl
-    { timestamp, task_type, model, approx_output_tokens, estimated_cost, session_id }
-
-Tool: A thin bash wrapper script wrapping every codex-companion.mjs call
-
-
-Option B: PostToolUse Hook (Opus side)
-──────────────────────────────────────
-Fires after every Bash tool use.
-Inspect tool_input.command for "codex-companion.mjs"
-Read most recent job result file from job state dir
-Extract rawOutput length → estimate tokens
-Write to .planning/token-log.jsonl
-
-
-Option C: Modified codex-companion.mjs
-───────────────────────────────────────
-Add --log-tokens flag to codex-companion.mjs
-After each run, append to token log file
-(Requires modifying plugin source — within project scope)
-```
-
-**Recommendation:** Option C (modify codex-companion.mjs) for accuracy; Option A as fallback.
-Option C is within scope — project explicitly modifies plugin source.
-
----
-
-## Data Flow: GSD Hook Integration Points
-
-Where the Codex review loop can hook into GSD's existing workflow:
-
-```
-GSD workflow point               Hook opportunity
-─────────────────────────────────────────────────────────────
-plan-phase completes             PostToolUse on Write to *-PLAN.md
-                                 → trigger Codex adversarial review of the plan
-
-execute-phase begins each wave   Between wave N and wave N+1
-                                 → Codex cross-plan integration check
-
-gsd-verifier creates VERIFY.md   PostToolUse on Write to *-VERIFICATION.md
-                                 → Codex secondary validation pass
-
-Stop hook (session end)          Already exists (stop-review-gate-hook.mjs)
-                                 → Currently: reviews git changes
-                                 → Enhanced: adversarial review of last Opus turn
+┌──────────────────────────────────────────────────────────────────────┐
+│                   CLAUDE CODE SESSION (any project)                  │
+│                                                                      │
+│  PostToolUse hook fires on Bash/Edit/Write                           │
+│  ┌────────────────────────────────────────────────────────────┐      │
+│  │ codex-token-logger.js                                       │      │
+│  │   → reads stdin: { cwd, session_id, tool_result }          │      │
+│  │   → detects [CODEX_RESULT] marker                          │      │
+│  │   → appends JSONL record to {cwd}/.planning/token-log.jsonl│      │
+│  └────────────────────────────────────────────────────────────┘      │
+│                                                                      │
+│  SessionStart hook fires when session begins                         │
+│  ┌────────────────────────────────────────────────────────────┐      │
+│  │ codex-cost-reporter.js (EXISTING — per-project scope)      │      │
+│  │   → reads {cwd}/.planning/token-log.jsonl                  │      │
+│  │   → writes {cwd}/.planning/session-reports/YYYY-MM-DD.md  │      │
+│  │   → outputs additionalContext summary to Claude            │      │
+│  └────────────────────────────────────────────────────────────┘      │
+│                                                                      │
+│  SessionStart hook (NEW — after cost-reporter)                       │
+│  ┌────────────────────────────────────────────────────────────┐      │
+│  │ codex-global-aggregator.js (NEW)                           │      │
+│  │   → discovers all projects with token-log.jsonl            │      │
+│  │   → merges records into ~/.claude/dashboard/global.jsonl   │      │
+│  │   → calls dashboard generator                              │      │
+│  │   → outputs additionalContext: "Dashboard updated"         │      │
+│  └────────────────────────────────────────────────────────────┘      │
+└──────────────────────────────────────────────────────────────────────┘
+                               │
+                               │ fs.readdirSync (project discovery)
+                               │ fs.appendFileSync (dedup-merge)
+                               ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│                   ~/.claude/dashboard/                               │
+│                                                                      │
+│  global.jsonl          — merged, deduplicated records from all       │
+│                          projects; append-only; keyed on             │
+│                          (session_id + timestamp) for dedup          │
+│                                                                      │
+│  project-index.json    — discovery manifest: { project_path,        │
+│                          project_name, last_seen, record_count }    │
+│                          updated on each aggregation run            │
+│                                                                      │
+│  dashboard.html        — self-contained (inline CSS/JS), written    │
+│                          by codex-dashboard-generator.js after      │
+│                          every aggregation                           │
+│                                                                      │
+│  last-run.json         — { timestamp, projects_scanned,             │
+│                            records_added, total_records }           │
+│                          guards against double-processing            │
+└──────────────────────────────────────────────────────────────────────┘
+                               │
+                               │ require('./codex-dashboard-generator')
+                               ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│               codex-dashboard-generator.js (NEW)                    │
+│                                                                      │
+│  Input:  ~/.claude/dashboard/global.jsonl                           │
+│  Output: ~/.claude/dashboard/dashboard.html                         │
+│                                                                      │
+│  Computes:                                                           │
+│    - Per-project totals (cost, savings, calls, review catch rate)   │
+│    - Time series: daily cost and savings (last 30 days)             │
+│    - Session history: last 20 sessions across all projects          │
+│    - Global totals                                                   │
+│                                                                      │
+│  Writes: single HTML file with inline <style> and <script>          │
+│    - Chart.js bundled inline (CDN URL with fallback, or bundled)    │
+│    - No server, no dependencies, opens directly in browser          │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Architecture Patterns to Follow
+## Component Responsibilities
 
-### Pattern 1: File-Based Handoff (HIGH confidence)
-**What:** Opus writes a structured handoff file; Codex reads it. Model-to-model communication via filesystem, not inline prompt strings.
+| Component | Responsibility | File Location | Status |
+|-----------|---------------|---------------|--------|
+| `codex-token-logger.js` | Appends JSONL records to `{cwd}/.planning/token-log.jsonl` after each Codex call | `~/.claude/hooks/` | Existing — no changes needed |
+| `codex-cost-reporter.js` | Per-project session report (Markdown) on SessionStart | `~/.claude/hooks/` | Existing — no changes needed |
+| `codex-global-aggregator.js` | Discovers projects, merges JSONL to global store, triggers HTML generation | `~/.claude/hooks/` | New |
+| `codex-dashboard-generator.js` | Reads global JSONL, computes metrics, writes self-contained HTML | `~/.claude/hooks/` | New |
+| `~/.claude/dashboard/global.jsonl` | Global deduplicated record store (append-only) | `~/.claude/dashboard/` | New (auto-created) |
+| `~/.claude/dashboard/project-index.json` | Discovery manifest with per-project metadata | `~/.claude/dashboard/` | New (auto-created) |
+| `~/.claude/dashboard/dashboard.html` | The output: self-contained HTML dashboard | `~/.claude/dashboard/` | New (auto-generated) |
 
-**When:** Any task where the specification is longer than ~500 tokens. Avoids shell escaping issues, allows Codex to use its Read tool on the file, enables version control of handoff specs.
+---
 
-**Example structure:**
-```markdown
-# Codex Handoff: Plan Review — Phase 2 Plan 03
+## Recommended File Structure
 
-## Task
-Review the implementation plan below for correctness, completeness, and simplicity.
-Return: APPROVED | REVISE: [issues]
-
-## Plan Summary
-[extracted from PLAN.md — not full file, just key sections]
-
-## Review Focus
-- Are the file modifications minimal and non-breaking?
-- Does the approach match the stated objective?
-- Are there simpler alternatives worth noting?
+```
+~/.claude/
+├── hooks/
+│   ├── codex-token-logger.js          # EXISTING — no changes
+│   ├── codex-cost-reporter.js         # EXISTING — no changes
+│   ├── codex-global-aggregator.js     # NEW — Phase 1
+│   └── codex-dashboard-generator.js  # NEW — Phase 2
+│
+└── dashboard/                         # NEW — auto-created by aggregator
+    ├── global.jsonl                   # merged records from all projects
+    ├── project-index.json             # project discovery manifest
+    ├── last-run.json                  # idempotency guard
+    └── dashboard.html                 # output: open in browser
 ```
 
-### Pattern 2: Background-Then-Poll (MEDIUM confidence)
-**What:** Trigger Codex in background (`--background` flag), continue Opus work, then poll for result before proceeding to next step.
+```
+~/projects/<any-project>/
+└── .planning/
+    ├── token-log.jsonl                # EXISTING per-project source
+    └── session-reports/              # EXISTING per-project reports
+        └── YYYY-MM-DD.md
+```
 
-**When:** Codex review/validation tasks that don't block the critical path — e.g., Superpowers parallel verification, background validation during wave execution.
+### Structure Rationale
 
-**Implementation:** `codex-companion.mjs task --background "[prompt]"` returns `{jobId, status: "queued"}`. Later: `codex-companion.mjs status --wait {jobId}` blocks until complete.
+- **`~/.claude/dashboard/` as global store:** User-scoped, not project-scoped. Survives project deletion. Parallel with how `~/.claude/settings.json` is user-scope for hooks.
+- **`global.jsonl` append-only:** Preserves the same JSONL pattern as per-project logs. Supports time-series queries by timestamp field. Safe for concurrent reads from multiple scripts.
+- **`project-index.json` separate from records:** Avoids scanning all records to answer "which projects exist?" Fast project list for dashboard header.
+- **`dashboard.html` inline everything:** No Node.js server, no npm serve. Open directly with `xdg-open ~/.claude/dashboard/dashboard.html`. Self-contained.
 
-### Pattern 3: Stop Hook as Quality Gate (HIGH confidence — already in production)
-**What:** The Stop hook fires when Opus finishes a response. A blocking decision (`{ decision: "block", reason: "..." }`) forces Opus to continue and address the issues.
+---
 
-**When:** End-of-turn review gate — Codex reviews the last Opus turn and can force additional work.
+## Data Flow: Per-Project JSONL to Global Dashboard
 
-**Existing example:** `stop-review-gate-hook.mjs` uses `parseStopReviewOutput()` — Codex returns `ALLOW: ...` or `BLOCK: [reason]` as first line of output. This protocol should be reused.
+```
+[Any Claude Code Session Start]
+           │
+           ▼
+codex-global-aggregator.js (hook, runs on SessionStart)
+           │
+           ├── 1. Load project-index.json (known projects list)
+           │        → { "/path/to/project": { last_seen, record_count, project_name } }
+           │
+           ├── 2. DISCOVER new projects
+           │        Search roots: [ ~/projects, ~/gsd-workspaces, ~/agent ]
+           │        Pattern: find -name "token-log.jsonl" -not -path "*/.claude/worktrees/*"
+           │        Exclude: git worktrees (.claude/worktrees/) — these are ephemeral
+           │        Add new discoveries to project-index.json
+           │
+           ├── 3. For each known project:
+           │        a. Read all JSONL lines from {project}/.planning/token-log.jsonl
+           │        b. Skip records already in global.jsonl
+           │           (dedup key: session_id + timestamp string)
+           │        c. Enrich each record with: { project_path, project_name }
+           │        d. Append new records to ~/.claude/dashboard/global.jsonl
+           │
+           ├── 4. Write updated project-index.json
+           │        (last_seen, record_count per project)
+           │
+           ├── 5. Write last-run.json
+           │        { timestamp, projects_scanned, records_added, total_records }
+           │
+           └── 6. Call codex-dashboard-generator.js
+                    (require() or child_process.spawnSync — same process is simpler)
+                           │
+                           ▼
+               codex-dashboard-generator.js
+                           │
+                           ├── Read global.jsonl → array of records
+                           │
+                           ├── Compute per-project metrics
+                           │     { project_name, total_cost, opus_baseline, savings,
+                           │       savings_pct, call_count, review_count, catch_rate }
+                           │
+                           ├── Compute daily time series (last 30 days)
+                           │     Group records by date(timestamp)
+                           │     Sum: actual_cost, opus_baseline per day
+                           │
+                           ├── Build session history
+                           │     Group records by session_id
+                           │     Last 20 unique session_ids by timestamp
+                           │     Per session: project, date, cost, savings, calls
+                           │
+                           └── Write dashboard.html (self-contained)
+                                 <style> inline CSS
+                                 <script> inline Chart.js + data
+                                 No external dependencies
+```
 
-### Pattern 4: PostToolUse Injection (HIGH confidence)
-**What:** PostToolUse hook fires after Bash/Write/Edit, runs lightweight logic, and injects `additionalContext` that Opus sees before its next turn.
+---
 
-**When:** Triggering Codex review automatically when Opus writes a plan file. Hook detects the write target path, launches Codex in background, injects a note telling Opus to wait for and incorporate the review.
+## Integration Points with Existing Architecture
+
+### Integration Point 1: settings.json Hook Registration
+
+The aggregator runs on `SessionStart`, after `codex-cost-reporter.js`. The hook array is ordered — add the new hook second:
+
+```json
+"SessionStart": [
+  {
+    "hooks": [
+      {
+        "type": "command",
+        "command": "node \"/home/alucard/.claude/hooks/gsd-check-update.js\""
+      },
+      {
+        "type": "command",
+        "command": "node \"/home/alucard/.claude/hooks/codex-cost-reporter.js\"",
+        "timeout": 15
+      },
+      {
+        "type": "command",
+        "command": "node \"/home/alucard/.claude/hooks/codex-global-aggregator.js\"",
+        "timeout": 30
+      }
+    ]
+  }
+]
+```
+
+**Why after cost-reporter:** The cost-reporter writes the per-project Markdown report. The aggregator reads from per-project JSONL (not the Markdown report) — so order doesn't technically matter for correctness. Placing it after cost-reporter is conventional — per-project first, then global.
+
+**Why timeout 30:** Discovery scans multiple directories. Writing HTML with Chart.js inline data is fast. 30s is ample; 15s is tight if many projects exist.
+
+### Integration Point 2: Existing JSONL Schema (no changes needed)
+
+The existing `token-log.jsonl` records written by `codex-token-logger.js` are the input. The schema is already stable:
+
+```json
+{
+  "timestamp": "2026-04-02T22:52:30.644Z",
+  "session_id": "30092b41-...",
+  "model": "gpt-5.4",
+  "source": "cli",
+  "task_type": "review",
+  "review_task_type": "feature",
+  "verdict": "ALLOW",
+  "block_summary": null,
+  "tokens": {
+    "input": 12860,
+    "cached_input": 10624,
+    "output": 365,
+    "reasoning_output": 0
+  },
+  "cost_usd": 0.04908,
+  "rate_limit_pct": null
+}
+```
+
+The global aggregator adds two fields when copying to `global.jsonl`:
+- `project_path` — absolute path to the project root
+- `project_name` — derived from the last path segment (e.g., `Claude_X_Codex`)
+
+No changes to `codex-token-logger.js` or `codex-cost-reporter.js`.
+
+### Integration Point 3: Deduplication Strategy
+
+The aggregator must be idempotent — SessionStart fires every time any project opens. The same records must not be added to `global.jsonl` twice.
+
+**Dedup key:** `session_id + timestamp` combined as a string.
+- `session_id` alone is not unique (some records have `session_id: null`)
+- `timestamp` alone is not unique (multiple records per session)
+- `session_id + timestamp` is unique for all observed records in the live JSONL
+
+**Implementation:** On startup, the aggregator reads `global.jsonl` once and builds a `Set` of seen keys. New records from per-project logs are filtered against this set before appending.
+
+**Edge case — null session_id:** Records with `session_id: null` exist (from `codex-multi-round-reviewer.js` calls outside a hook context). Use `null|timestamp` as key. This is still unique because the timestamp is precise to the millisecond.
+
+### Integration Point 4: Project Discovery Scope
+
+Two token-log.jsonl files exist on this machine today:
+- `/home/alucard/projects/Claude_X_Codex/.planning/token-log.jsonl`
+- `/home/alucard/projects/The-Crucible/.planning/token-log.jsonl`
+
+Git worktrees at `b2b-sales-ops/.claude/worktrees/*/` have `.planning/` directories but no `token-log.jsonl` (confirmed by inspection). Worktrees must be excluded from discovery — they are ephemeral and their data would duplicate the parent project.
+
+**Discovery strategy: configurable roots with sensible defaults.**
+
+The aggregator scans a configurable list of root directories. Defaults cover all known project locations on this machine (from CLAUDE.md Key Paths + GSD workspace convention):
+
+```javascript
+// Default discovery roots — all known project locations on this machine
+const DEFAULT_DISCOVERY_ROOTS = [
+  path.join(os.homedir(), 'projects'),       // Primary project directory (CLAUDE.md)
+  path.join(os.homedir(), 'agent'),           // Agent workspace (CLAUDE.md)
+  path.join(os.homedir(), 'gsd-workspaces'),  // GSD isolated workspaces
+  '/mnt/hdd'                                  // User files from Windows (CLAUDE.md)
+];
+
+// User can extend via ~/.claude/dashboard/config.json
+// { "extra_roots": ["/path/to/more/projects"] }
+const configPath = path.join(dashboardDir, 'config.json');
+let extraRoots = [];
+try {
+  const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  extraRoots = cfg.extra_roots || [];
+} catch (e) { /* no config file — use defaults only */ }
+
+const DISCOVERY_ROOTS = [...DEFAULT_DISCOVERY_ROOTS, ...extraRoots]
+  .filter(root => fs.existsSync(root));  // Skip roots that don't exist
+```
+
+**Why configurable:** Hardcoded roots miss valid token logs if the user creates projects in new locations. The `config.json` mechanism lets users add roots without modifying hook code. Defaults cover all locations documented in CLAUDE.md.
+
+**Exclusion patterns:** Skip any path matching these patterns:
+- `/.claude/worktrees/` — ephemeral GSD worktrees (would duplicate parent project data)
+- `/node_modules/` — npm packages should never contain token logs
+- `/.git/` — git internals
+
+**Note:** `~/.claude/projects/` contains Claude Code session JSONL data (not project token logs) and should NOT be scanned.
+
+**Discovery command (Node.js):**
+```javascript
+const { execSync } = require('child_process');
+// Use find for speed — globbing caches and npm dirs is slow
+const findCmd = `find ${root} -maxdepth 5 -name "token-log.jsonl" -not -path "*/.claude/worktrees/*" -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null`;
+const output = execSync(findCmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+```
+
+`-maxdepth 5` covers `projects/NAME/.planning/token-log.jsonl` (depth 3) and deeper structures like `/mnt/hdd/CATEGORY/NAME/.planning/token-log.jsonl` (depth 4) with headroom.
+
+---
+
+## Architectural Patterns
+
+### Pattern 1: Require-Based Module Composition
+
+**What:** The aggregator calls the generator via `require('./codex-dashboard-generator')`, not via `child_process.spawnSync`.
+
+**When to use:** Both scripts run in the same SessionStart hook invocation. `require()` avoids a second Node.js process startup, shares the already-loaded JSONL data, and keeps the total SessionStart overhead under 30 seconds.
+
+**Trade-off:** Both scripts must be in `~/.claude/hooks/` (same directory). This is already where all hook scripts live — not a constraint.
+
+**Example:**
+```javascript
+// codex-global-aggregator.js
+const generator = require('./codex-dashboard-generator');
+// After merging records:
+generator.generateDashboard(dashboardDir);
+```
+
+```javascript
+// codex-dashboard-generator.js
+function generateDashboard(dashboardDir) {
+  const globalLog = path.join(dashboardDir, 'global.jsonl');
+  // ... read, compute, write HTML
+}
+module.exports = { generateDashboard };
+```
+
+### Pattern 2: Append-Only Global Log with In-Memory Dedup
+
+**What:** Never rewrite `global.jsonl`. Load existing keys into a `Set` at startup, append only truly new records.
+
+**When to use:** Always. This preserves historical data even if a per-project `token-log.jsonl` is deleted or rotated.
+
+**Trade-off:** `global.jsonl` grows indefinitely. At current usage rates (8-11 records per session), this is ~1KB per session. 1,000 sessions = ~1MB. Not a concern for a single-user machine.
+
+### Pattern 3: Generator as Pure Transform (No Side Effects Outside Output Dir)
+
+**What:** `codex-dashboard-generator.js` reads from `~/.claude/dashboard/global.jsonl` and writes only to `~/.claude/dashboard/dashboard.html`. No project directory reads. No settings writes.
+
+**When to use:** Separation of concerns. The aggregator owns discovery and merging. The generator owns computation and rendering. This makes each testable in isolation.
+
+### Pattern 4: Self-Contained HTML (No Server Required)
+
+**What:** Inline Chart.js from CDN URL in a `<script>` tag. Inline all computed data as a `const DATA = {...}` JavaScript literal. No `fetch()` calls at render time.
+
+**When to use:** Always — this is a local developer tool, not a web app. The dashboard must open from `file://` protocol without a server.
+
+**Implementation approach:** Use Chart.js from `https://cdn.jsdelivr.net/npm/chart.js` in a `<script src>` tag — this loads from CDN when internet is available, fails gracefully (no charts, but tables still render) when offline. This is simpler than bundling 200KB of Chart.js inline.
+
+**Trade-off:** Chart.js from CDN loads from internet on each open. For an offline machine, bundle Chart.js inline. Current machine has internet — CDN approach is fine for v1.1.
+
+---
+
+## New vs Modified Components
+
+### New Components (to build)
+
+| Component | Type | Phase |
+|-----------|------|-------|
+| `~/.claude/hooks/codex-global-aggregator.js` | New hook script | Phase 1 |
+| `~/.claude/hooks/codex-dashboard-generator.js` | New generator module | Phase 2 |
+| `~/.claude/dashboard/` directory | Auto-created by aggregator | Phase 1 |
+| SessionStart hook entry in `~/.claude/settings.json` | New hook registration | Phase 1 |
+
+### Modified Components (what changes)
+
+| Component | Change | Why |
+|-----------|--------|-----|
+| `~/.claude/settings.json` | Add `codex-global-aggregator.js` to SessionStart hooks array | Register new hook |
+
+### Unchanged Components (confirmed no modifications needed)
+
+| Component | Why unchanged |
+|-----------|---------------|
+| `codex-token-logger.js` | JSONL schema already has all needed fields; no changes |
+| `codex-cost-reporter.js` | Per-project report unchanged; global report is additive |
+| Per-project `token-log.jsonl` files | Source data, never modified by aggregator |
+| All other hook scripts | No interaction with dashboard system |
+
+---
+
+## Build Order
+
+The dependency graph drives this order:
+
+```
+Phase 1: Data Pipeline — Aggregator + Storage
+
+  Step 1. Create ~/.claude/dashboard/ directory structure
+          (can be done by the hook itself on first run)
+
+  Step 2. Implement codex-global-aggregator.js
+          Dependencies: none (reads existing JSONL files)
+          Validates: can scan projects, can dedup, can write global.jsonl
+          Test: run standalone, verify global.jsonl created with correct records
+
+  Step 3. Register hook in ~/.claude/settings.json
+          Add to SessionStart array after codex-cost-reporter.js
+          Test: open a new session, verify global.jsonl updated
+
+Phase 2: Dashboard Generator — HTML Output
+
+  Step 4. Implement codex-dashboard-generator.js
+          Dependencies: Phase 1 (needs global.jsonl to exist with real data)
+          Implements: per-project table, time series, session history
+          Test: run standalone, verify dashboard.html opens in browser
+
+  Step 5. Wire generator into aggregator
+          Call generator.generateDashboard() at end of aggregation run
+          Test: SessionStart → global.jsonl updated → dashboard.html regenerated
+
+Phase 3: Polish — Chart.js Integration
+
+  Step 6. Add Chart.js time series charts to dashboard
+          Dependencies: Phase 2 HTML structure established
+          Adds: line chart (daily cost/savings) using existing time series data
+          Test: open dashboard.html, verify charts render with real data
+```
+
+**Why this order:**
+
+- Aggregator before generator: the generator needs `global.jsonl` to exist with real data to test against
+- Data pipeline before charts: Chart.js integration is display-only; the underlying data structure must be solid first
+- Registration after implementation: avoid a broken hook in the hot path until it's tested standalone
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Inline Prompt Stuffing
-**What:** Passing full PLAN.md content as a string argument to `codex-companion.mjs task "...entire plan here..."`.
+### Anti-Pattern 1: Rewriting global.jsonl on Every Run
 
-**Why bad:** Shell escaping breaks, argument length limits, logs expose plan content, no way to version-control the handoff. The existing codex-rescue agent agent already passes prompts via positional arg, but that's for short prompts only.
+**What:** Read all per-project logs, compute deduplicated set, write a fresh `global.jsonl` each time.
 
-**Instead:** Write `.planning/codex-handoff/{id}.md`, pass path reference.
+**Why bad:** If a per-project `token-log.jsonl` is deleted (project archived, worktree cleaned), those records disappear from the global view. The append-only pattern preserves historical records permanently regardless of source file state.
 
-### Anti-Pattern 2: Synchronous Review in Every Hook
-**What:** Making every PostToolUse hook call Codex synchronously via `spawnSync`.
+**Instead:** Read existing `global.jsonl` keys into a Set, append only new records from current per-project files.
 
-**Why bad:** Every tool use (Bash, Edit, Write, Grep, Glob) fires PostToolUse. Synchronous Codex calls in a hook block the entire session for every single tool use. The `stop-review-gate-hook.mjs` does use `spawnSync` but only on the Stop event (rare) with a 15-minute timeout.
+### Anti-Pattern 2: Scanning All of ~/
 
-**Instead:** Background Codex calls for non-critical reviews. Only use synchronous/blocking for explicit quality gates (Stop hook, phase transition checkpoints).
+**What:** `find ~ -name "token-log.jsonl"` without restricting roots.
 
-### Anti-Pattern 3: Bypassing the Companion Script
-**What:** Calling `codex` CLI directly from hooks or Bash tool calls instead of going through `codex-companion.mjs`.
+**Why bad:** The home directory contains `.npm-global`, `.cache`, `node_modules`, plugin caches, and other large directory trees. The scan would be slow and could traverse thousands of directories.
 
-**Why bad:** The companion handles job state persistence, background worker processes, thread ID tracking (enabling multi-turn), error handling, and the app-server broker lifecycle. Bypassing it loses all state tracking needed for status polling and result retrieval.
+**Instead:** Scan configurable roots with `-maxdepth 5`. Defaults cover all CLAUDE.md key paths (`~/projects`, `~/agent`, `/mnt/hdd`) plus `~/gsd-workspaces`. Users can add more via `~/.claude/dashboard/config.json`.
 
-**Instead:** Always route through `node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs"`.
+### Anti-Pattern 3: Including Git Worktree Token Logs
 
-### Anti-Pattern 4: Token Tracking via Polling Loop
-**What:** A hook that repeatedly checks job state files to accumulate token counts across a session.
+**What:** Treating `.claude/worktrees/agent-*/` `.planning/token-log.jsonl` files as separate projects.
 
-**Why bad:** Hooks are stateless single-invocation processes. State between hook invocations must go through files. A polling loop inside a hook would block the session.
+**Why bad:** Git worktrees are ephemeral GSD parallelism environments. Their JSONL records represent the same project (b2b-sales-ops) and the same session work. Including them would duplicate records for the parent project.
 
-**Instead:** Append-only log file written after each Codex call completes. Session report reads the log at end of session.
+**Instead:** Exclude any path matching `/.claude/worktrees/`.
 
-### Anti-Pattern 5: Letting Codex Make Architectural Decisions
-**What:** Giving Codex `--write` access and open-ended prompts like "improve this codebase" without a constrained handoff spec.
+### Anti-Pattern 4: Blocking SessionStart for Long Discovery
 
-**Why bad:** Research confirms Codex proceeds with assumptions rather than seeking clarification, more frequently invents APIs at scale, and drifts in long sessions. The value of Codex is fast execution of well-specified tasks.
+**What:** Synchronous deep directory scan on every session start, including large projects or slow filesystems.
 
-**Instead:** Opus always generates the spec. Codex always executes against the spec. Codex reviews are for correctness and simplicity, not architectural direction.
+**Why bad:** SessionStart hooks run before the session is usable. A slow aggregator delays every session open. The hook has a 30s timeout — scan must complete well within this.
 
----
+**Instead:** Use `find` with `-maxdepth 4` (fast, bounded). The `project-index.json` manifest caches known projects — on subsequent runs, re-scan only to find new projects, not to re-read all records.
 
-## Component Build Order
+### Anti-Pattern 5: Generating HTML with String Concatenation of Unescaped User Data
 
-Based on dependencies between components:
+**What:** Building the HTML by concatenating project names, file paths, and block summaries directly into the HTML string.
 
-```
-Phase 1: Foundation — Hook + Routing Infrastructure
-  1a. Token tracking wrapper / log schema
-      (needed early — all later phases depend on it for cost validation)
-  1b. Codex handoff file format + directory structure
-      (.planning/codex-handoff/, .planning/codex-responses/)
-  1c. Routing decision logic
-      (simple bash script or Node module: given task type → model + flags)
+**Why bad:** Block summaries from `codex-review-gate.js` contain arbitrary text (backticks, quotes, angle brackets). Unescaped insertion breaks the HTML or creates XSS in a local context.
 
-Phase 2: GSD Integration Points
-  2a. PostToolUse hook — trigger Codex review on PLAN.md write
-      (depends on: 1b handoff format, 1a token tracking)
-  2b. Execute-phase workflow modification — Codex cross-wave check
-      (depends on: 1b, routing logic from 1c)
-  2c. Verification workflow modification — Codex secondary validation
-      (depends on: 2a pattern established)
-
-Phase 3: Superpowers Integration Points
-  3a. Parallel agent skill modification — model routing hints
-      (depends on: Phase 1 routing logic)
-  3b. Parallel hypothesis testing via Codex background tasks
-      (depends on: Phase 2 patterns working)
-  3c. Parallel code review — Codex + Opus dual reviewer
-      (depends on: 3a)
-
-Phase 4: Opus-Codex Review Loop
-  4a. Review loop command / workflow step
-      (depends on: all Phase 1, GSD integration from Phase 2)
-  4b. 2-3 round review cycle with convergence detection
-  4c. Adaptive handoff spec generation (file-level vs feature-level)
-
-Phase 5: Token Tracking Reports
-  5a. Session report generator (reads token-log.jsonl)
-      (depends on: token tracking from Phase 1)
-  5b. Cost comparison baseline (vs Opus-only)
-```
-
-**Why this order:**
-- Token tracking must come first — it's the success metric for the entire project
-- GSD integration before Superpowers — GSD has clearer extension points (workflow files), Superpowers skills are more fragile
-- Review loop last — it synthesizes all the infrastructure built in earlier phases
+**Instead:** HTML-escape all user-originated strings before insertion. A minimal `htmlEscape()` function covering `<`, `>`, `&`, `"`, `'` is sufficient.
 
 ---
 
 ## Scalability Considerations
 
-| Concern | Current State | With Integration | Mitigation |
-|---------|---------------|-----------------|------------|
-| Hook latency | Hooks must complete quickly (hooks run on every tool use) | PostToolUse Codex call could add 10-60s per tool use | Background Codex calls only; never synchronous in PostToolUse |
-| Concurrent jobs | Codex companion supports background job queue | Multiple parallel waves could trigger multiple Codex reviews simultaneously | Job state files handle this; use `status --wait` for synchronization |
-| Token log growth | Not applicable | Append-only JSONL can grow large in long sessions | Rotate by session; archive old logs |
-| Context window (Opus) | GSD already manages this (10-15% orchestrator budget) | Codex review results injected via additionalContext or file reads | Keep Codex responses concise; use file reads not inline injection for large reviews |
-| Codex thread reuse | Not applicable | Multi-turn threads via `--resume-last` reduce cold-start overhead | Use thread persistence for related review rounds |
+This is a single-user local tool. "Scale" means handling more projects and longer history, not concurrent users.
+
+| Concern | At 5 projects (now) | At 50 projects | At 500 projects |
+|---------|---------------------|---------------|-----------------|
+| Discovery scan time | ~100ms | ~500ms | Could exceed 30s timeout — add depth limit and config |
+| global.jsonl size | ~10KB | ~100KB | ~1MB — still fast for Node.js readline |
+| Dashboard render time | <1s | ~1s | ~5s — add pagination for session history table |
+| Memory during generation | ~1MB | ~10MB | ~100MB — read global.jsonl as stream, not all at once |
+
+Current machine has 2 projects with token logs. The 50-project boundary is not near. Optimize only if performance becomes noticeable.
 
 ---
 
@@ -453,24 +512,27 @@ Phase 5: Token Tracking Reports
 
 | Area | Confidence | Source |
 |------|------------|--------|
-| Hook system protocol (PreToolUse/PostToolUse/Stop) | HIGH | Live source code (gsd-context-monitor.js, stop-review-gate-hook.mjs) + official docs |
-| Codex companion invocation pattern | HIGH | Live source code (codex-companion.mjs, codex-rescue.md agent) |
-| Codex app-server JSON-RPC protocol | HIGH | Live source (app-server.mjs, app-server-protocol.d.ts) |
-| GSD subagent spawning (Task() API) | HIGH | Live source (execute-phase.md workflow) |
-| Superpowers parallel agent pattern | HIGH | Live source (dispatching-parallel-agents SKILL.md) |
-| Token tracking via hook | MEDIUM | Official docs confirm no token data in hook input; wrapper approach is inferred |
-| Review loop round-trip timing | MEDIUM | Known Codex is fast (240+ tok/s), but total round-trip depends on task size |
-| Adaptive handoff spec complexity | LOW | Design decision not yet validated; file-level vs feature-level distinction from PROJECT.md only |
+| Hook protocol (SessionStart, additionalContext, timeout) | HIGH | Live `settings.json` + `codex-cost-reporter.js` source |
+| Existing JSONL schema | HIGH | Live `token-log.jsonl` from two projects, `codex-token-logger.js` source |
+| Project discovery scope | HIGH | Live `find` command confirmed 2 token logs; worktrees confirmed no token logs |
+| Deduplication key (session_id + timestamp) | HIGH | Verified from live JSONL: null session_ids exist, timestamps are millisecond-precise |
+| Chart.js CDN approach for HTML | MEDIUM | Standard approach for local HTML files; CDN load assumption requires internet |
+| require() composition vs spawnSync | MEDIUM | Both work; require() is faster; confirmed no circular dep risk (generator doesn't require aggregator) |
+| global.jsonl growth rate | HIGH | 8-11 records/session observed; arithmetic projection is reliable |
 
 ---
 
 ## Sources
 
-- Live codebase: `/home/alucard/.claude/plugins/marketplaces/openai-codex/plugins/codex/scripts/codex-companion.mjs`
-- Live codebase: `/home/alucard/.claude/plugins/marketplaces/openai-codex/plugins/codex/scripts/stop-review-gate-hook.mjs`
-- Live codebase: `/home/alucard/.claude/plugins/marketplaces/openai-codex/plugins/codex/scripts/lib/app-server.mjs`
-- Live codebase: `/home/alucard/.claude/hooks/gsd-context-monitor.js`
-- Live codebase: `/home/alucard/.claude/get-shit-done/workflows/execute-phase.md`
-- Live codebase: `/home/alucard/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7/skills/dispatching-parallel-agents/SKILL.md`
-- Official: [Claude Code Hooks Reference](https://code.claude.com/docs/en/hooks) — hook events, JSON protocol, decision control
-- Research: `docs/research/opus-vs-codex-model-comparison.md` — task routing decisions and cross-model review patterns
+- Live source: `/home/alucard/.claude/hooks/codex-cost-reporter.js` — SessionStart hook pattern, JSONL reading, report generation
+- Live source: `/home/alucard/.claude/hooks/codex-token-logger.js` — JSONL record schema, `[CODEX_RESULT]` marker protocol
+- Live source: `/home/alucard/.claude/settings.json` — Hook registration format, SessionStart array structure, timeout values
+- Live data: `/home/alucard/projects/Claude_X_Codex/.planning/token-log.jsonl` — 11 real records, schema confirmed
+- Live data: `/home/alucard/projects/The-Crucible/.planning/token-log.jsonl` — 4 real records, cross-project confirmed
+- Live inspection: `find ~/projects -name "token-log.jsonl"` — 2 projects with token logs; worktrees excluded confirmed
+- Previous research: `.planning/research/ARCHITECTURE.md` (v1.0) — hook protocol, component boundaries, anti-patterns
+
+---
+
+*Architecture research for: v1.1 Global Metrics Dashboard integration with per-project hook architecture*
+*Researched: 2026-04-02*

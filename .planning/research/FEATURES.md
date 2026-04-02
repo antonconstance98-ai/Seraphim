@@ -1,131 +1,267 @@
-# Feature Landscape
+# Feature Research
 
-**Domain:** Multi-model AI coding agent integration (Claude Code + Codex CLI)
+**Domain:** Local HTML metrics dashboard — multi-project AI model usage, costs, savings, and review quality
 **Researched:** 2026-04-02
-**Overall confidence:** HIGH — anchored by official docs (Claude Code hooks, Codex CLI, codex-plugin-cc), PROJECT.md requirements, and model comparison research from 34 sources.
+**Confidence:** HIGH
+
+> **Milestone scope:** v1.1 Global Metrics Dashboard only. Features from v1.0 (hook scripts,
+> routing, review gate) are already shipped and not re-researched here. This file covers only
+> what needs to be built for the dashboard.
 
 ---
 
-## Table Stakes
+## Existing Data Contract (token-log.jsonl Schema)
 
-Features users expect. Missing = integration feels broken or incomplete.
+All features depend on this schema. Verified consistent across both live projects on this machine.
+
+```jsonc
+{
+  "timestamp":        "2026-04-02T22:52:30.644Z",   // ISO 8601 — required for time trends
+  "session_id":       "30092b41-...",                // nullable string; groups records into sessions
+  "model":            "gpt-5.4",                     // "gpt-5.4" | "gpt-5.4-mini"
+  "source":           "cli",                         // "cli" | "api"
+  "task_type":        "review",                      // "review" | "multi-round-plan-review" | ...
+  "review_task_type": "feature",                     // nullable; "feature" | "plan" | ...
+  "verdict":          "ALLOW",                       // nullable; "ALLOW" | "BLOCK"
+  "block_summary":    "...",                         // nullable string — issue Codex caught
+  "tokens": {
+    "input":            12860,
+    "cached_input":     10624,
+    "output":           365,
+    "reasoning_output": 0
+  },
+  "cost_usd":         0.04908,                       // actual cost already computed per record
+  "rate_limit_pct":   null                           // nullable float 0–100
+}
+```
+
+**Critical schema gaps for aggregation (must be inferred at read time, not stored):**
+
+| Field Needed | Not In Schema | How to Derive |
+|---|---|---|
+| Project name | Not stored | Infer from file path: last path segment before `.planning/` |
+| Opus baseline cost | Not stored | Compute at read time: reprice token volumes at Opus rates ($15/$3.75/$75 per 1M in/cached/out) |
+| Savings amount | Not stored | `opusBaseline - cost_usd` per record |
+| Session date | Not stored directly | `timestamp.slice(0, 10)` → YYYY-MM-DD |
+
+**Known projects with token-log.jsonl (live on this machine):**
+- `/home/alucard/projects/Claude_X_Codex/.planning/token-log.jsonl`
+- `/home/alucard/projects/The-Crucible/.planning/token-log.jsonl`
+
+---
+
+## Feature Landscape
+
+### Table Stakes (Users Expect These)
+
+Features required for the dashboard to answer more questions than the existing Markdown session
+reports. Missing any of these means the dashboard is a regression, not an upgrade.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| **Codex CLI invocation from Claude Code hooks** | The official `codex-plugin-cc` (released 2026-03-30) establishes this as the standard pattern. Users expect any integration to use the existing Codex install via CLI, not reinvent the wheel. | Low | `codex exec` non-interactive mode pipes final result to stdout, `--json` flag streams JSONL events. Use PostToolUse or Stop hooks to trigger. |
-| **Stop hook review gate** | The official plugin already ships `/codex:setup --enable-review-gate`. Any integration that doesn't provide a review gate will feel like a downgrade from what OpenAI ships for free. | Medium | Stop hook fires when Claude finishes responding; return `decision: "block"` to force Claude to address issues. Needs `stop_hook_active` guard to prevent infinite loops. |
-| **AGENTS.md spec file for Codex** | Codex's native context mechanism is AGENTS.md. Not providing one means Codex operates without project context — hallucinations, wrong conventions, broken output. | Low | File lives at repo root. Standard Markdown, no special syntax. Required for all Codex invocations to be project-aware. |
-| **Explicit Opus-stays-architect boundary** | Research confirms (HIGH confidence) that Opus at 42 tok/s + $15/$75 pricing must not be wasted on routine tasks. Users expect the integration to enforce this boundary, not leave it to the user to remember. | Low | Encoded in hooks, CLAUDE.md, and AGENTS.md. Must be a hard rule, not a soft recommendation. |
-| **Cross-model code review** | The HubSpot Sidekick implementation achieved 80% engineer approval and 90% faster PR feedback using a judge-agent pattern. The community consensus (Reddit, HN, Chandler Nguyen's blog) identifies this as the primary value of having two models. Any integration that doesn't wire up review is missing the main reason to have Codex. | Medium | `/codex:adversarial-review` for adversarial mode; `/codex:review` for standard. Pattern: Claude implements, Codex reviews — or vice versa. |
-| **Token usage logging per call** | At $15/$75 per million tokens for Opus, users need to verify the cost savings claim. The "done" definition in PROJECT.md is explicitly "prove cost savings vs Opus-only baseline." Without per-call logs, there's no evidence the integration works. | Medium | Log: model name, task type, tokens_in, tokens_out, cost, timestamp. Tools like claudetop and tokscale exist for Claude Code; similar pattern for Codex via `--json` output. |
-| **Fallback when primary model rate-limits** | Operational resilience is an explicit community benefit of dual-model setups. If Codex rate-limits, the workflow should degrade gracefully to Opus, not crash. | Low | Encode fallback routing in hooks: `if codex fails → route to Opus`. This is a reliability requirement, not a nice-to-have. |
-| **PreToolUse routing hook** | PreToolUse is the only Claude Code hook that can block actions before they execute. Without it, there's no way to intercept Claude's intent to route tasks appropriately. | Low | Uses Claude Code's hook system (23 lifecycle events available). `PreToolUse` fires before any tool call and can redirect or block. |
+| Global cost summary | Primary reason to build this — one number across all projects | LOW | Sum `cost_usd` + compute Opus baseline across all JSONL files |
+| Total savings % vs Opus baseline | The core success metric from v1.0 (86.7% demonstrated) — must be at the top | LOW | `(opusBaseline - actualCost) / opusBaseline * 100` |
+| Per-project breakdown table | User needs to know which project drove which cost | LOW | Group by inferred project name; columns: project, calls, actual cost, savings, catch rate |
+| Review catch-rate (global + per-project) | Cross-project quality metric; without it, "how well is Codex working?" is unanswerable | LOW | `reviewBlock / reviewTotal * 100`; filter where `task_type === 'review'` |
+| Model split (GPT-5.4 vs GPT-5.4-mini) | Two models billed at different rates; user must know the breakdown | LOW | Group by `model` field |
+| Session history list | Session-level granularity that the per-day reports obscure | MEDIUM | Group by `session_id` (non-null); sort by most recent; columns: project, date, calls, cost, catch rate |
+| BLOCK issue log | Shows exactly what Codex caught — the "proof of value" log | LOW | Filter where `verdict === 'BLOCK'` and `block_summary !== null` |
+| Time trend chart | Makes cost trajectory visible — impossible to see in static Markdown tables | MEDIUM | Aggregate `cost_usd` by YYYY-MM-DD; line chart; one series per project or stacked total |
+| Self-contained HTML (no server) | Opened with `file://` in a browser; no Node/Python server; no `fetch()` to local files | MEDIUM | Inline all CSS + Chart.js source; serialize all data as `const DASHBOARD_DATA = {...}` in a `<script>` block at generation time |
+| Auto-regenerate on SessionStart | Dashboard is useless if it goes stale; must stay current automatically | LOW | Add a second SessionStart hook (`codex-dashboard-gen.js`) alongside existing `codex-cost-reporter.js` |
+| Last-updated timestamp | Tells user when data was last refreshed; prevents acting on stale data | LOW | Write `new Date().toISOString()` into the HTML footer at generation time |
 
----
+### Differentiators (What Makes This More Valuable Than Markdown Reports)
 
-## Differentiators
-
-Features that go beyond what the official plugin ships. These are the reasons to build a custom integration rather than just installing `codex-plugin-cc`.
+These are the features that justify building an HTML dashboard at all, rather than continuing with
+per-project Markdown session reports.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| **GSD wave-level Codex injection** | GSD's wave-based execution model (independent tasks run in parallel waves) is a natural fit for parallel Codex dispatch. Each wave can route background validation tasks to Codex-mini while the primary agent works. No off-the-shelf plugin does this. | High | Requires modifying GSD plugin source. GSD uses `.planning/` directory state. Integration point: post-wave-execution hook that dispatches Codex validation before wave completion is confirmed. |
-| **Superpowers parallel hypothesis testing via Codex-Spark** | Superpowers' `dispatching-parallel-agents` skill already supports parallel execution. Routing hypothesis-testing threads to Codex-Spark (1,000+ tok/s) instead of spawning more Opus subagents reduces cost by ~10x per hypothesis. | High | Requires modifying Superpowers skill source. Codex-Spark is only available to ChatGPT Pro subscribers — user has Plus ($20/mo), which may not include Spark. Verify access before building. |
-| **Adaptive handoff spec generation** | The current state of the art is static AGENTS.md files. An adaptive system generates handoff specs tailored to task complexity: file-level detail for risky/complex tasks, feature-level for routine ones. This reduces Codex hallucinations on complex work and reduces overhead on simple work. | High | Opus generates the spec as part of phase planning. Spec format is AGENTS.md-compatible Markdown. Complexity classifier: file count + cross-module dependencies + risk keywords. |
-| **Opus-Codex plan review loop (2-3 rounds)** | Research (Chandler Nguyen, Hacker News consensus) confirms 2-3 rounds of cross-model review "produces significantly better results than either model working alone." The official plugin only does single-pass review. A 2-3 round loop is a concrete quality improvement that's easy to measure. | Medium | Round 1: Opus generates plan. Round 2: Codex reviews, returns amendments. Round 3: Opus incorporates, Codex confirms. GSD's plan-before-execute structure already has the right insertion point. |
-| **Session cost report vs Opus-only baseline** | Token tracking alone is table stakes. The differentiating feature is the comparative report: "This session cost $X. Opus-only equivalent would have cost $Y. Savings: $Z (N%)." This is the proof of value the user needs to justify the integration. | Medium | Requires storing a baseline cost estimate (task-type → average Opus cost mapping from the model comparison research). Report generated at session end via Stop hook or `/gsd:complete-milestone`. |
-| **Background Codex validation during Claude execution** | Using Codex-mini as a continuous background validator (non-blocking) while Opus executes primary tasks. The validation result is available when Opus finishes, not as a blocking gate. This gives quality assurance without adding latency. | High | Implementation: PostToolUse hook spawns `codex exec` in background (`&`), writes result to `.planning/validation-queue/`. Opus checks the queue at natural stopping points. |
-| **Rate-limit aware routing with cost guardrails** | Automatically detect Codex Plus subscription limits (33-168 messages/day) and downshift to API when CLI is exhausted. Log a daily spend warning at 80% of the $5 Codex target. | Medium | Requires tracking CLI call count per day. If count > threshold, switch to OpenAI API. Persist count in `.planning/codex-usage.json`. |
-| **Cross-wave integration check via Codex 1M context** | GPT-5.4's native 1M context window (vs Opus's 200K standard) makes it better suited for whole-codebase consistency checks after multiple waves complete. Route cross-wave integration verification to Codex rather than Opus. | Medium | Triggered by GSD's `/gsd:verify` or wave completion event. Codex receives full diff since last milestone + AGENTS.md for context. |
+| Time trend line chart with daily/weekly toggle | Surfaces cost trajectory and savings trend over time — impossible in tabular session reports; weekly view removes daily noise for leadership-level reading | MEDIUM | Daily grouping is native (`timestamp.slice(0,10)`); weekly toggle regroups daily data client-side into ISO week buckets (JS: `getFullYear() + '-W' + getWeek()`) |
+| Project comparison bar chart | Side-by-side cost, savings, and catch rate across all projects at a glance | MEDIUM | Horizontal bar chart; one bar per project sorted by savings %; Chart.js bar type |
+| Cache efficiency per project | Shows what fraction of Codex input tokens hit the cache (cost avoidance within Codex itself) | LOW | `cached_input / (input + cached_input) * 100` per project; shown as a column in the breakdown table |
+| Session history with per-session stats | Drill into individual sessions across all projects — what was done, what was caught, what it cost | MEDIUM | Group non-null `session_id` records; compute per-session cost, call count, catch rate; link to project |
+| Orphan call tracking | Records with `session_id === null` (hook calls outside a Claude session) — surfacing these explains cost attribution gaps | LOW | Bucket null-session records into a synthetic "orphan" group per project |
 
----
+### Anti-Features (Do Not Build)
 
-## Anti-Features
-
-Features to explicitly NOT build. These create more problems than they solve.
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| **Real-time streaming between models** | PROJECT.md explicitly rules this out. Beyond scope, it adds latency (model A waits on model B's stream), complicates error handling, and provides no quality benefit over async handoff. | Async handoff: Opus generates plan → writes to file → Codex reads and executes → Codex writes result → Opus reads result. Clean separation, no streaming needed. |
-| **Codex making architectural decisions autonomously** | Codex hallucinates APIs at higher rates than Opus (research finding, MEDIUM confidence), sticks closer to literal instructions, and degrades near max context. Letting it architect is how you get technically-correct-but-wrong designs. | Hard-code the rule in AGENTS.md: "Never propose architectural changes. Implement what Opus specifies. Flag uncertainty rather than guess." |
-| **Gemini or other model support** | Out of scope per PROJECT.md. Adding a third model multiplies routing complexity, configuration surface, and debugging burden without clear value. OpenAI and Anthropic already have complementary strengths. | Keep it binary: Opus for reasoning, Codex for execution. Any ambiguous case defaults to Opus. |
-| **Web UI or dashboard for cost tracking** | This is a terminal-first integration on a dedicated workstation. A web dashboard requires a running server, complicates setup, and moves away from the CLI-first philosophy. | CLI cost report printed at session end, written to `.planning/session-reports/YYYY-MM-DD.md`. Human-readable, no server needed. |
-| **Universal auto-routing based on prompt analysis** | Automatic intent classification is fragile — keywords don't reliably distinguish "complex reasoning" from "clearly-defined execution." False positives send architectural work to Codex. Building a reliable classifier is a project in itself. | Use explicit routing points: specific GSD lifecycle events (post-plan, post-wave) and Superpowers skills trigger Codex. Human confirms routing at ambiguous points. |
-| **Infinite review loops** | The official `codex-plugin-cc` warns that the review gate "may create extended loops and drain usage limits quickly." Uncapped loops are a budget and reliability risk. | Cap at 3 review rounds maximum. After round 3, escalate to human review. Encode the limit in the hook with a counter stored in `.planning/review-state.json`. |
-| **Modifying Claude Code itself** | Explicitly out of scope. Any change to Claude Code's core binary breaks on the next Claude Code update, requires re-implementation, and voids compatibility guarantees. | Use only officially-supported extension points: hooks, skills, agents, plugins, CLAUDE.md, and `.claude/settings.json`. All changes are additive to the plugin layer. |
-| **Separate Codex session management CLI** | Building a custom CLI wrapper around Codex adds a maintenance burden (update with every Codex CLI release) and duplicates what `codex exec` and `codex resume` already provide. | Invoke Codex CLI directly from hooks and skill scripts. Use `codex resume --last` for continuation, `codex exec` for non-interactive automation. |
+| Feature | Why It Seems Good | Why Problematic | What to Do Instead |
+|---------|-------------------|-----------------|-------------------|
+| Real-time auto-refresh | Dashboard feels "live" | JSONL files are append-only and written by hooks, not streamed. Polling them with `setInterval` adds complexity, risks reading a partially-written line, and provides zero value for a tool that regenerates on SessionStart. | Regenerate at SessionStart; show "Last updated" timestamp. User knows to re-open after a session. |
+| Server process (Express, Python HTTP) | Enables `fetch()` for live data reloads | Violates the "no server" project requirement. Every server is a process to manage, a port to expose, and a dependency to break. The `file://` constraint eliminates this class of complexity entirely. | Inline all data as a JS variable in the generated HTML file at build time. |
+| SQLite or any database | Enables complex queries over historical data | JSONL is already the canonical storage format (written by hooks, read by the reporter). Introducing a DB means a migration job, a sync job, and a second source of truth. At this data volume (hundreds of records per project), reading and aggregating JSONL at generation time is under 100 ms. | Aggregate JSONL at HTML generation time in Node.js. No DB needed. |
+| Editable charts / drill-down interactivity | Feels powerful and modern | High JS complexity for a read-only metrics view. Interactive filters add 3-5x the client-side code of static charts. Research confirms dashboards with too many interactive elements increase time-to-insight by 35%. | Static charts with Chart.js tooltips (built-in) are sufficient. Add date-range filter only in v2 if users request it. |
+| Web UI dashboard vs local HTML | Accessible from any device | Contradicts the project's terminal-first, local-only design. The existing `file://` constraint is a feature (no auth, no hosting, no maintenance). A web UI would require hosting, auth, and a running server. | Self-contained `~/.claude/dashboard/index.html` opened directly in browser. |
+| Alert / notification system | Notify on cost spikes | Disproportionate complexity for a single-user local tool. The SessionStart hook already injects a cost summary into Claude's context (the `additionalContext` mechanism). | SessionStart hook `additionalContext` is already the notification channel. |
+| Cross-machine aggregation | Show data from all machines the user works on | Requires network, auth, and a server. Explicitly out of scope per PROJECT.md. | Single-machine only; all JSONL files are local. |
+| Plotly.js as the chart library | More chart types, scientific charts | Bundle is 3-4x larger than Chart.js (~1 MB minified vs ~265 KB). Requires React internally. For line + bar + pie, Chart.js is sufficient and lighter. | Use Chart.js. Register only the chart types needed to minimize inline bundle size. |
 
 ---
 
 ## Feature Dependencies
 
 ```
-AGENTS.md spec file
-  → All Codex invocations (Codex operates without project context without it)
+[Global aggregator: scan all token-log.jsonl files]
+    required-by --> [Global cost summary card]
+    required-by --> [Per-project breakdown table]
+    required-by --> [Time trend chart]
+    required-by --> [Session history table]
+    required-by --> [Project comparison bar chart]
+    required-by --> [BLOCK issue log]
+    required-by --> [Cache efficiency metric]
 
-PreToolUse routing hook
-  → Background Codex validation (hook triggers the dispatch)
-  → Cross-wave integration check (hook triggers at wave boundary)
+[Global aggregator]
+    feeds --> [Data inlined as JS variable in HTML]
+                  feeds --> [All chart rendering code]
 
-Token usage logging per call
-  → Session cost report vs Opus-only baseline (baseline comparison needs per-call data)
-  → Rate-limit aware routing (daily spend tracking needs call logs)
+[Data inlined as JS variable]
+    required-by --> [Self-contained HTML (no server, no fetch())]
 
-Codex CLI invocation from hooks (table stakes)
-  → Stop hook review gate
-  → Cross-model code review
-  → Adaptive handoff spec generation
-  → Opus-Codex plan review loop
-  → Background Codex validation
+[Self-contained HTML generation script (Node.js)]
+    required-by --> [All rendered features]
+    triggered-by --> [SessionStart hook integration]
 
-GSD wave-level Codex injection
-  → Cross-wave integration check (requires wave state from GSD)
-  → Background validation during execution (uses GSD wave lifecycle)
+[Time trend chart (daily)]
+    enhanced-by --> [Weekly toggle] (client-side JS regroups same data)
 
-Adaptive handoff spec generation
-  → Opus-Codex plan review loop (spec is what Codex reviews)
-  → Superpowers parallel hypothesis testing (spec scopes each hypothesis thread)
+[Session history table]
+    depends-on --> [session_id grouping logic in aggregator]
 ```
+
+### Dependency Notes
+
+- **Global aggregator is the root:** Every visual feature depends on one Node.js function that
+  finds all `token-log.jsonl` files and merges them with inferred project names. This must be built
+  first and tested independently before any rendering code is written.
+
+- **Project name requires path inference:** The JSONL schema stores no `project` field. The
+  aggregator derives it with:
+  `path.basename(path.dirname(path.dirname(logPath)))` where `logPath` ends in `.planning/token-log.jsonl`.
+
+- **Scan paths (both must be checked):**
+  - `~/projects/*/. planning/token-log.jsonl`
+  - `~/.claude/projects/*/.planning/token-log.jsonl`
+  Future projects may live in either location.
+
+- **Self-contained HTML requires data inlining at generation time:** Because `file://` pages
+  cannot `fetch()` local files, the generator serializes all aggregated data as a JS variable before
+  writing the HTML file:
+  ```html
+  <script>const DASHBOARD_DATA = /* JSON.stringify(aggregated) */;</script>
+  ```
+  This means the HTML file is completely regenerated on each SessionStart, not incrementally updated.
+
+- **SessionStart hook is a second hook, not a modification of the existing one:**
+  `codex-cost-reporter.js` generates per-project Markdown reports. The new
+  `codex-dashboard-gen.js` generates the global HTML dashboard. They run independently.
+  Both are registered under the `SessionStart` hook event in `~/.claude/settings.json`.
+
+- **Null session_id records ("orphan" calls):** Records where `session_id === null` are hook
+  invocations that fired outside a Claude Code session context. They must be included in all cost
+  totals but grouped separately in the session history view (not mixed with named sessions).
 
 ---
 
-## MVP Recommendation
+## MVP Definition
 
-Build in this order to get to a working, valuable integration as fast as possible:
+### Launch With (v1.1 — this milestone)
 
-**Phase 1 — Foundation (must ship first, everything else depends on these):**
-1. AGENTS.md spec file — zero Codex value without it
-2. Codex CLI invocation from Claude Code hooks — the plumbing everything uses
-3. Token usage logging per call — needed to prove value from day one
+Minimum viable dashboard that provides visible value beyond existing per-project Markdown reports.
 
-**Phase 2 — Core Value (what the integration actually does):**
-4. Stop hook review gate — single most impactful quality feature
-5. Cross-model code review (GSD + Superpowers) — the primary use case
-6. Opus-Codex plan review loop (2-3 rounds) — quality multiplier on all plans
+- [ ] `codex-dashboard-gen.js` — global aggregator + HTML generator
+- [ ] `~/.claude/dashboard/index.html` — self-contained HTML with inline CSS + Chart.js
+- [ ] Global summary section: total cost, Opus baseline, savings %, total calls, global catch rate
+- [ ] Per-project breakdown table: project, calls, actual cost, savings $, savings %, catch rate, cache efficiency %
+- [ ] Time trend line chart: daily total cost for last 30 days (stacked by project or multi-series)
+- [ ] Session history table: project, session date, calls, cost, catch rate (sorted by most recent)
+- [ ] BLOCK issue log: timestamp, project, task type, issue summary (most recent 20)
+- [ ] "Last updated" footer with ISO timestamp
+- [ ] SessionStart hook registration in `~/.claude/settings.json`
+- [ ] Silent fail: any error in generator exits 0 and never blocks session start
 
-**Phase 3 — Differentiators (what makes this better than just installing codex-plugin-cc):**
-7. Adaptive handoff spec generation — reduces Codex errors on complex tasks
-8. Session cost report vs Opus-only baseline — proves the integration works
-9. Background Codex validation during Claude execution — non-blocking quality assurance
-10. GSD wave-level Codex injection — full GSD lifecycle integration
+### Add After Validation (v1.x)
 
-**Defer indefinitely:**
-- Superpowers parallel hypothesis testing via Codex-Spark: requires ChatGPT Pro subscription ($200/mo), user has Plus ($20/mo). Verify Spark access before building. If unavailable, substitute GPT-5.4-mini.
-- Rate-limit aware routing: implement only if hitting Plus limits in practice (33-168 messages/day is generous for this use case).
+Add once core dashboard is running and the data model is confirmed stable across multiple sessions.
+
+- [ ] Weekly trend toggle — client-side JS; regroups same daily data into ISO week buckets
+- [ ] Project comparison horizontal bar chart — cost and savings side-by-side per project
+- [ ] Model split chart (pie or bar) — GPT-5.4 vs GPT-5.4-mini token and cost share
+- [ ] Task-type breakdown column in per-project table
+
+### Future Consideration (v2+)
+
+Defer until the tool has been used for a full month and patterns are confirmed.
+
+- [ ] Date range filter (client-side JS) — last 7 / 30 / 90 days selector
+- [ ] Task-type drill-down — click a project row to see task breakdown in a modal or expanded section
+- [ ] Export to CSV — download aggregated data for external analysis
+
+---
+
+## Feature Prioritization Matrix
+
+| Feature | User Value | Implementation Cost | Priority |
+|---------|------------|---------------------|----------|
+| Global aggregator script | HIGH | LOW | P1 |
+| Global cost summary card | HIGH | LOW | P1 |
+| Per-project breakdown table | HIGH | LOW | P1 |
+| BLOCK issue log | HIGH | LOW | P1 |
+| Time trend line chart (daily) | HIGH | MEDIUM | P1 |
+| Session history table | HIGH | MEDIUM | P1 |
+| Self-contained HTML generation | HIGH | MEDIUM | P1 |
+| SessionStart hook integration | HIGH | LOW | P1 |
+| Cache efficiency column | MEDIUM | LOW | P2 |
+| Weekly trend toggle | MEDIUM | LOW | P2 |
+| Project comparison bar chart | MEDIUM | MEDIUM | P2 |
+| Model split chart | MEDIUM | LOW | P2 |
+| Date range filter | MEDIUM | MEDIUM | P3 |
+| Task-type drill-down | LOW | HIGH | P3 |
+| Export to CSV | LOW | LOW | P3 |
+
+**Priority key:**
+- P1: Must have for v1.1 launch
+- P2: Should have, add in a follow-on patch
+- P3: Nice to have, defer to v2+
+
+---
+
+## Competitor Comparison (for context)
+
+This is a personal local tool — no direct commercial competitors. Closest analogues:
+
+| Feature | ccusage (CLI) | Claude-Code-Usage-Monitor (CLI) | This HTML Dashboard |
+|---------|--------------|----------------------------------|---------------------|
+| Multi-project aggregation | Yes (`--project` flag) | No | Yes (automatic scan) |
+| Time trend charts | No (tables only) | Real-time CLI bar | Yes (line chart) |
+| HTML / browser output | No | No | Yes (primary output) |
+| Codex (OpenAI) cost tracking | No (Claude only) | No | Yes (primary focus) |
+| Cross-model savings vs Opus baseline | No | No | Yes (core metric) |
+| Review catch-rate tracking | No | No | Yes |
+| BLOCK issue log | No | No | Yes |
+| Offline / no server | Yes | Yes | Yes |
+
+**Gap being filled:** ccusage covers Claude Code (Anthropic) usage but has no concept of Codex
+(OpenAI) costs, cross-model savings comparison, or review quality metrics. Neither tool produces
+HTML output. This dashboard is the only view that ties Codex routing decisions to cost outcomes
+and shows whether the v1.0 integration is delivering its claimed 86.7% savings consistently.
 
 ---
 
 ## Sources
 
-- [openai/codex-plugin-cc — Official OpenAI Codex plugin for Claude Code](https://github.com/openai/codex-plugin-cc)
-- [Claude Code Hooks Guide — Official Anthropic docs](https://code.claude.com/docs/en/hooks-guide) (HIGH confidence — official docs)
-- [Codex CLI Features — Official OpenAI docs](https://developers.openai.com/codex/cli/features) (HIGH confidence — official docs)
-- [Codex Non-Interactive Mode — Official OpenAI docs](https://developers.openai.com/codex/noninteractive) (HIGH confidence — official docs)
-- [HubSpot Sidekick multi-model code review — InfoQ, March 2026](https://www.infoq.com/news/2026/03/hubspot-ai-code-review-agent/) (HIGH confidence — published case study with metrics)
-- [Chandler Nguyen — Dual-wielding Claude Code + Codex GPT-5.4](https://chandlernguyen.com/blog/2026/03/13/codex-gpt-5-4-vs-claude-code-opus-4-6-dual-wielding-ai-coding-tools/) (MEDIUM confidence — practitioner blog, widely cited)
-- [Hacker News GPT-5.4 discussion — cross-model review patterns](https://news.ycombinator.com/item?id=47265045) (MEDIUM confidence — community consensus)
-- [Superpowers dispatching-parallel-agents skill](https://github.com/obra/superpowers/blob/main/skills/dispatching-parallel-agents/SKILL.md) (HIGH confidence — official plugin source)
-- [Agentic Coding 2026 complete guide — halallens.no](https://halallens.no/en/blog/agentic-coding-in-2026-the-complete-guide-to-plugins-multi-model-orchestration-and-ai-agent-teams) (MEDIUM confidence — comprehensive guide)
-- [SmartScope — codex-plugin-cc analysis](https://smartscope.blog/en/blog/codex-plugin-cc-openai-claude-code-2026/) (MEDIUM confidence — third-party analysis of official plugin)
-- [docs/research/opus-vs-codex-model-comparison.md](../../docs/research/opus-vs-codex-model-comparison.md) — project's own research document compiled from 34 sources (HIGH confidence for routing decisions)
-- [.planning/PROJECT.md](../PROJECT.md) — project requirements (canonical source for scope decisions)
+- ccusage feature set: https://ccusage.com/ and https://github.com/ryoppippi/ccusage (verified 2026-04-02)
+- Dashboard design: 12-KPI engagement threshold from https://improvado.io/blog/dashboard-design-guide (2026)
+- Dashboard overload: 35% increased time-to-insight from https://www.smashingmagazine.com/2025/09/ux-strategies-real-time-dashboards/
+- Time aggregation UX: https://writesonic.com/blog/introducing-aggregated-views
+- Chart type selection (line for trends, bar for comparison): https://www.datacamp.com/tutorial/dashboard-design-tutorial
+- Chart.js bundle size (~265 KB) and CDN: https://www.chartjs.org/docs/latest/getting-started/installation.html (verified 2026-04-02)
+- Chart.js vs Plotly.js: https://www.luzmo.com/blog/plotly-js (2025)
+- Existing token-log.jsonl schema: verified from live files — `/home/alucard/projects/Claude_X_Codex/.planning/token-log.jsonl` and `/home/alucard/projects/The-Crucible/.planning/token-log.jsonl`
+- Existing cost reporter logic: `/home/alucard/.claude/hooks/codex-cost-reporter.js` (canonical source for aggregation patterns)
+- Project requirements: `/home/alucard/projects/Claude_X_Codex/.planning/PROJECT.md`
+
+---
+
+*Feature research for: Local HTML metrics dashboard — Claude X Codex v1.1 milestone*
+*Researched: 2026-04-02*
