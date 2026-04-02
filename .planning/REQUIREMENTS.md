@@ -33,9 +33,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### GSD Integration
 
-- [ ] **GSD-01**: GSD plugin source modified to dispatch Codex validation at wave boundaries (post-wave-execution)
-- [ ] **GSD-02**: Background Codex validation runs non-blocking during Claude execution, results available at natural stopping points
-- [ ] **GSD-03**: GSD plan-phase workflow triggers the Opus-Codex review loop before plan finalization
+- [x] **GSD-01**: GSD plugin source modified to dispatch Codex validation at wave boundaries (post-wave-execution)
+- [x] **GSD-02**: Background Codex validation runs non-blocking during Claude execution, results available at natural stopping points
+- [x] **GSD-03**: GSD plan-phase workflow triggers the Opus-Codex review loop before plan finalization
 - [x] **GSD-04**: GSD execute-phase workflow routes clearly-defined implementation tasks to Codex where appropriate
 
 ### Superpowers Integration
@@ -96,9 +96,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | REVW-01 | Phase 2 | Complete |
 | REVW-02 | Phase 2 | Complete |
 | ROUT-02 | Phase 2 | Complete |
-| GSD-01 | Phase 2 | Pending |
-| GSD-02 | Phase 2 | Pending |
-| GSD-03 | Phase 2 | Pending |
+| GSD-01 | Phase 2 | Complete |
+| GSD-02 | Phase 2 | Complete |
+| GSD-03 | Phase 2 | Complete |
 | GSD-04 | Phase 2 | Complete |
 | REVW-03 | Phase 3 | Pending |
 | REVW-04 | Phase 3 | Pending |

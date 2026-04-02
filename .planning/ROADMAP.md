@@ -13,7 +13,7 @@ This project wires the OpenAI Codex CLI into the existing Claude Code + GSD + Su
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Security, plumbing, token tracking infrastructure, and routing rules — everything that must exist before any review logic is wired (completed 2026-04-02)
-- [ ] **Phase 2: Review Gate & GSD Integration** - Stop hook review gate, cross-model code review, and all GSD wave/plan integration points
+- [x] **Phase 2: Review Gate & GSD Integration** - Stop hook review gate, cross-model code review, and all GSD wave/plan integration points (completed 2026-04-02)
 - [ ] **Phase 3: Plan Review Loop & Superpowers** - Opus-Codex 2-3 round plan review loop (GSD + Superpowers) and Superpowers parallel agent routing
 - [ ] **Phase 4: Cost Reporting** - Session cost reports proving savings vs Opus-only baseline
 
@@ -50,7 +50,7 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — Stop hook review gate, global routing extension, and settings registration (REVW-01, REVW-02, ROUT-02, GSD-04)
-- [ ] 02-02-PLAN.md — GSD wave-boundary validation hook and plan-phase review script (GSD-01, GSD-02, GSD-03)
+- [x] 02-02-PLAN.md — GSD wave-boundary validation hook and plan-phase review script (GSD-01, GSD-02, GSD-03)
 
 ### Phase 3: Plan Review Loop & Superpowers
 **Goal**: Before any phase plan or task plan is finalized, a 2-3 round Opus-Codex review loop has run; Superpowers parallel agents can route to cheaper models
@@ -81,6 +81,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-04-02 |
-| 2. Review Gate & GSD Integration | 0/2 | Planned | - |
+| 2. Review Gate & GSD Integration | 2/2 | Complete   | 2026-04-02 |
 | 3. Plan Review Loop & Superpowers | 0/TBD | Not started | - |
 | 4. Cost Reporting | 0/TBD | Not started | - |
