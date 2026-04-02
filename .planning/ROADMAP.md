@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Security, plumbing, token tracking infrastructure, and routing rules — everything that must exist before any review logic is wired (completed 2026-04-02)
 - [x] **Phase 2: Review Gate & GSD Integration** - Stop hook review gate, cross-model code review, and all GSD wave/plan integration points (completed 2026-04-02)
-- [ ] **Phase 3: Plan Review Loop & Superpowers** - Opus-Codex 2-3 round plan review loop (GSD + Superpowers) and Superpowers parallel agent routing
+- [x] **Phase 3: Plan Review Loop & Superpowers** - Opus-Codex 2-3 round plan review loop (GSD + Superpowers) and Superpowers parallel agent routing (completed 2026-04-02)
 - [ ] **Phase 4: Cost Reporting** - Session cost reports proving savings vs Opus-only baseline
 
 ## Phase Details
@@ -61,11 +61,11 @@ Plans:
   2. Review loop produces a typed handoff spec that includes a `decisions_not_taken` section; round counter is persisted in `.planning/review-state.json`
   3. Superpowers `dispatching-parallel-agents` skill dispatches hypothesis-testing threads to `gpt-5.4-mini` via API instead of spawning additional Opus subagents
   4. Superpowers plan review uses the same 2-3 round, 3-cap Opus-Codex loop as GSD
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 03-01-PLAN.md — Multi-round review loop orchestrator and codex-plan-reviewer.js upgrade (REVW-03, REVW-04, REVW-06)
-- [ ] 03-02-PLAN.md — Superpowers GPT-5.4-mini API, skill override, and plan review hook (REVW-05, SPWR-01, SPWR-02, SPWR-03)
+- [x] 03-02-PLAN.md — Superpowers GPT-5.4-mini API, skill override, and plan review hook (REVW-05, SPWR-01, SPWR-02, SPWR-03)
 
 ### Phase 4: Cost Reporting
 **Goal**: After any session, the user can read a human-readable report showing actual spend vs what the same work would have cost using Opus alone
@@ -85,5 +85,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-04-02 |
 | 2. Review Gate & GSD Integration | 2/2 | Complete   | 2026-04-02 |
-| 3. Plan Review Loop & Superpowers | 1/2 | In Progress|  |
+| 3. Plan Review Loop & Superpowers | 2/2 | Complete   | 2026-04-02 |
 | 4. Cost Reporting | 0/TBD | Not started | - |

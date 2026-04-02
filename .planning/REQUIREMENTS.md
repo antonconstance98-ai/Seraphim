@@ -21,7 +21,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **REVW-02**: Cross-model code review works bidirectionally — Claude reviews Codex output AND Codex reviews Claude output
 - [x] **REVW-03**: Opus-Codex plan review loop (2-3 rounds) triggers before every GSD phase plan, with hard 3-round cap
 - [x] **REVW-04**: Opus-Codex plan review loop (2-3 rounds) triggers before every GSD individual task plan
-- [ ] **REVW-05**: Opus-Codex plan review loop integrates into Superpowers planning/implementation design phases
+- [x] **REVW-05**: Opus-Codex plan review loop integrates into Superpowers planning/implementation design phases
 - [x] **REVW-06**: Review loop produces a typed handoff spec with decisions-not-taken section, and Opus has final authority after round 3
 
 ### Routing & Orchestration
@@ -40,9 +40,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Superpowers Integration
 
-- [ ] **SPWR-01**: Superpowers plugin source modified to use Codex during planning/implementation design phases
-- [ ] **SPWR-02**: Superpowers plan review uses the same Opus-Codex review loop as GSD (2-3 rounds, 3-round cap)
-- [ ] **SPWR-03**: Superpowers parallel agent dispatch can route hypothesis-testing threads to GPT-5.4-mini (via API) instead of spawning more Opus subagents
+- [x] **SPWR-01**: Superpowers plugin source modified to use Codex during planning/implementation design phases
+- [x] **SPWR-02**: Superpowers plan review uses the same Opus-Codex review loop as GSD (2-3 rounds, 3-round cap)
+- [x] **SPWR-03**: Superpowers parallel agent dispatch can route hypothesis-testing threads to GPT-5.4-mini (via API) instead of spawning more Opus subagents
 
 ### Tracking & Reporting
 
@@ -102,11 +102,11 @@ Deferred to future release. Tracked but not in current roadmap.
 | GSD-04 | Phase 2 | Complete |
 | REVW-03 | Phase 3 | Complete |
 | REVW-04 | Phase 3 | Complete |
-| REVW-05 | Phase 3 | Pending |
+| REVW-05 | Phase 3 | Complete |
 | REVW-06 | Phase 3 | Complete |
-| SPWR-01 | Phase 3 | Pending |
-| SPWR-02 | Phase 3 | Pending |
-| SPWR-03 | Phase 3 | Pending |
+| SPWR-01 | Phase 3 | Complete |
+| SPWR-02 | Phase 3 | Complete |
+| SPWR-03 | Phase 3 | Complete |
 | TRCK-03 | Phase 4 | Pending |
 | TRCK-04 | Phase 4 | Pending |
 
