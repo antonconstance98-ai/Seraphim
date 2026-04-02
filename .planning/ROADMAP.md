@@ -61,8 +61,11 @@ Plans:
   2. Review loop produces a typed handoff spec that includes a `decisions_not_taken` section; round counter is persisted in `.planning/review-state.json`
   3. Superpowers `dispatching-parallel-agents` skill dispatches hypothesis-testing threads to `gpt-5.4-mini` via API instead of spawning additional Opus subagents
   4. Superpowers plan review uses the same 2-3 round, 3-cap Opus-Codex loop as GSD
-**Plans**: TBD
-**UI hint**: no
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Multi-round review loop orchestrator and codex-plan-reviewer.js upgrade (REVW-03, REVW-04, REVW-06)
+- [ ] 03-02-PLAN.md — Superpowers GPT-5.4-mini API, skill override, and plan review hook (REVW-05, SPWR-01, SPWR-02, SPWR-03)
 
 ### Phase 4: Cost Reporting
 **Goal**: After any session, the user can read a human-readable report showing actual spend vs what the same work would have cost using Opus alone
@@ -76,11 +79,11 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-04-02 |
 | 2. Review Gate & GSD Integration | 2/2 | Complete   | 2026-04-02 |
-| 3. Plan Review Loop & Superpowers | 0/TBD | Not started | - |
+| 3. Plan Review Loop & Superpowers | 0/2 | Planned | - |
 | 4. Cost Reporting | 0/TBD | Not started | - |
