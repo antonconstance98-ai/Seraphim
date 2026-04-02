@@ -2,27 +2,40 @@
 
 ## What This Is
 
-A multi-model integration that adds OpenAI Codex (GPT-5.4) capabilities into an existing Claude Code workflow. It modifies the Claude Code configuration (hooks, agents), the GSD (Get Shit Done) plugin, and the Superpowers plugin so that Claude Opus 4.6 acts as the orchestrator/architect while Codex handles implementation execution — with a cross-model plan review loop before any code is written. The goal is better results at lower cost by routing each task to the model that's best at it.
+A multi-model integration that wires OpenAI Codex (GPT-5.4) into an existing Claude Code + GSD + Superpowers workflow. Claude Opus 4.6 acts as the orchestrator/architect while Codex handles fast execution and review — with a multi-round cross-model plan review loop before any code is written. The system includes 7 hook scripts, a Superpowers skill override, and automated cost reporting that proved 86.7% savings vs Opus-only in testing.
 
 ## Core Value
 
 Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution — with cross-model review catching what either model misses alone.
 
+## Current State
+
+**v1.0 shipped 2026-04-02.** All 4 phases complete (8 plans, 14 tasks, 8,694 lines added).
+
+Hook scripts installed at `~/.claude/hooks/`:
+- `codex-exec.js` — Codex CLI wrapper with timeout, token parsing, GPT-5.4-mini API
+- `codex-router.js` — PreToolUse advisory routing (opt-out, v2.0)
+- `codex-token-logger.js` — PostToolUse token logging to JSONL
+- `codex-review-gate.js` — Stop hook ALLOW/BLOCK review with depth variation
+- `codex-wave-validator.js` + `codex-wave-validator-worker.js` — Non-blocking GSD wave validation
+- `codex-plan-reviewer.js` — SubagentStop multi-round plan review (v3.0)
+- `codex-multi-round-reviewer.js` — Shared 2-round review loop orchestrator
+- `codex-superpowers-plan-reviewer.js` — Superpowers SubagentStop plan review
+- `codex-cost-reporter.js` — SessionStart cost savings report
+
 ## Requirements
 
 ### Validated
 
-- [x] Claude config hooks auto-route simple/defined tasks to Codex CLI — *Validated in Phase 1: Foundation*
-- [x] Built-in token usage tracking logs every model call with tokens used, cost, and task type — *Validated in Phase 1: Foundation*
-- [x] Opus remains the sole model for architectural decisions and complex reasoning tasks — *Validated in Phase 1: Foundation (AGENTS.md hard-stop rule)*
-- [x] GSD plugin modified to use Codex at specific workflow points (post-execution review, background validation, cross-wave integration checking) — *Validated in Phase 2: Review Gate & GSD Integration*
-- [x] Codex CLI preferred over API calls wherever possible (maximizing $20/mo ChatGPT Plus subscription) — *Validated in Phase 2: All hooks use codex-exec.js CLI wrapper*
-
-- [x] Superpowers plugin modified to use Codex for parallel hypothesis testing, parallel code reviews, and parallel verification — *Validated in Phase 3: Plan Review Loop & Superpowers*
-- [x] Opus-Codex plan review loop (2-3 rounds) triggers before every phase plan and every individual task plan — *Validated in Phase 3: Multi-round loop with constructive + adversarial rounds*
-- [x] OpenAI API used only for quick model-to-model communication where CLI overhead is impractical — *Validated in Phase 3: GPT-5.4-mini API for Superpowers parallel dispatch*
-
-- [x] Token tracking generates session reports showing savings vs Opus-only baseline — *Validated in Phase 4: Cost Reporting (86.7% savings in functional test)*
+- [x] Claude config hooks auto-route simple/defined tasks to Codex CLI — *v1.0*
+- [x] Built-in token usage tracking logs every model call with tokens used, cost, and task type — *v1.0*
+- [x] Opus remains the sole model for architectural decisions and complex reasoning tasks — *v1.0 (AGENTS.md hard-stop rule)*
+- [x] GSD plugin modified to use Codex at specific workflow points — *v1.0*
+- [x] Codex CLI preferred over API calls wherever possible — *v1.0*
+- [x] Superpowers plugin modified to use Codex for parallel hypothesis testing — *v1.0*
+- [x] Opus-Codex plan review loop (2 rounds) triggers before every plan — *v1.0*
+- [x] OpenAI API used only for quick model-to-model communication — *v1.0*
+- [x] Token tracking generates session reports showing savings vs Opus-only baseline — *v1.0*
 
 ### Active
 
@@ -38,19 +51,19 @@ Every task goes to the model that's best at it — Opus for reasoning and archit
 
 ## Context
 
-- **Research basis:** `docs/research/opus-vs-codex-model-comparison.md` contains benchmark data from 34 sources informing all routing decisions
-- **Key research finding:** Cross-model review (Opus reviews Codex output, Codex reviews Opus output) produces significantly better results than either model alone
-- **Token efficiency:** Codex uses ~4x fewer tokens per equivalent task; combined with 2-6x cheaper per-token pricing, a $1.00 Opus task costs ~$0.10-0.15 on Codex
-- **Plugin ecosystems:** GSD uses `.planning/` directory with phases, plans, and agent orchestration. Superpowers uses skills with parallel agent dispatch.
-- **Runtime environment:** Ubuntu 24.04, Claude Code CLI, Codex CLI, OpenAI API access
-- **Subscription:** $20/mo ChatGPT Plus (prefer CLI usage over API billing)
-- **User is non-technical** — all changes must be implemented by Claude, explained in plain English
+- **Shipped:** v1.0 with 7 hook scripts, 1 Superpowers skill override, 8,694 LOC (Node.js)
+- **Research basis:** `docs/research/opus-vs-codex-model-comparison.md` — 34 sources informing routing decisions
+- **Key finding:** Cross-model review produces significantly better results than either model alone
+- **Cost efficiency:** 86.7% savings demonstrated in functional testing ($0.0233 actual vs $0.1759 Opus baseline)
+- **Runtime:** Ubuntu 24.04, Claude Code CLI v2.1.90, Codex CLI v0.118.0, OpenAI SDK v6.33.0
+- **Subscription:** $20/mo ChatGPT Plus (CLI usage preferred over API billing)
+- **User is non-technical** — all changes implemented by Claude, explained in plain English
 
 ## Constraints
 
 - **Budget**: $20/mo ChatGPT Plus subscription; $15/day max API spend; prefer CLI over API billing
-- **Security**: Never expose API keys in plaintext; use environment variables; bind services to 127.0.0.1
-- **Compatibility**: Must work with existing GSD and Superpowers plugin versions without breaking current workflows
+- **Security**: API keys in environment variables only; CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 active
+- **Compatibility**: Works with existing GSD and Superpowers plugin versions without breaking workflows
 - **Runtime**: Codex CLI runs locally in terminal; API calls use OpenAI SDK
 - **Orchestration**: Opus always remains the primary orchestrator; Codex never makes architectural decisions autonomously
 
@@ -58,28 +71,29 @@ Every task goes to the model that's best at it — Opus for reasoning and archit
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Both CLI + API for Codex | CLI for autonomous execution (uses subscription), API for fast model-to-model comms | — Pending |
-| Modify plugin source directly | First-class integration, not bolted-on wrappers | — Pending |
-| Adaptive handoff specs | File-level detail for complex/risky; feature-level for simple — avoids unnecessary overhead | — Pending |
-| Review loop at phase AND plan level | Thorough cross-model review catches more issues; research confirms 2-3 rounds optimal | — Pending |
-| Built-in token tracking | Required to prove cost savings — the success metric for "done" | — Pending |
+| Both CLI + API for Codex | CLI for autonomous execution (uses subscription), API for fast model-to-model comms | ✓ Good — CLI handles all review/execution; API added for GPT-5.4-mini dispatch |
+| Hook-based integration (not plugin source modification) | Non-invasive; survives plugin updates; uses native Claude Code hooks API | ✓ Good — 7 hooks, zero plugin source changes |
+| Advisory routing (not auto-delegation) | Opus decides whether to delegate; safer than keyword-based auto-routing | ✓ Good — prevents cost runaway, Opus retains judgment |
+| Multi-round review (constructive + adversarial) | Research confirms 2 distinct review types catch more issues than 2 identical passes | ✓ Good — early exit on clean plans saves tokens |
+| Built-in token tracking + cost reporting | Required to prove cost savings — the success metric for "done" | ✓ Good — 86.7% savings demonstrated |
+| User-space skill override for Superpowers | ~/.claude/skills/ shadows plugin cache, survives auto-updates | ✓ Good — durable without modifying plugin source |
 
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
 
-**After each phase transition** (via `/gsd:transition`):
+**After each phase transition:**
 1. Requirements invalidated? → Move to Out of Scope with reason
 2. Requirements validated? → Move to Validated with phase reference
 3. New requirements emerged? → Add to Active
 4. Decisions to log? → Add to Key Decisions
 5. "What This Is" still accurate? → Update if drifted
 
-**After each milestone** (via `/gsd:complete-milestone`):
+**After each milestone:**
 1. Full review of all sections
 2. Core Value check — still the right priority?
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 after Phase 4 completion — all milestone phases complete*
+*Last updated: 2026-04-02 after v1.0 milestone completion*
