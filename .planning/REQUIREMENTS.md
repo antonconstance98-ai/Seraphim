@@ -11,7 +11,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **FNDTN-01**: AGENTS.md spec file exists at repo root, giving Codex project context, conventions, and the hard rule that Codex never makes architectural decisions
 - [x] **FNDTN-02**: Codex CLI can be invoked from Claude Code hooks via `codex exec --json` with timeout wrapper (300s max)
-- [ ] **FNDTN-03**: PreToolUse hook intercepts Claude tool calls and routes Codex-appropriate tasks (clearly-defined implementation, test generation, bulk operations) to Codex CLI
+- [x] **FNDTN-03**: PreToolUse hook intercepts Claude tool calls and routes Codex-appropriate tasks (clearly-defined implementation, test generation, bulk operations) to Codex CLI
 - [x] **FNDTN-04**: Claude Code security is verified (version 2.0.65+ for CVE patches, API keys in env vars only)
 - [x] **FNDTN-05**: Headless Codex CLI authentication works via API key (not ChatGPT web login) for hook-triggered invocations
 
@@ -28,8 +28,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **ROUT-01**: Opus remains sole model for architectural decisions and complex reasoning — enforced by hooks and AGENTS.md, not just convention
 - [ ] **ROUT-02**: Global Claude hooks auto-route Codex-specialized tasks in general workflows (not just GSD/Superpowers)
-- [ ] **ROUT-03**: Fallback routing gracefully degrades to Opus when Codex CLI rate-limits or fails
-- [ ] **ROUT-04**: Codex CLI (subscription) preferred over API calls; API used only for quick model-to-model communication
+- [x] **ROUT-03**: Fallback routing gracefully degrades to Opus when Codex CLI rate-limits or fails
+- [x] **ROUT-04**: Codex CLI (subscription) preferred over API calls; API used only for quick model-to-model communication
 
 ### GSD Integration
 
@@ -85,12 +85,12 @@ Deferred to future release. Tracked but not in current roadmap.
 |-------------|-------|--------|
 | FNDTN-01 | Phase 1 | Complete |
 | FNDTN-02 | Phase 1 | Complete |
-| FNDTN-03 | Phase 1 | Pending |
+| FNDTN-03 | Phase 1 | Complete |
 | FNDTN-04 | Phase 1 | Complete |
 | FNDTN-05 | Phase 1 | Complete |
 | ROUT-01 | Phase 1 | Complete |
-| ROUT-03 | Phase 1 | Pending |
-| ROUT-04 | Phase 1 | Pending |
+| ROUT-03 | Phase 1 | Complete |
+| ROUT-04 | Phase 1 | Complete |
 | TRCK-01 | Phase 1 | Complete |
 | TRCK-02 | Phase 1 | Complete |
 | REVW-01 | Phase 2 | Pending |

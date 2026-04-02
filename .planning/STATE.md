@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 01-02-PLAN.md (execution wrapper and token tracking)
-last_updated: "2026-04-02T17:50:37.603Z"
+stopped_at: "Completed 01-03-PLAN.md (gap closure: codex-router.js + hook registration)"
+last_updated: "2026-04-02T18:21:58.366Z"
 last_activity: 2026-04-02
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 3
+  completed_plans: 3
   percent: 0
 ---
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 2min | 2 tasks | 2 files |
 | Phase 01-foundation P02 | 5 | 2 tasks | 4 files |
+| Phase 01-foundation P03 | 3 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: spawn over exec: streams JSONL output instead of buffering; prevents memory issues on long Codex runs
 - [Phase 01-foundation]: Last token_count event: parseCodexTokens takes final event with non-null info (cumulative total — Pitfall 3 mitigation)
 - [Phase 01-foundation]: CODEX_RESULT marker pattern: token logger detects Codex calls via tool_result prefix rather than tool_name
+- [Phase 01-foundation]: Advisory-only routing in Phase 1: codex-router.js injects context, Opus decides whether to delegate — universal auto-routing via keyword analysis deferred (fragile)
+- [Phase 01-foundation]: Router does not invoke codex-exec.js directly: hook advises only, Opus calls runCodexExec when it decides to delegate — cleaner separation of concerns
 
 ### Pending Todos
 
@@ -83,6 +86,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T17:50:37.601Z
-Stopped at: Completed 01-02-PLAN.md (execution wrapper and token tracking)
+Last session: 2026-04-02T18:21:58.363Z
+Stopped at: Completed 01-03-PLAN.md (gap closure: codex-router.js + hook registration)
 Resume file: None

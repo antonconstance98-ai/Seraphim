@@ -12,7 +12,7 @@ This project wires the OpenAI Codex CLI into the existing Claude Code + GSD + Su
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Security, plumbing, token tracking infrastructure, and routing rules — everything that must exist before any review logic is wired
+- [x] **Phase 1: Foundation** - Security, plumbing, token tracking infrastructure, and routing rules — everything that must exist before any review logic is wired (completed 2026-04-02)
 - [ ] **Phase 2: Review Gate & GSD Integration** - Stop hook review gate, cross-model code review, and all GSD wave/plan integration points
 - [ ] **Phase 3: Plan Review Loop & Superpowers** - Opus-Codex 2-3 round plan review loop (GSD + Superpowers) and Superpowers parallel agent routing
 - [ ] **Phase 4: Cost Reporting** - Session cost reports proving savings vs Opus-only baseline
@@ -29,12 +29,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. PreToolUse hook intercepts clearly-defined implementation and test-generation tasks and routes them to Codex instead of Opus
   4. Claude Code version is verified at 2.0.65+ with `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1` set; no API keys appear in any hook script source
   5. Every Codex call appends a JSONL record to `.planning/token-log.jsonl` with model, task type, tokens in/out, cost, and timestamp — for both CLI and API calls
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
 - [x] 01-01-PLAN.md — Security baseline and Codex project brief (AGENTS.md, .claude/settings.json)
 - [x] 01-02-PLAN.md — Codex execution wrapper and token tracking infrastructure
-- [ ] 01-03-PLAN.md — Gap closure: PreToolUse routing hook and hook registration (FNDTN-03, ROUT-03, ROUT-04, TRCK-01, TRCK-02)
+- [x] 01-03-PLAN.md — Gap closure: PreToolUse routing hook and hook registration (FNDTN-03, ROUT-03, ROUT-04, TRCK-01, TRCK-02)
 
 ### Phase 2: Review Gate & GSD Integration
 **Goal**: Every Claude session ends with a Codex review, and the GSD workflow has Codex checkpoints at plan-write and wave-boundary events
@@ -76,7 +76,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/3 | In Progress |  |
+| 1. Foundation | 3/3 | Complete   | 2026-04-02 |
 | 2. Review Gate & GSD Integration | 0/TBD | Not started | - |
 | 3. Plan Review Loop & Superpowers | 0/TBD | Not started | - |
 | 4. Cost Reporting | 0/TBD | Not started | - |
