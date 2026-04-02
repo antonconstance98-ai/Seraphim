@@ -71,7 +71,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 1/2 | In Progress|  |
 | 2. Review Gate & GSD Integration | 0/TBD | Not started | - |
 | 3. Plan Review Loop & Superpowers | 0/TBD | Not started | - |
 | 4. Cost Reporting | 0/TBD | Not started | - |
