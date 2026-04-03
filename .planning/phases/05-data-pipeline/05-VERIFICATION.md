@@ -1,30 +1,23 @@
 ---
 phase: 05-data-pipeline
-verified: 2026-04-03T00:29:15Z
-status: gaps_found
-score: 3/4 success criteria verified
-gaps:
-  - truth: "A second consecutive run with no new data completes in under 5 ms and adds zero records"
-    status: partial
-    reason: "Records added is 0 (idempotency correct) but elapsed_ms is 151ms, not under 5ms. The 5ms target in the ROADMAP success criterion applies to the full aggregate() wall time. The implementation includes 4x spawnSync find invocations for project discovery (~150ms). The file-I/O fast path itself takes <1ms (verified). The plan body acknowledges this trade-off and acceptance criteria omit the 5ms constraint, but the ROADMAP goal and Success Criterion 3 state the full run must be under 5ms."
-    artifacts:
-      - path: "~/.claude/hooks/codex-global-aggregator.js"
-        issue: "discoverTokenLogs() runs 4x spawnSync find on every aggregate() call (lines 105-112), contributing ~150ms overhead regardless of whether any files changed. A lazy/cached discovery path (re-run find only if discovery cache is stale) or replacing spawnSync with a glob-based stat walk would bring the total elapsed_ms under 5ms."
-    missing:
-      - "Mtime-gated discovery cache: skip the spawnSync find calls when no directory mtimes have changed since last run, OR cache discovered file paths in project-index.json and only re-run find when no cache exists"
-      - "Alternative: use fs.readdirSync recursive walk instead of spawnSync find to avoid child_process overhead"
-human_verification:
-  - test: "Confirm ROADMAP success criterion intent for 5ms"
-    expected: "Verify whether '5ms' was meant to cover the full run (including discovery) or only the incremental file-read fast path — if the intent was the latter, this gap is a doc/spec mismatch rather than a code defect"
-    why_human: "The plan body explicitly carves out discovery latency ('5ms target applies to the incremental read logic, not the full aggregate() including discovery') but the ROADMAP success criterion says 'completes in under 5ms' without qualification. Only the project owner can clarify the authoritative target."
+verified: 2026-04-03T01:10:00Z
+status: passed
+score: 4/4 success criteria verified
+re_verification:
+  previous_status: gaps_found
+  previous_score: 3/4
+  gaps_closed:
+    - "A second consecutive run with no new data completes in under 5 ms and adds zero records"
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase 5: Data Pipeline Verification Report
 
 **Phase Goal:** The global aggregator runs standalone, correctly merges all per-project token logs into `global.jsonl`, handles null session IDs as "unattributed", and completes a repeat run in under 5 ms
-**Verified:** 2026-04-03T00:29:15Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-04-03T01:10:00Z
+**Status:** passed
+**Re-verification:** Yes — after gap closure via plan 05-03 (TTL-gated discovery cache)
 
 ## Goal Achievement
 
@@ -32,67 +25,103 @@ human_verification:
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | Running the aggregator produces `global.jsonl` with records from all known projects, no duplicates | VERIFIED | 49 records across 4 projects; dedup Set verified (49 unique keys = 49 total); both Claude_X_Codex and The-Crucible present |
-| 2 | Records with `session_id: null` appear in `global.jsonl` rather than being missing | VERIFIED | 6 null-session records confirmed in global.jsonl; `session_id: null` field preserved as-is; dedup key = "null|timestamp" handles them correctly |
-| 3 | A second consecutive run completes in under 5 ms and adds zero records | PARTIAL | `records_added: 0` confirmed (idempotency correct); `elapsed_ms: 151` ms on every no-op run — 30x the 5ms target. File-I/O fast path is <1ms but discovery via 4x spawnSync find adds ~150ms. |
-| 4 | Discovery roots are read from `config.json` with sensible defaults so no projects are silently skipped | VERIFIED | `config.json` exists at `~/.claude/dashboard/config.json` with `extra_roots: []` and `max_depth: 5`; DEFAULT_ROOTS covers all CLAUDE.md key paths (~/projects, ~/agent, ~/gsd-workspaces, /mnt/hdd); extra_roots merges at runtime |
+| 1 | Running the aggregator produces `global.jsonl` with records from all known projects, no duplicates | VERIFIED | 54 records across 4 projects; dedup Set verified; both Claude_X_Codex and gsd-workspaces present |
+| 2 | Records with `session_id: null` appear in `global.jsonl` rather than being missing | VERIFIED | Null-session records confirmed in global.jsonl; dedup key = "null|timestamp" handles them correctly; `session_id: null` preserved in enriched record |
+| 3 | A second consecutive run completes in under 5 ms and adds zero records | VERIFIED | `elapsed_ms: 2`, `records_added: 0` on warm run (measured); 2ms is well under the 5ms ROADMAP target; repeat run also 1ms |
+| 4 | Discovery roots are read from `config.json` with sensible defaults so no projects are silently skipped | VERIFIED | `config.json` at `~/.claude/dashboard/config.json` with `extra_roots: []`, `max_depth: 5`; DEFAULT_ROOTS covers ~/projects, ~/agent, ~/gsd-workspaces, /mnt/hdd |
 
-**Score:** 3/4 success criteria verified (1 partial)
+**Score:** 4/4 success criteria verified
+
+---
+
+## Gap Closure: 5 ms Repeat-Run Target
+
+**Gap from previous verification:** `elapsed_ms: 151` on every no-op run due to 4x `spawnSync find` in `discoverTokenLogs()` being called unconditionally.
+
+**Fix implemented (plan 05-03):** TTL-gated discovery cache in `codex-global-aggregator.js`.
+
+**New symbols added:**
+- `DISCOVERY_CACHE_TTL_MS = 60 * 60 * 1000` (1-hour TTL constant) — confirmed present (2 occurrences)
+- `isCacheWarm()` — checks `project-index.json` mtime vs TTL before any subprocess spawn (3 occurrences)
+- `loadDiscoveryCache()` — reads `discovered_files` array from `project-index.json` (2 occurrences)
+- `wasWarm` flag in `aggregate()` — captured before any writes; gates warm/cold branch (4 occurrences)
+- `discovered_files` top-level key in `project-index.json` — written on cold runs, read back on warm runs (9 occurrences)
+
+**Measured warm-run timings:**
+- Immediately after cold run: `elapsed_ms: 2` — PASS
+- Second consecutive warm call: `elapsed_ms: 1` — PASS
+- Both: `records_added: 0` — PASS (idempotent)
+
+**Cold run regression check:**
+- After `rm -f ~/.claude/dashboard/project-index.json`: exits 0, `discovered_files` array written with 4 entries, `global.jsonl` record count unchanged (54), hook-mode JSON output correct.
 
 ---
 
 ## Required Artifacts
 
-### Plan 05-01 Artifacts
+### Plan 05-01 Artifacts (unchanged — no regression)
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `~/.claude/hooks/codex-pricing.js` | Centralized pricing for all Codex and Opus models; 5 exports | VERIFIED | 106 lines; exports: CODEX_PRICING, OPUS_PRICING, computeCost, computeCodexCostStrict, computeOpusCost; no shebang (library module) |
-| `~/.claude/hooks/codex-exec.js` | Imports computeCost from codex-pricing.js; re-exports it | VERIFIED | Line 19: `const { CODEX_PRICING, computeCost } = require('./codex-pricing')`; line 278: `module.exports = { runCodexExec, parseCodexTokens, computeCost, runGpt54MiniApi }` — re-export confirmed |
-| `~/.claude/hooks/codex-cost-reporter.js` | Imports computeOpusCost from codex-pricing.js | VERIFIED | Line 16: `const { OPUS_PRICING, computeOpusCost } = require('./codex-pricing')`; inline constants removed |
+| `~/.claude/hooks/codex-pricing.js` | Centralized pricing for all Codex and Opus models; 5 exports | VERIFIED | 106 lines; exports: CODEX_PRICING, OPUS_PRICING, computeCost, computeCodexCostStrict, computeOpusCost |
+| `~/.claude/hooks/codex-exec.js` | Imports computeCost from codex-pricing.js; re-exports it | VERIFIED | Line 19: `require('./codex-pricing')`; re-export confirmed |
+| `~/.claude/hooks/codex-cost-reporter.js` | Imports computeOpusCost from codex-pricing.js | VERIFIED | Line 16: `require('./codex-pricing')` with OPUS_PRICING, computeOpusCost |
 
-### Plan 05-02 Artifacts
+### Plan 05-02 Artifacts (no regression)
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `~/.claude/hooks/codex-global-aggregator.js` | Global aggregator with discovery, dedup, incremental reads | VERIFIED | 384 lines (>100 required); exports `aggregate`; dual-mode; imports computeOpusCost from codex-pricing.js |
-| `~/.claude/dashboard/global.jsonl` | Merged, deduplicated records from all projects | VERIFIED | 49 records; all have `project_name`, `project_path`, `opus_baseline_usd` (number); 6 null-session records; no duplicate dedup keys |
-| `~/.claude/dashboard/project-index.json` | Discovery manifest with per-project metadata | VERIFIED | 4 projects; record_count fields match actual global.jsonl counts (25/20/3/1) |
+| `~/.claude/hooks/codex-global-aggregator.js` | Global aggregator with discovery, dedup, incremental reads | VERIFIED | 444 lines (grew from 384); exports `aggregate`; dual-mode; all new cache symbols present |
+| `~/.claude/dashboard/global.jsonl` | Merged, deduplicated records from all projects | VERIFIED | 54 records (grew from 49 — 5 new real records added since plan 02 verification); no duplicates |
+| `~/.claude/dashboard/project-index.json` | Discovery manifest with per-project metadata | VERIFIED | 4 projects; now also includes top-level `discovered_files` array with 4 entries |
 | `~/.claude/dashboard/last-run.json` | Idempotency guard with run metadata | VERIFIED | Has `records_added`, `total_records`, `elapsed_ms`, `timestamp`, `projects_scanned` |
-| `~/.claude/dashboard/cache.json` | Incremental read state — mtime and byte offset per source file | VERIFIED | 4 entries; each has `mtime_ms`, `size`, `byte_offset`; byte_offset = size (fast path ready) |
+| `~/.claude/dashboard/cache.json` | Incremental read state — mtime and byte offset per source file | VERIFIED | 4 entries; each has `mtime_ms`, `size`, `byte_offset`; byte_offset = size (fast path active) |
 | `~/.claude/dashboard/config.json` | User-configurable discovery roots and depth settings | VERIFIED | `extra_roots: []`, `max_depth: 5` |
+
+### Plan 05-03 Artifact (gap closure)
+
+| Artifact | Expected | Status | Details |
+|----------|----------|--------|---------|
+| `~/.claude/hooks/codex-global-aggregator.js` | Adds `DISCOVERY_CACHE_TTL_MS`, `isCacheWarm()`, `loadDiscoveryCache()`, warm/cold branch | VERIFIED | All 4 additions confirmed by grep; syntax check passes; warm run 2ms |
 
 ---
 
 ## Key Link Verification
 
-### Plan 05-01 Key Links
+### Plan 05-01 Key Links (no regression)
 
 | From | To | Via | Status | Details |
 |------|-----|-----|--------|---------|
-| `codex-exec.js` | `codex-pricing.js` | `require('./codex-pricing')` | WIRED | Line 19: destructures `computeCost` and `CODEX_PRICING` |
-| `codex-token-logger.js` | `codex-exec.js` | `const { computeCost } = require('./codex-exec')` | WIRED | Line 59 confirmed; `exec.computeCost === pricing.computeCost` is `true` (same function reference) |
-| `codex-cost-reporter.js` | `codex-pricing.js` | `require('./codex-pricing')` | WIRED | Line 16: destructures `OPUS_PRICING` and `computeOpusCost` |
+| `codex-exec.js` | `codex-pricing.js` | `require('./codex-pricing')` | WIRED | Destructures `computeCost` and `CODEX_PRICING` |
+| `codex-token-logger.js` | `codex-exec.js` | `const { computeCost } = require('./codex-exec')` | WIRED | Same function reference confirmed in plan 02 verification |
+| `codex-cost-reporter.js` | `codex-pricing.js` | `require('./codex-pricing')` | WIRED | Destructures `OPUS_PRICING` and `computeOpusCost` |
 
-### Plan 05-02 Key Links
+### Plan 05-02 Key Links (no regression)
 
 | From | To | Via | Status | Details |
 |------|-----|-----|--------|---------|
 | `codex-global-aggregator.js` | `codex-pricing.js` | `require('./codex-pricing')` | WIRED | Line 19: `const { computeOpusCost } = require('./codex-pricing')` |
-| `codex-global-aggregator.js` | `~/.claude/dashboard/global.jsonl` | `fs.appendFileSync` | WIRED | Line 306: `fs.appendFileSync(GLOBAL_JSONL, JSON.stringify(enriched) + '\n', 'utf8')` |
-| `codex-global-aggregator.js` | `~/.claude/dashboard/config.json` | `JSON.parse(fs.readFileSync(CONFIG_PATH))` | WIRED | Lines 84/81: reads or creates config.json via `loadConfig()` |
+| `codex-global-aggregator.js` | `~/.claude/dashboard/global.jsonl` | `fs.appendFileSync` | WIRED | Line 351: `fs.appendFileSync(GLOBAL_JSONL, ...)` |
+| `codex-global-aggregator.js` | `~/.claude/dashboard/config.json` | `JSON.parse(fs.readFileSync(CONFIG_PATH))` | WIRED | `loadConfig()` reads or creates config.json |
+
+### Plan 05-03 Key Links (gap closure)
+
+| From | To | Via | Status | Details |
+|------|-----|-----|--------|---------|
+| `aggregate()` | `discoverTokenLogs()` | `wasWarm` flag — called only when `isCacheWarm()` returns false | WIRED | Lines 310-320: `wasWarm = isCacheWarm(); if (wasWarm) { loadDiscoveryCache() } else { discoverTokenLogs(...) }` |
+| `project-index.json` | `discovered_files` array | `loadDiscoveryCache()` reads on warm runs | WIRED | `discovered_files` present in file (4 entries); `loadDiscoveryCache()` returns it when `Array.isArray(data.discovered_files)` is true |
 
 ---
 
-## Data-Flow Trace (Level 4)
+## Data-Flow Trace (Level 4) — No regression from plan 02
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 |----------|---------------|--------|-------------------|--------|
-| `global.jsonl` | enriched records | `processFile()` reads source token-log.jsonl files | Yes — reads live project files with real token/cost data | FLOWING |
-| `global.jsonl`.`opus_baseline_usd` | `computeOpusCost(rec.tokens)` | `codex-pricing.js` OPUS_PRICING constants × actual token counts | Yes — computed from real token counts from source records | FLOWING |
-| `global.jsonl`.`cost_usd` | `rec.cost_usd` | Copied as-is from source token-log.jsonl (written at logging time by codex-token-logger.js) | Yes — real values from prior sessions | FLOWING |
-| `project-index.json` | `record_count` per project | Accumulated from `newRecords.length` per file processed | Yes — counts match global.jsonl (verified: 25/20/3/1) | FLOWING |
-| `cache.json` | `byte_offset` | Set to `stat.size` after each file read | Yes — offsets match actual file sizes | FLOWING |
+| `global.jsonl` | enriched records | `processFile()` reads source token-log.jsonl files | Yes — reads live project files | FLOWING |
+| `global.jsonl`.`opus_baseline_usd` | `computeOpusCost(rec.tokens)` | `codex-pricing.js` OPUS_PRICING × real token counts | Yes | FLOWING |
+| `global.jsonl`.`cost_usd` | `rec.cost_usd` | Copied from source token-log.jsonl as-is | Yes | FLOWING |
+| `project-index.json` | `record_count` per project | Accumulated from `newRecords.length` per file | Yes | FLOWING |
+| `project-index.json` | `discovered_files` | Written from `entries` on cold run; carried forward on warm run | Yes — real file paths from spawnSync find | FLOWING |
 
 ---
 
@@ -100,16 +129,21 @@ human_verification:
 
 | Behavior | Result | Status |
 |----------|--------|--------|
-| `node codex-global-aggregator.js` exits 0 (hook mode via pipe) | `{"additionalContext":"Dashboard: 0 new records aggregated (49 total across 4 projects)"}` | PASS |
-| `aggregate()` exported function returns correct shape | `{ projects_scanned:4, records_added:0, total_records:49, elapsed_ms:167 }` | PASS |
-| Idempotency: records_added=0 on repeat run | Confirmed — wc -l before=49, after=49; `records_added: 0` in last-run.json | PASS |
-| `exec.computeCost === pricing.computeCost` (same function reference) | `true` | PASS |
-| `computeCodexCostStrict({input_tokens:1000000}, 'fake')` returns null | `null` | PASS |
-| `computeCost({input_tokens:1000000}, 'fake')` returns number (fallback) | `2.5` | PASS |
-| Null session_id records present in global.jsonl | 6 records with `session_id: null` | PASS |
-| No duplicate dedup keys in global.jsonl | 49 keys, 49 unique — no duplicates | PASS |
-| `elapsed_ms` under 5ms on no-op run | 151ms — FAILS 5ms ROADMAP target | FAIL |
-| File-I/O fast path (dedup + stat only, no find) | <1ms | PASS |
+| `node --check codex-global-aggregator.js` | syntax OK | PASS |
+| `DISCOVERY_CACHE_TTL_MS` count in file | 2 | PASS (definition + use in isCacheWarm) |
+| `isCacheWarm` count in file | 3 | PASS (definition + call in aggregate + JSDoc) |
+| `wasWarm` count in file | 4 | PASS (declaration + if branches + Step 7) |
+| Cold run after `rm -f project-index.json` | exit 0, 4 projects discovered, 54 records unchanged | PASS |
+| `discovered_files` in project-index.json after cold run | array with 4 entries, valid filePath fields | PASS |
+| Warm run `elapsed_ms` | 2ms | PASS (<5ms target) |
+| Warm run `records_added` | 0 | PASS (idempotent) |
+| Second warm run `elapsed_ms` | 1ms | PASS |
+| Second warm run `records_added` | 0 | PASS |
+| Hook mode `echo '{...}' \| node aggregator.js` | `{"additionalContext":"Dashboard: 0 new records aggregated (54 total across 4 projects)"}` exit 0 | PASS |
+| `module.exports = { aggregate }` at end of file | Present | PASS |
+| `global.jsonl` record count unchanged after warm run | 54 = 54 | PASS |
+
+**Note on records_added=1 on first warm-run check:** The first `aggregate()` call during re-verification picked up 1 genuinely new record written to the Claude_X_Codex token-log since the previous aggregation. This is correct behavior — the source file had grown. A subsequent call returned `records_added: 0`, confirming idempotency. The byte_offset in `cache.json` matched `token-log.jsonl` size after that run, confirming the fast path is active for subsequent calls.
 
 ---
 
@@ -117,14 +151,14 @@ human_verification:
 
 | Requirement | Source Plan | Description | Status | Evidence |
 |-------------|------------|-------------|--------|----------|
-| PIPE-01 | 05-02-PLAN.md | Global aggregator scans all projects and merges into global.jsonl with deduplication | SATISFIED | 49 records from 4 projects; 0 duplicates; `appendFileSync` wired to global.jsonl |
-| PIPE-02 | 05-01-PLAN.md, 05-02-PLAN.md | Discovery roots configurable via config.json with sensible defaults | SATISFIED | config.json has `extra_roots` and `max_depth`; DEFAULT_ROOTS covers ~/projects, ~/agent, ~/gsd-workspaces, /mnt/hdd |
-| PIPE-03 | 05-02-PLAN.md | Aggregator uses mtime-gated incremental reads to skip unchanged files | SATISFIED | `processFile()` fast path: returns early when `mtime_ms === currentMtime && size === currentSize`; byte_offset advanced to file size after read; file-I/O on no-op run <1ms |
-| PIPE-04 | 05-02-PLAN.md | Records with null session_id tracked as "unattributed" rather than dropped | SATISFIED | `buildDedupKey` produces "null|timestamp" string; enriched record preserves `session_id: null`; 6 null records confirmed in global.jsonl |
+| PIPE-01 | 05-02-PLAN.md | Global aggregator scans all projects and merges into global.jsonl with deduplication | SATISFIED | 54 records from 4 projects; 0 duplicates; `appendFileSync` wired to global.jsonl; REQUIREMENTS.md checked [x] |
+| PIPE-02 | 05-01-PLAN.md, 05-02-PLAN.md | Discovery roots configurable via config.json with sensible defaults | SATISFIED | config.json has `extra_roots` and `max_depth`; DEFAULT_ROOTS covers all CLAUDE.md key paths; REQUIREMENTS.md checked [x] |
+| PIPE-03 | 05-02-PLAN.md, 05-03-PLAN.md | Aggregator uses mtime-gated incremental reads to skip unchanged files | SATISFIED | `processFile()` fast path via mtime+size check; plan 05-03 extends this with TTL-gated discovery cache; warm run 2ms; REQUIREMENTS.md checked [x] |
+| PIPE-04 | 05-02-PLAN.md | Records with null session_id tracked as "unattributed" rather than dropped | SATISFIED | `buildDedupKey` produces "null|timestamp"; enriched record preserves `session_id: null`; confirmed in global.jsonl; REQUIREMENTS.md checked [x] |
 
-All 4 PIPE requirements are satisfied at the implementation level. The 5ms gap is a ROADMAP goal metric, not a separate requirement.
+All 4 PIPE requirements satisfied. All marked `[x]` in REQUIREMENTS.md. No orphaned requirements.
 
-**Orphaned requirements check:** REQUIREMENTS.md maps PIPE-01 through PIPE-04 to Phase 5. All 4 are claimed across 05-01 and 05-02 plans. No orphaned requirements.
+**Orphaned requirements check:** REQUIREMENTS.md maps PIPE-01 through PIPE-04 to Phase 5. All 4 are claimed across 05-01, 05-02, and 05-03 plans. No orphaned requirements.
 
 ---
 
@@ -132,52 +166,29 @@ All 4 PIPE requirements are satisfied at the implementation level. The 5ms gap i
 
 | File | Line | Pattern | Severity | Impact |
 |------|------|---------|----------|--------|
-| `codex-global-aggregator.js` | 161, 164 | `return {}` in `loadCache()` | Info | Not a stub — intentional: returns empty cache on first run or if cache file is corrupt/missing. The empty dict causes all files to be fully read on first invocation, which is correct behavior. |
+| `codex-global-aggregator.js` | 165, 168 | `return {}` in `loadCache()` | Info | Intentional: returns empty cache on first run or corrupt cache. Causes full read on first invocation, which is correct. |
 
-No blockers or warnings found. The `return {}` instances are legitimate empty-state defaults, not hollow implementations.
-
----
-
-## The 5ms Gap: Analysis
-
-**ROADMAP Success Criterion 3 states:** "A second consecutive run with no new data completes in under 5 ms and adds zero new records to global.jsonl"
-
-**Observed:** `elapsed_ms: 151` on every no-op run.
-
-**Root cause:** `discoverTokenLogs()` runs 4 separate `spawnSync('find', [...])` invocations on every call — one per discovery root (`~/projects`, `~/agent`, `~/gsd-workspaces`, `/mnt/hdd`). Each `find` invocation has child-process spawn overhead. Measured: ~150ms total for 4 roots.
-
-**What is fast:** The actual file-I/O fast path (loading global.jsonl into dedup Set, stat'ing cached files, finding no changes) takes <1ms — well under the 5ms target.
-
-**Plan's clarification:** The plan body (Task 2 action section) explicitly states: "the 5 ms target applies to the incremental read logic, not the full aggregate() including discovery. If discovery adds latency, that is acceptable as long as records_added: 0 and no file I/O beyond stat() occurs."
-
-**Assessment:** The incremental read fast path meets the spirit of the 5ms requirement. However, the ROADMAP success criterion as written does not distinguish between discovery and file-read time — it says the full run must be under 5ms. Since the criterion is the authoritative contract and the measured time is 30x the target, this is classified as a gap requiring either a fix or an explicit scope revision to the ROADMAP.
-
-**Fix options (in order of simplicity):**
-1. Cache discovered paths in `project-index.json`; only re-run `find` when `project-index.json` does not exist or is older than N minutes. Expected elapsed_ms on no-op: <2ms.
-2. Replace `spawnSync find` with a JavaScript recursive `fs.readdirSync` walk (eliminates child-process overhead; ~5-10ms for shallow walks).
-3. Update ROADMAP Success Criterion 3 to read "...completes with zero new file I/O (mtime fast path active)..." if the intent was only the file-read portion.
+No blockers or warnings. No new anti-patterns introduced by plan 05-03.
 
 ---
 
 ## Human Verification Required
 
-### 1. Clarify 5ms target scope
-
-**Test:** Review ROADMAP.md Phase 5 Success Criterion 3 and confirm: does "completes in under 5 ms" include project discovery (the find commands), or was it intended to cover only the incremental file-read fast path?
-
-**Expected:** Either (a) the target includes discovery, in which case the fix options above apply, or (b) the target was meant for file-I/O only, in which case the ROADMAP criterion should be updated to reflect the actual design.
-
-**Why human:** The plan body and the ROADMAP criterion are in direct tension. Only the project owner can determine which is authoritative.
+None. The 5ms target is now verifiably met by automated measurement (2ms). The human clarification item from the initial verification is resolved by the gap closure — the implementation now meets the ROADMAP criterion as written.
 
 ---
 
-## Gaps Summary
+## Summary
 
-One gap blocks full achievement of the phase goal as written:
+**All 4 ROADMAP success criteria are now verified.**
 
-**5ms repeat-run target not met.** The ROADMAP success criterion requires a no-op run to complete in under 5ms. Actual elapsed_ms is ~151ms due to project discovery (4x spawnSync find). The incremental file-read logic itself is fast (<1ms). All other success criteria are verified: idempotency (records_added=0), correct global.jsonl with all 4 projects and 49 records, null session preservation, and configurable discovery roots. The gap is narrow and fixable by caching discovered paths between runs.
+The single gap from the initial verification — the 5ms repeat-run target — is closed. Plan 05-03 added a TTL-gated discovery cache that skips the 4x `spawnSync find` child processes on warm runs. The warm-run elapsed_ms dropped from 151ms to 2ms (30x improvement), well under the 5ms ROADMAP target. Cold runs still discover all projects and write `discovered_files` into `project-index.json` for the next warm run.
+
+The gap closure introduced no regressions: all plan 05-01 and 05-02 key links remain wired, all 4 PIPE requirements remain satisfied, global.jsonl record count is intact, and hook mode produces correct `additionalContext` JSON.
+
+Phase 5 is complete.
 
 ---
 
-_Verified: 2026-04-03T00:29:15Z_
+_Verified: 2026-04-03T01:10:00Z_
 _Verifier: Claude (gsd-verifier)_
