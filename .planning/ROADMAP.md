@@ -54,7 +54,7 @@ Plans:
 **Plans:** 1/2 plans executed
 Plans:
 - [x] 06-01-PLAN.md — Data processing module (computeMetrics) and Chart.js sidecar setup
-- [ ] 06-02-PLAN.md — HTML template rendering, session drill-down, aggregator wiring, and visual verification
+- [x] 06-02-PLAN.md — HTML template rendering, session drill-down, aggregator wiring, and visual verification
 
 ### Phase 7: Charts & Hook Integration
 **Goal**: Chart.js time-series and comparison charts render in the dashboard, and the SessionStart hook automatically regenerates the dashboard on every session open with session delay under 2 seconds

@@ -33,14 +33,14 @@ Requirements for Global Metrics Dashboard milestone. Each maps to roadmap phases
 ### Session Tracking
 
 - [x] **SESS-01**: Session history table lists recent sessions across all projects (date, project, calls, cost, savings, catch rate)
-- [ ] **SESS-02**: Per-session drill-down shows individual call breakdown when a session row is clicked
+- [x] **SESS-02**: Per-session drill-down shows individual call breakdown when a session row is clicked
 
 ### Integration
 
-- [ ] **INTG-01**: Self-contained HTML dashboard at `~/.claude/dashboard/dashboard.html` (inline CSS/JS, opens from `file://`)
+- [x] **INTG-01**: Self-contained HTML dashboard at `~/.claude/dashboard/dashboard.html` (inline CSS/JS, opens from `file://`)
 - [ ] **INTG-02**: SessionStart hook auto-regenerates the dashboard on every session
-- [ ] **INTG-03**: Dashboard shows last-updated timestamp in footer
-- [ ] **INTG-04**: Dashboard writes use atomic write-then-rename for concurrent session safety
+- [x] **INTG-03**: Dashboard shows last-updated timestamp in footer
+- [x] **INTG-04**: Dashboard writes use atomic write-then-rename for concurrent session safety
 - [x] **INTG-05**: Chart.js stored as sidecar file at `~/.claude/dashboard/assets/chart.min.js` and inlined at generation time
 
 ## v2 Requirements
@@ -82,10 +82,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-06 | Phase 6 | Complete |
 | DASH-07 | Phase 6 | Complete |
 | SESS-01 | Phase 6 | Complete |
-| SESS-02 | Phase 6 | Pending |
-| INTG-01 | Phase 6 | Pending |
-| INTG-03 | Phase 6 | Pending |
-| INTG-04 | Phase 6 | Pending |
+| SESS-02 | Phase 6 | Complete |
+| INTG-01 | Phase 6 | Complete |
+| INTG-03 | Phase 6 | Complete |
+| INTG-04 | Phase 6 | Complete |
 | INTG-05 | Phase 6 | Complete |
 | CHART-01 | Phase 7 | Pending |
 | CHART-02 | Phase 7 | Pending |
