@@ -35,7 +35,7 @@
   - Plans:
     - [x] 08-01-PLAN.md — Fix Opus pricing, add MiniMax pricing entry, migrate historical data
     - [x] 08-02-PLAN.md — Create minimax-exec.js shared module (runMinimax, runWithFallback, isCodexRateLimited)
-    - [ ] 08-03-PLAN.md — Add minimax config to project settings, verify live API connectivity
+    - [x] 08-03-PLAN.md — Add minimax config to project settings, verify live API connectivity
 - [ ] **Phase 9: Dual Review Gate** — Codex + MiniMax reviews in parallel on Stop hook, merged verdicts
 - [ ] **Phase 10: Adversarial Plan Review** — MiniMax replaces Codex as adversarial (Round 2) in plan review; devil's advocate role
 - [ ] **Phase 11: PostToolUse Bug Scanner** — MiniMax bug/security scan after every Write/Edit ($0.01-0.03/scan)
