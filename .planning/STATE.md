@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Global Metrics Dashboard
-status: executing
-stopped_at: Completed 07-02-PLAN.md — codex-global-aggregator.js wired into SessionStart, INTG-02 satisfied
-last_updated: "2026-04-03T04:32:28.569Z"
+status: verifying
+stopped_at: Completed 07-01-PLAN.md — Chart.js line+bar charts in dashboard, timeSeries in computeMetrics
+last_updated: "2026-04-03T04:35:55.789Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
   percent: 71
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 
 Phase: 07 (charts-hook-integration) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-03
 
 Progress: [███████░░░] 71% (5/7 plans complete, Phase 07 executing)
@@ -61,6 +61,7 @@ Progress: [███████░░░] 71% (5/7 plans complete, Phase 07 exe
 | Phase 06 P01 | 4 | 1 tasks | 2 files |
 | Phase 06-dashboard-generator P02 | 5 | 2 tasks | 3 files |
 | Phase 07-charts-hook-integration P02 | 2min | 1 tasks | 1 files |
+| Phase 07-charts-hook-integration P01 | 10 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,9 @@ Recent decisions affecting current work:
 - [Phase 06]: [Phase 06-02]: htmlEsc() re-implemented inline in dashboard script block — ensures full self-containment at runtime
 - [Phase 06]: [Phase 06-02]: Aggregator Step 8 wraps generateDashboard in silent-fail try/catch — dashboard generation never blocks aggregation
 - [Phase 07-charts-hook-integration]: Appended aggregator as third hook in existing SessionStart group (timeout:30) — no new group needed; all other sections unchanged
+- [Phase 07-charts-hook-integration]: Weekly grouping uses ISO Monday Thursday-algorithm (UTCDay+6)%7 for correct ISO week semantics
+- [Phase 07-charts-hook-integration]: buildBar filters both r.name and r.projectName for Unattributed to handle field name variation
+- [Phase 07-charts-hook-integration]: series.length===0 written without spaces so grep-based verification finds exact string literal
 
 ### Pending Todos
 
@@ -101,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T04:32:28.566Z
-Stopped at: Completed 07-02-PLAN.md — codex-global-aggregator.js wired into SessionStart, INTG-02 satisfied
+Last session: 2026-04-03T04:35:55.786Z
+Stopped at: Completed 07-01-PLAN.md — Chart.js line+bar charts in dashboard, timeSeries in computeMetrics
 Resume file: None

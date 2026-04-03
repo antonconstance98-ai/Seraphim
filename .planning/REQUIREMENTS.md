@@ -26,9 +26,9 @@ Requirements for Global Metrics Dashboard milestone. Each maps to roadmap phases
 
 ### Charts & Trends
 
-- [ ] **CHART-01**: Daily cost/savings line chart using Chart.js
-- [ ] **CHART-02**: Daily/weekly toggle switches grouping client-side
-- [ ] **CHART-03**: Project comparison horizontal bar chart (sorted by savings %)
+- [x] **CHART-01**: Daily cost/savings line chart using Chart.js
+- [x] **CHART-02**: Daily/weekly toggle switches grouping client-side
+- [x] **CHART-03**: Project comparison horizontal bar chart (sorted by savings %)
 
 ### Session Tracking
 
@@ -87,9 +87,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INTG-03 | Phase 6 | Complete |
 | INTG-04 | Phase 6 | Complete |
 | INTG-05 | Phase 6 | Complete |
-| CHART-01 | Phase 7 | Pending |
-| CHART-02 | Phase 7 | Pending |
-| CHART-03 | Phase 7 | Pending |
+| CHART-01 | Phase 7 | Complete |
+| CHART-02 | Phase 7 | Complete |
+| CHART-03 | Phase 7 | Complete |
 | INTG-02 | Phase 7 | Complete |
 
 **Coverage:**
