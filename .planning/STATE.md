@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Three-Model Intelligence
-status: executing
-stopped_at: Completed 14-01-PLAN.md -- token-logger v2.0 pass-through + cost-reporter three-model breakdown
-last_updated: "2026-04-03T21:47:56.571Z"
+status: verifying
+stopped_at: Completed 14-02-PLAN.md -- three-model dashboard with MiniMax chart series and Fallback Events panel
+last_updated: "2026-04-03T21:48:29.517Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 7
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 12
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 
 Phase: 14 (three-model-reporting) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-03
 
 ## Performance Metrics
@@ -70,6 +70,7 @@ Last activity: 2026-04-03
 | Phase 12-context-compression P02 | 2 | 2 tasks | 2 files |
 | Phase 13-codex-execution-pipeline P01 | 4 | 2 tasks | 2 files |
 | Phase 14-three-model-reporting P01 | 2 | 2 tasks | 2 files |
+| Phase 14-three-model-reporting P02 | 2 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -134,6 +135,9 @@ Recent decisions affecting current work:
 - [Phase 14-three-model-reporting]: v2.0 fields added as post-literal mutations in token-logger -- preserves !== undefined semantics for false/0 values
 - [Phase 14-three-model-reporting]: Fallback detection uses BOTH source==='api-fallback' AND model==='minimax-m2.7' -- dual condition prevents false positives from future api-fallback sources
 - [Phase 14-three-model-reporting]: Opus baseline labeled 'what this would have cost' in Three-Model Breakdown -- distinguishes counterfactual from recorded costs
+- [Phase 14-three-model-reporting]: modelSplit pre-initialization ensures minimax-m2.7 row appears even with zero MiniMax records in global.jsonl
+- [Phase 14-three-model-reporting]: minimaxCost in timeSeries is MiniMax-only spend; Actual Cost line retains total (no double-counting, per Pitfall 3)
+- [Phase 14-three-model-reporting]: Fallback event definition is dual-condition: source=api-fallback AND model=minimax-m2.7
 
 ### Pending Todos
 
@@ -146,6 +150,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T21:47:56.568Z
-Stopped at: Completed 14-01-PLAN.md -- token-logger v2.0 pass-through + cost-reporter three-model breakdown
+Last session: 2026-04-03T21:48:29.514Z
+Stopped at: Completed 14-02-PLAN.md -- three-model dashboard with MiniMax chart series and Fallback Events panel
 Resume file: None
