@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Three-Model Intelligence
-status: defining-requirements
-stopped_at: null
-last_updated: "2026-04-03T12:00:00.000Z"
+status: executing
+stopped_at: Completed 08-01-PLAN.md -- Opus 4.6 pricing fix, MiniMax M-2.7 pricing added, 215 global.jsonl records migrated
+last_updated: "2026-04-03T18:12:28.196Z"
 last_activity: 2026-04-03
 progress:
-  total_phases: 0
+  total_phases: 7
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 3
+  completed_plans: 1
 ---
 
 # Project State
@@ -21,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution — with cross-model review catching what either model misses alone.
-**Current focus:** Defining requirements for v2.0
+**Current focus:** Phase 08 — minimax-foundation
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-03 — Milestone v2.0 started
+Phase: 08 (minimax-foundation) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-03
 
 ## Performance Metrics
 
@@ -60,6 +59,7 @@ Last activity: 2026-04-03 — Milestone v2.0 started
 | Phase 06-dashboard-generator P02 | 5 | 2 tasks | 3 files |
 | Phase 07-charts-hook-integration P02 | 2min | 1 tasks | 1 files |
 | Phase 07-charts-hook-integration P01 | 10 | 2 tasks | 2 files |
+| Phase 08-minimax-foundation P01 | 8 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -91,6 +91,9 @@ Recent decisions affecting current work:
 - [Phase 07-charts-hook-integration]: Weekly grouping uses ISO Monday Thursday-algorithm (UTCDay+6)%7 for correct ISO week semantics
 - [Phase 07-charts-hook-integration]: buildBar filters both r.name and r.projectName for Unattributed to handle field name variation
 - [Phase 07-charts-hook-integration]: series.length===0 written without spaces so grep-based verification finds exact string literal
+- [Phase 08-minimax-foundation]: Opus 4.6 pricing is dollar5/dollar25 per 1M tokens (not dollar15/dollar75 which was Opus 4.1 -- a 3x error corrected in global.jsonl migration)
+- [Phase 08-minimax-foundation]: MiniMax M-2.7 pricing added to CODEX_PRICING (input:0.30, cached:0.06, output:1.20) -- consistent with existing pattern, no function changes needed
+- [Phase 08-minimax-foundation]: Migration rewrites global.jsonl only -- per-project token-log.jsonl never contains opus_baseline_usd; aggregator computes it at merge time
 
 ### Pending Todos
 
@@ -103,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T04:35:55.786Z
-Stopped at: Completed 07-01-PLAN.md — Chart.js line+bar charts in dashboard, timeSeries in computeMetrics
+Last session: 2026-04-03T18:12:28.193Z
+Stopped at: Completed 08-01-PLAN.md -- Opus 4.6 pricing fix, MiniMax M-2.7 pricing added, 215 global.jsonl records migrated
 Resume file: None
