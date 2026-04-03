@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Three-Model Intelligence
-status: verifying
-stopped_at: Completed 09-01-PLAN.md -- dual review gate implemented, both models review in parallel via Promise.all
-last_updated: "2026-04-03T19:03:17.828Z"
+status: executing
+stopped_at: Completed 10-01-PLAN.md -- MiniMax M-2.7 wired as Round 2 adversarial reviewer with reasoning_split and D-08 fallback
+last_updated: "2026-04-03T19:37:43.149Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 6
+  completed_plans: 5
 ---
 
 # Project State
@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution — with cross-model review catching what either model misses alone.
-**Current focus:** Phase 09 — dual-review-gate
+**Current focus:** Phase 10 — adversarial-plan-review
 
 ## Current Position
 
-Phase: 10
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 10 (adversarial-plan-review) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-04-03
 
 ## Performance Metrics
@@ -63,6 +63,7 @@ Last activity: 2026-04-03
 | Phase 08-minimax-foundation P02 | 4 | 1 tasks | 1 files |
 | Phase 08-minimax-foundation P03 | 5 | 2 tasks | 2 files |
 | Phase 09-dual-review-gate P01 | 1min | 3 tasks | 1 files |
+| Phase 10-adversarial-plan-review P01 | 5 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,10 @@ Recent decisions affecting current work:
 - [Phase 09-dual-review-gate]: Direct runCodexExec (not runWithFallback) for Codex leg — prevents double-MiniMax spend on rate-limit; MiniMax leg already runs independently
 - [Phase 09-dual-review-gate]: computeCodexCostStrict (not computeCost) for MiniMax cost logging — avoids gpt-5.4 rate misapplication; source='api' (not 'api-fallback') for direct Phase 9 calls
 - [Phase 09-dual-review-gate]: .catch() wrappers on both Promise.all legs — converts spawn/SDK-load throws to { success: false } to preserve other leg's result (D-04/D-05)
+- [Phase 10-adversarial-plan-review]: reasoning_split added as opt-in via opts.reasoningSplit -- callers not passing it get unchanged behavior
+- [Phase 10-adversarial-plan-review]: Partial success guard: empty MiniMax text triggers D-08 fallback -- empty text is feature-level failure even when success:true
+- [Phase 10-adversarial-plan-review]: No runWithFallback() for Round 2 -- Phase 10 goes MiniMax->Codex (opposite of Phase 9 Codex->MiniMax direction)
+- [Phase 10-adversarial-plan-review]: Round 1 context capped at MAX_R1_CONTEXT=4000 chars before Round 2 injection -- prevents MiniMax timeout on long reviews
 
 ### Pending Todos
 
@@ -117,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T19:00:20.401Z
-Stopped at: Completed 09-01-PLAN.md -- dual review gate implemented, both models review in parallel via Promise.all
+Last session: 2026-04-03T19:37:43.146Z
+Stopped at: Completed 10-01-PLAN.md -- MiniMax M-2.7 wired as Round 2 adversarial reviewer with reasoning_split and D-08 fallback
 Resume file: None
