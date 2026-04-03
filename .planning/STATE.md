@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Global Metrics Dashboard
 status: verifying
-stopped_at: Completed 05-02-PLAN.md — global aggregator verified, idempotency confirmed
-last_updated: "2026-04-03T00:22:56.335Z"
+stopped_at: Completed 05-03-PLAN.md — discovery cache gap closed, warm no-op run 2ms
+last_updated: "2026-04-03T00:51:38.486Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 3
+  completed_plans: 3
   percent: 40
 ---
 
@@ -57,6 +57,7 @@ Progress: [████░░░░░░] 40% (v1.0 complete, 4/7 phases done)
 *Updated after each plan completion*
 | Phase 05-data-pipeline P01 | 2 | 2 tasks | 3 files |
 | Phase 05-data-pipeline P02 | 3min | 2 tasks | 7 files |
+| Phase 05-data-pipeline P03 | 5min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,8 @@ Recent decisions affecting current work:
 - [Phase 05-data-pipeline]: [Phase 05-01]: codex-exec.js re-exports computeCost from codex-pricing.js — codex-token-logger.js import chain preserved with zero downstream changes
 - [Phase 05-data-pipeline]: Aggregator already existed from prior work session — verified acceptance criteria against existing file rather than recreating
 - [Phase 05-data-pipeline]: Idempotency relies on both mtime+size fast path AND dedup Set — cache skips file reads, Set catches stale-cache edge cases
+- [Phase 05-data-pipeline]: [Phase 05-03]: Discovery cache TTL=1hr in project-index.json — warm runs skip spawnSync find, reducing no-op elapsed_ms from 151ms to 2ms
+- [Phase 05-data-pipeline]: [Phase 05-03]: wasWarm flag captured before writes — prevents race between warm check and index write; carry-forward pattern preserves full discovered_files on warm runs
 
 ### Pending Todos
 
@@ -88,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T00:22:56.332Z
-Stopped at: Completed 05-02-PLAN.md — global aggregator verified, idempotency confirmed
+Last session: 2026-04-03T00:51:38.483Z
+Stopped at: Completed 05-03-PLAN.md — discovery cache gap closed, warm no-op run 2ms
 Resume file: None

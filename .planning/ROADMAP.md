@@ -40,7 +40,7 @@
 Plans:
 - [x] 05-01-PLAN.md — Centralized pricing module and refactor existing hooks to use it
 - [x] 05-02-PLAN.md — Global aggregator with discovery, dedup, incremental reads, and null session handling
-- [ ] 05-03-PLAN.md — Mtime-gated discovery cache to bring no-op run time under 5 ms (gap closure)
+- [x] 05-03-PLAN.md — Mtime-gated discovery cache to bring no-op run time under 5 ms (gap closure)
 
 ### Phase 6: Dashboard Generator
 **Goal**: The dashboard generator reads `global.jsonl` and produces a `dashboard.html` that opens from `file://` in a browser with all tables and the issue log rendering correctly, written via atomic rename so concurrent sessions cannot corrupt it
