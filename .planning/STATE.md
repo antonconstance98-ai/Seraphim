@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Three-Model Intelligence
 status: verifying
-stopped_at: Completed 08-03-PLAN.md -- minimax config block added to settings.json, connectivity test script created, Phase 8 foundation complete
-last_updated: "2026-04-03T18:31:32.947Z"
+stopped_at: Completed 09-01-PLAN.md -- dual review gate implemented, both models review in parallel via Promise.all
+last_updated: "2026-04-03T19:00:20.404Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 7
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
 ---
 
 # Project State
@@ -20,12 +20,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution — with cross-model review catching what either model misses alone.
-**Current focus:** Phase 08 — minimax-foundation
+**Current focus:** Phase 09 — dual-review-gate
 
 ## Current Position
 
-Phase: 09
-Plan: Not started
+Phase: 09 (dual-review-gate) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-04-03
 
@@ -62,6 +62,7 @@ Last activity: 2026-04-03
 | Phase 08-minimax-foundation P01 | 8 | 2 tasks | 2 files |
 | Phase 08-minimax-foundation P02 | 4 | 1 tasks | 1 files |
 | Phase 08-minimax-foundation P03 | 5 | 2 tasks | 2 files |
+| Phase 09-dual-review-gate P01 | 1min | 3 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,9 @@ Recent decisions affecting current work:
 - [Phase 08-minimax-foundation]: Defensive cached_tokens fallback: checks prompt_tokens_details.cached_tokens then usage.cached_tokens — handles MiniMax API field placement uncertainty
 - [Phase 08-minimax-foundation]: minimax config block is a sibling of codex in settings.json (D-10) — prevents nesting ambiguity, Phases 9-14 can read minimax.* directly
 - [Phase 08-minimax-foundation]: Connectivity test uses 120s timeout vs 90s default — MiniMax pre-answer latency documented up to 55s on first call
+- [Phase 09-dual-review-gate]: Direct runCodexExec (not runWithFallback) for Codex leg — prevents double-MiniMax spend on rate-limit; MiniMax leg already runs independently
+- [Phase 09-dual-review-gate]: computeCodexCostStrict (not computeCost) for MiniMax cost logging — avoids gpt-5.4 rate misapplication; source='api' (not 'api-fallback') for direct Phase 9 calls
+- [Phase 09-dual-review-gate]: .catch() wrappers on both Promise.all legs — converts spawn/SDK-load throws to { success: false } to preserve other leg's result (D-04/D-05)
 
 ### Pending Todos
 
@@ -113,6 +117,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T18:24:56.235Z
-Stopped at: Completed 08-03-PLAN.md -- minimax config block added to settings.json, connectivity test script created, Phase 8 foundation complete
+Last session: 2026-04-03T19:00:20.401Z
+Stopped at: Completed 09-01-PLAN.md -- dual review gate implemented, both models review in parallel via Promise.all
 Resume file: None

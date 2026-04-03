@@ -36,11 +36,11 @@
     - [x] 08-01-PLAN.md — Fix Opus pricing, add MiniMax pricing entry, migrate historical data
     - [x] 08-02-PLAN.md — Create minimax-exec.js shared module (runMinimax, runWithFallback, isCodexRateLimited)
     - [x] 08-03-PLAN.md — Add minimax config to project settings, verify live API connectivity
-- [ ] **Phase 9: Dual Review Gate** — Codex + MiniMax reviews in parallel on Stop hook, merged verdicts
+- [x] **Phase 9: Dual Review Gate** — Codex + MiniMax reviews in parallel on Stop hook, merged verdicts (completed 2026-04-03)
   - **Goal:** Run Codex and MiniMax reviews in parallel on the Stop hook with merged verdicts and dual token logging
   - **Plans:** 1 plan
   - Plans:
-    - [ ] 09-01-PLAN.md — Parallel dual-model review gate with verdict merge, differentiated prompts, and dual token logging
+    - [x] 09-01-PLAN.md — Parallel dual-model review gate with verdict merge, differentiated prompts, and dual token logging
 - [ ] **Phase 10: Adversarial Plan Review** — MiniMax replaces Codex as adversarial (Round 2) in plan review; devil's advocate role
 - [ ] **Phase 11: PostToolUse Bug Scanner** — MiniMax bug/security scan after every Write/Edit ($0.01-0.03/scan)
 - [ ] **Phase 12: Context Compression** — Universal MiniMax compression for large diffs, files, tool outputs, conversations
@@ -95,7 +95,7 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
 | 6. Dashboard Generator | v1.1 | 2/2 | Complete | 2026-04-03 |
 | 7. Charts & Hook Integration | v1.1 | 2/2 | Complete | 2026-04-03 |
 | 8. MiniMax Foundation | v2.0 | 3/3 | Complete | 2026-04-03 |
-| 9. Dual Review Gate | v2.0 | 0/1 | In Progress | — |
+| 9. Dual Review Gate | v2.0 | 1/1 | Complete   | 2026-04-03 |
 | 10. Adversarial Plan Review | v2.0 | — | Pending | — |
 | 11. PostToolUse Bug Scanner | v2.0 | — | Pending | — |
 | 12. Context Compression | v2.0 | — | Pending | — |
