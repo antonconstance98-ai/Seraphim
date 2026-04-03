@@ -91,7 +91,20 @@ Each task was committed atomically:
 
 ## Deviations from Plan
 
-None — plan executed exactly as written. The `minimax-connectivity-test.js` script matches the plan specification verbatim.
+### Auto-fixed Issues
+
+**1. [Rule 1 - Security Bug] Removed partial API key from console output**
+- **Found during:** Wave 3 Codex validation (post-Task 1 commit)
+- **Issue:** `minimax-connectivity-test.js` line 15 printed `MINIMAX_API_KEY.slice(0, 8)` to stdout — the first 8 characters of the key. Project CLAUDE.md security rule: "Never expose API keys in plaintext; use environment variables." Console output is observable in terminal history and CI logs.
+- **Fix:** Replaced `.slice(0, 8)` key preview with `key.length` only — confirms presence without exposing any key material. Added comment: "Never log any part of the API key — length only, per security rules."
+- **Files modified:** `~/.claude/hooks/minimax-connectivity-test.js` (line 15-16)
+- **Verification:** `grep -n "slice\|substr\|substring"` returns no matches; line 16 confirms `length` only output
+- **Committed in:** see fix commit (separate from Task 1 commit `5d4a4a1`)
+
+---
+
+**Total deviations:** 1 auto-fixed (Rule 1 — security bug)
+**Impact on plan:** Essential security fix. The plan template included `slice(0, 8)` as a debug convenience; CLAUDE.md security rules take precedence. No scope change.
 
 ## Issues Encountered
 
@@ -136,6 +149,14 @@ Phase 8 foundation is complete. All three plans delivered:
 2. Live connectivity test passes (user runs `node ~/.claude/hooks/minimax-connectivity-test.js`)
 
 No architectural blockers. The exec module and pricing module are ready for integration.
+
+## Self-Check: PASSED
+
+- FOUND: `.claude/settings.json` (valid JSON, minimax block present as sibling to codex, not nested inside)
+- FOUND: `~/.claude/hooks/minimax-connectivity-test.js`
+- FOUND: `.planning/phases/08-minimax-foundation/08-03-SUMMARY.md`
+- FOUND: commit `5d4a4a1` (Task 1 — feat)
+- FOUND: commit `ccd40f1` (Plan metadata — docs)
 
 ---
 *Phase: 08-minimax-foundation*
