@@ -117,5 +117,5 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
 | 10. Adversarial Plan Review | v2.0 | 2/2 | Complete    | 2026-04-03 |
 | 11. PostToolUse Bug Scanner | v2.0 | 1/1 | Complete    | 2026-04-03 |
 | 12. Context Compression | v2.0 | 2/2 | Complete    | 2026-04-03 |
-| 13. Codex Execution Pipeline | v2.0 | 1/1 | Complete   | 2026-04-03 |
+| 13. Codex Execution Pipeline | v2.0 | 1/1 | Complete    | 2026-04-03 |
 | 14. Three-Model Reporting | v2.0 | — | Pending | — |
