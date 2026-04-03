@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Three-Model Intelligence
-status: executing
-stopped_at: Completed 12-01-PLAN.md -- minimax-compress.js dual-mode compression module, compression thresholds added to settings
-last_updated: "2026-04-03T20:41:32.712Z"
+status: verifying
+stopped_at: Completed 12-02-PLAN.md -- compression directive in gsd-context-monitor, minimax-compress registered as 5th PostToolUse hook
+last_updated: "2026-04-03T20:45:35.818Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 9
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 
 Phase: 12 (context-compression) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-03
 
 ## Performance Metrics
@@ -67,6 +67,7 @@ Last activity: 2026-04-03
 | Phase 10-adversarial-plan-review P02 | 3 | 1 tasks | 2 files |
 | Phase 11-posttooluse-bug-scanner P01 | 197 | 2 tasks | 3 files |
 | Phase 12-context-compression P01 | 2 | 2 tasks | 2 files |
+| Phase 12-context-compression P02 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -121,6 +122,9 @@ Recent decisions affecting current work:
 - [Phase 12-context-compression]: Dual-mode architecture: require.main === module guard keeps hook and library in one file (compress() exported, buildCompressionPrompt and runAsHook private)
 - [Phase 12-context-compression]: Generic fallback for unknown purpose strings: preserves all actionable/technical info -- safer than silently compressing with no guidance
 - [Phase 12-context-compression]: 60s MiniMax timeout for compress() -- accounts for up to 55s pre-answer latency (longer than post-scan 25s since compression runs on larger inputs)
+- [Phase 12-context-compression]: Self-summarization directive (not API call) at threshold: monitor has no conversation text access, directive tells agent to mentally compress -- zero cost, zero latency
+- [Phase 12-context-compression]: minimax-compress placed last (5th) in PostToolUse chain: upstream hooks (token-logger, wave-validator, post-scan) see original tool output; compression runs on what remains
+- [Phase 12-context-compression]: Lazy-require minimax-compress inside conditional: zero overhead when threshold not hit; forward-compatible for future direct compress() calls when conversation text access is available
 
 ### Pending Todos
 
@@ -133,6 +137,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T20:41:32.709Z
-Stopped at: Completed 12-01-PLAN.md -- minimax-compress.js dual-mode compression module, compression thresholds added to settings
+Last session: 2026-04-03T20:45:35.815Z
+Stopped at: Completed 12-02-PLAN.md -- compression directive in gsd-context-monitor, minimax-compress registered as 5th PostToolUse hook
 Resume file: None
