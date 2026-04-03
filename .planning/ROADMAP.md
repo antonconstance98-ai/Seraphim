@@ -51,9 +51,9 @@ Plans:
   2. Clicking a session row in the session history table expands to show individual call breakdown for that session
   3. The dashboard footer shows the ISO timestamp of when it was last generated
   4. Starting two Claude Code sessions simultaneously leaves `dashboard.html` intact and fully readable (no torn or empty file)
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 06-01-PLAN.md — Data processing module (computeMetrics) and Chart.js sidecar setup
+- [x] 06-01-PLAN.md — Data processing module (computeMetrics) and Chart.js sidecar setup
 - [ ] 06-02-PLAN.md — HTML template rendering, session drill-down, aggregator wiring, and visual verification
 
 ### Phase 7: Charts & Hook Integration
@@ -77,5 +77,5 @@ Plans:
 | 3. Plan Review Loop & Superpowers | v1.0 | 2/2 | Complete | 2026-04-02 |
 | 4. Cost Reporting | v1.0 | 1/1 | Complete | 2026-04-02 |
 | 5. Data Pipeline | v1.1 | 3/3 | Complete |  |
-| 6. Dashboard Generator | v1.1 | 0/2 | In Progress | - |
+| 6. Dashboard Generator | v1.1 | 1/2 | In Progress|  |
 | 7. Charts & Hook Integration | v1.1 | 0/? | Not started | - |

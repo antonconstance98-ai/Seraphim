@@ -16,13 +16,13 @@ Requirements for Global Metrics Dashboard milestone. Each maps to roadmap phases
 
 ### Dashboard Display
 
-- [ ] **DASH-01**: Dashboard shows global summary cards (total cost, Opus baseline, savings %, total calls, total reviews)
-- [ ] **DASH-02**: Per-project breakdown table shows project name, calls, actual cost, Opus baseline, savings %, catch rate
-- [ ] **DASH-03**: Model split section shows GPT-5.4 vs GPT-5.4-mini call counts, tokens, and costs
-- [ ] **DASH-04**: Review activity section shows global catch rate with BLOCK issue log (timestamp, project, issue summary)
-- [ ] **DASH-05**: Cache efficiency metric shows cached vs uncached input token ratio per project
-- [ ] **DASH-06**: Unattributed calls section surfaces null-session records with cost attribution
-- [ ] **DASH-07**: Task type distribution shows what Codex is used for (review, implementation, bulk-ops, etc.)
+- [x] **DASH-01**: Dashboard shows global summary cards (total cost, Opus baseline, savings %, total calls, total reviews)
+- [x] **DASH-02**: Per-project breakdown table shows project name, calls, actual cost, Opus baseline, savings %, catch rate
+- [x] **DASH-03**: Model split section shows GPT-5.4 vs GPT-5.4-mini call counts, tokens, and costs
+- [x] **DASH-04**: Review activity section shows global catch rate with BLOCK issue log (timestamp, project, issue summary)
+- [x] **DASH-05**: Cache efficiency metric shows cached vs uncached input token ratio per project
+- [x] **DASH-06**: Unattributed calls section surfaces null-session records with cost attribution
+- [x] **DASH-07**: Task type distribution shows what Codex is used for (review, implementation, bulk-ops, etc.)
 
 ### Charts & Trends
 
@@ -32,7 +32,7 @@ Requirements for Global Metrics Dashboard milestone. Each maps to roadmap phases
 
 ### Session Tracking
 
-- [ ] **SESS-01**: Session history table lists recent sessions across all projects (date, project, calls, cost, savings, catch rate)
+- [x] **SESS-01**: Session history table lists recent sessions across all projects (date, project, calls, cost, savings, catch rate)
 - [ ] **SESS-02**: Per-session drill-down shows individual call breakdown when a session row is clicked
 
 ### Integration
@@ -41,7 +41,7 @@ Requirements for Global Metrics Dashboard milestone. Each maps to roadmap phases
 - [ ] **INTG-02**: SessionStart hook auto-regenerates the dashboard on every session
 - [ ] **INTG-03**: Dashboard shows last-updated timestamp in footer
 - [ ] **INTG-04**: Dashboard writes use atomic write-then-rename for concurrent session safety
-- [ ] **INTG-05**: Chart.js stored as sidecar file at `~/.claude/dashboard/assets/chart.min.js` and inlined at generation time
+- [x] **INTG-05**: Chart.js stored as sidecar file at `~/.claude/dashboard/assets/chart.min.js` and inlined at generation time
 
 ## v2 Requirements
 
@@ -74,19 +74,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PIPE-02 | Phase 5 | Complete |
 | PIPE-03 | Phase 5 | Complete |
 | PIPE-04 | Phase 5 | Complete |
-| DASH-01 | Phase 6 | Pending |
-| DASH-02 | Phase 6 | Pending |
-| DASH-03 | Phase 6 | Pending |
-| DASH-04 | Phase 6 | Pending |
-| DASH-05 | Phase 6 | Pending |
-| DASH-06 | Phase 6 | Pending |
-| DASH-07 | Phase 6 | Pending |
-| SESS-01 | Phase 6 | Pending |
+| DASH-01 | Phase 6 | Complete |
+| DASH-02 | Phase 6 | Complete |
+| DASH-03 | Phase 6 | Complete |
+| DASH-04 | Phase 6 | Complete |
+| DASH-05 | Phase 6 | Complete |
+| DASH-06 | Phase 6 | Complete |
+| DASH-07 | Phase 6 | Complete |
+| SESS-01 | Phase 6 | Complete |
 | SESS-02 | Phase 6 | Pending |
 | INTG-01 | Phase 6 | Pending |
 | INTG-03 | Phase 6 | Pending |
 | INTG-04 | Phase 6 | Pending |
-| INTG-05 | Phase 6 | Pending |
+| INTG-05 | Phase 6 | Complete |
 | CHART-01 | Phase 7 | Pending |
 | CHART-02 | Phase 7 | Pending |
 | CHART-03 | Phase 7 | Pending |

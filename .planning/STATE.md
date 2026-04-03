@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Global Metrics Dashboard
 status: executing
-stopped_at: Completed 05-03-PLAN.md — discovery cache gap closed, warm no-op run 2ms
-last_updated: "2026-04-03T02:41:18.186Z"
+stopped_at: Completed 06-01-PLAN.md — data processing layer, computeMetrics 27/27, Chart.js SHA-256 pinned
+last_updated: "2026-04-03T02:43:58.781Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 3
@@ -58,6 +58,7 @@ Progress: [████░░░░░░] 40% (v1.0 complete, 4/7 phases done)
 | Phase 05-data-pipeline P01 | 2 | 2 tasks | 3 files |
 | Phase 05-data-pipeline P02 | 3min | 2 tasks | 7 files |
 | Phase 05-data-pipeline P03 | 5min | 1 tasks | 1 files |
+| Phase 06 P01 | 4 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,9 @@ Recent decisions affecting current work:
 - [Phase 05-data-pipeline]: Idempotency relies on both mtime+size fast path AND dedup Set — cache skips file reads, Set catches stale-cache edge cases
 - [Phase 05-data-pipeline]: [Phase 05-03]: Discovery cache TTL=1hr in project-index.json — warm runs skip spawnSync find, reducing no-op elapsed_ms from 151ms to 2ms
 - [Phase 05-data-pipeline]: [Phase 05-03]: wasWarm flag captured before writes — prevents race between warm check and index write; carry-forward pattern preserves full discovered_files on warm runs
+- [Phase 06]: generateDashboard returns DASHBOARD_DATA object in stub — Plan 02 replaces body keeping identical signature
+- [Phase 06]: modelSplit always initializes gpt-5.4 and gpt-5.4-mini with zero values before merging observed data
+- [Phase 06]: ensureChartJs pins Chart.js 4.5.1 SHA-256 (48444a82...) — refuses any CDN response with mismatched hash
 
 ### Pending Todos
 
@@ -91,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T00:51:38.483Z
-Stopped at: Completed 05-03-PLAN.md — discovery cache gap closed, warm no-op run 2ms
+Last session: 2026-04-03T02:43:58.779Z
+Stopped at: Completed 06-01-PLAN.md — data processing layer, computeMetrics 27/27, Chart.js SHA-256 pinned
 Resume file: None
