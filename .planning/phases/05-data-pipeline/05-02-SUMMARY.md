@@ -101,7 +101,20 @@ Planning files (in git repo):
 
 ## Deviations from Plan
 
-None — plan executed as written. The aggregator file existed and passed all acceptance criteria without modification.
+### Auto-fixed Issues
+
+**1. [Rule 2 - Security] Shell injection in discoverTokenLogs via config.json extra_roots**
+- **Found during:** Post-task wave validation (after Task 2 commit)
+- **Issue:** `execSync` interpolated the `root` value from `config.json` directly into a shell string: `` `find "${root}" ...` ``. A crafted path in `extra_roots` containing shell metacharacters (e.g. `"/tmp"; rm -rf ~`) would execute arbitrary commands.
+- **Fix:** Replaced `execSync` + template string with `spawnSync` + argument array. `root`, `maxDepth`, and all `-not -path` values are passed as discrete argv entries — never interpreted by a shell.
+- **Files modified:** `~/.claude/hooks/codex-global-aggregator.js` (lines 103-119)
+- **Verification:** Aggregator still discovers 4 projects, 49 records, no dupes, all enrichment fields present; idempotency confirmed (records_added=0)
+- **Committed in:** `d0fdacd` (fix)
+
+---
+
+**Total deviations:** 1 auto-fixed (1 security/missing-critical)
+**Impact on plan:** Essential security fix — eliminates arbitrary command execution via user-controlled config. Zero functional impact; all acceptance criteria still met.
 
 ## Issues Encountered
 
