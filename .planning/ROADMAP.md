@@ -65,10 +65,10 @@ Plans:
   2. Clicking the daily/weekly toggle regroups the line chart data client-side without a page reload
   3. Opening a Claude Code session automatically updates `global.jsonl` and regenerates `dashboard.html` with the new session's data visible in the dashboard
   4. Session open delay attributable to the hook is under 2 seconds on a cold scan across all known projects
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 07-01-PLAN.md — Chart.js line chart (daily cost/savings), weekly toggle, and project bar chart
-- [ ] 07-02-PLAN.md — Register codex-global-aggregator.js as SessionStart hook in settings.json
+- [x] 07-02-PLAN.md — Register codex-global-aggregator.js as SessionStart hook in settings.json
 
 ## Progress
 
@@ -80,4 +80,4 @@ Plans:
 | 4. Cost Reporting | v1.0 | 1/1 | Complete | 2026-04-02 |
 | 5. Data Pipeline | v1.1 | 3/3 | Complete |  |
 | 6. Dashboard Generator | v1.1 | 2/2 | Complete |  |
-| 7. Charts & Hook Integration | v1.1 | 0/2 | Not started | - |
+| 7. Charts & Hook Integration | v1.1 | 1/2 | In Progress|  |

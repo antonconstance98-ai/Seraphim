@@ -38,7 +38,7 @@ Requirements for Global Metrics Dashboard milestone. Each maps to roadmap phases
 ### Integration
 
 - [x] **INTG-01**: Self-contained HTML dashboard at `~/.claude/dashboard/dashboard.html` (inline CSS/JS, opens from `file://`)
-- [ ] **INTG-02**: SessionStart hook auto-regenerates the dashboard on every session
+- [x] **INTG-02**: SessionStart hook auto-regenerates the dashboard on every session
 - [x] **INTG-03**: Dashboard shows last-updated timestamp in footer
 - [x] **INTG-04**: Dashboard writes use atomic write-then-rename for concurrent session safety
 - [x] **INTG-05**: Chart.js stored as sidecar file at `~/.claude/dashboard/assets/chart.min.js` and inlined at generation time
@@ -90,7 +90,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CHART-01 | Phase 7 | Pending |
 | CHART-02 | Phase 7 | Pending |
 | CHART-03 | Phase 7 | Pending |
-| INTG-02 | Phase 7 | Pending |
+| INTG-02 | Phase 7 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 21 total
