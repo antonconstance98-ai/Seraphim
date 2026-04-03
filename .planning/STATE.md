@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Three-Model Intelligence
 status: verifying
-stopped_at: Completed 10-02-PLAN.md -- REVIEWS.md headers updated to reflect dual-model review (Round 1 gpt-5.4, Round 2 minimax-m2.7) in both GSD and Superpowers reviewers, v3.1.0
-last_updated: "2026-04-03T19:45:36.623Z"
+stopped_at: Completed 11-01-PLAN.md -- minimax-post-scan.js PostToolUse hook, hook registered in settings, scan_skip_threshold config added
+last_updated: "2026-04-03T20:09:48.986Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 7
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
+  completed_phases: 4
+  total_plans: 7
+  completed_plans: 7
 ---
 
 # Project State
@@ -20,12 +20,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution — with cross-model review catching what either model misses alone.
-**Current focus:** Phase 10 — adversarial-plan-review
+**Current focus:** Phase 11 — posttooluse-bug-scanner
 
 ## Current Position
 
-Phase: 11
-Plan: Not started
+Phase: 11 (posttooluse-bug-scanner) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-04-03
 
@@ -65,6 +65,7 @@ Last activity: 2026-04-03
 | Phase 09-dual-review-gate P01 | 1min | 3 tasks | 1 files |
 | Phase 10-adversarial-plan-review P01 | 5 | 2 tasks | 2 files |
 | Phase 10-adversarial-plan-review P02 | 3 | 1 tasks | 2 files |
+| Phase 11-posttooluse-bug-scanner P01 | 197 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -112,6 +113,10 @@ Recent decisions affecting current work:
 - [Phase 10-adversarial-plan-review]: No runWithFallback() for Round 2 -- Phase 10 goes MiniMax->Codex (opposite of Phase 9 Codex->MiniMax direction)
 - [Phase 10-adversarial-plan-review]: Round 1 context capped at MAX_R1_CONTEXT=4000 chars before Round 2 injection -- prevents MiniMax timeout on long reviews
 - [Phase 10-adversarial-plan-review]: REVIEWS.md header reflects Phase 10 design intent as static template -- D-08 fallback content shows actual model used; header describes intended design, avoiding dynamic model param in writeReviewsFile
+- [Phase 11-posttooluse-bug-scanner]: execFileSync array args (not execSync string) for all git subprocess calls -- prevents shell injection via file paths containing metacharacters
+- [Phase 11-posttooluse-bug-scanner]: isTrivialEdit classifies only blank/whitespace/comment lines as trivial -- string literals NOT trivial (URLs, SQL, regex are security-relevant)
+- [Phase 11-posttooluse-bug-scanner]: Lazy-require minimax-exec and codex-pricing only after code-file and diff checks pass -- avoids SDK load on every non-code write
+- [Phase 11-posttooluse-bug-scanner]: Strip MiniMax think-block before outputting additionalContext -- keeps advisory focused on actionable BUG/SECURITY findings only
 
 ### Pending Todos
 
@@ -124,6 +129,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T19:41:43.492Z
-Stopped at: Completed 10-02-PLAN.md -- REVIEWS.md headers updated to reflect dual-model review (Round 1 gpt-5.4, Round 2 minimax-m2.7) in both GSD and Superpowers reviewers, v3.1.0
+Last session: 2026-04-03T20:09:48.983Z
+Stopped at: Completed 11-01-PLAN.md -- minimax-post-scan.js PostToolUse hook, hook registered in settings, scan_skip_threshold config added
 Resume file: None
