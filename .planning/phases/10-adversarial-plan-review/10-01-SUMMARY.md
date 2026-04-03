@@ -102,7 +102,20 @@ _Note: Hook files live at ~/.claude/hooks/ (outside repo). Commits use --allow-e
 
 ## Deviations from Plan
 
-None — plan executed exactly as written. All 7 modifications to codex-multi-round-reviewer.js and all minimax-exec.js changes matched the plan spec precisely. Both automated verification suites (14 checks for reviewer, 9 checks for minimax-exec) passed on first attempt.
+### Auto-fixed Issues
+
+**1. [Rule 1 - Bug] Reset round2HasHigh=false when ADVERSARIAL REVIEW PASSED**
+- **Found during:** Post-task wave validation advisory (after Task 2 commit)
+- **Issue:** When MiniMax returns `ADVERSARIAL REVIEW PASSED`, the code reset `round2IssueCount = 0` but did NOT reset `round2HasHigh`. With `reasoning_split: true`, MiniMax's `<think>` reasoning chain can contain `[SEVERITY: HIGH]` strings as part of its internal reasoning process even when the final answer declares the plan robust. This would cause `round2HasHigh = true` and an incorrect `BLOCKED_HIGH_SEVERITY` verdict on clean plans.
+- **Fix:** Added `round2HasHigh = false` alongside `round2IssueCount = 0` in the `ADVERSARIAL REVIEW PASSED` branch
+- **Files modified:** `~/.claude/hooks/codex-multi-round-reviewer.js`
+- **Verification:** Module loads OK; grep confirms `round2HasHigh = false` present in PASSED branch
+- **Committed in:** `51a7025` (fix commit after Task 2)
+
+---
+
+**Total deviations:** 1 auto-fixed (Rule 1 - Bug)
+**Impact on plan:** Essential correctness fix — without it, any MiniMax response that mentioned severity in its reasoning chain would produce a false positive BLOCK verdict on plans the model declared robust. No scope creep.
 
 ## Issues Encountered
 
@@ -121,6 +134,16 @@ None — no new environment variables, services, or configuration required. MINI
 - Phase 10 Plan 02 (if exists): codex-plan-reviewer.js and codex-superpowers-plan-reviewer.js callers may need REVIEWS.md header updates to reflect "Round 1: gpt-5.4, Round 2: minimax-m2.7" (identified as Open Question #3 in research, Claude's discretion)
 - Phase 11 (PostToolUse bug scanner): minimax-exec.js v1.1.0 is ready; reasoning_split is available as opt-in for scan results if transparency is desired
 - All downstream phases can safely require() codex-multi-round-reviewer.js — runMultiRoundReview() signature unchanged
+
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/10-adversarial-plan-review/10-01-SUMMARY.md`
+- FOUND: `97a30ef` (Task 1 — minimax-exec.js reasoning_split)
+- FOUND: `00f25a3` (Task 2 — codex-multi-round-reviewer.js MiniMax routing)
+- FOUND: `51a7025` (Rule 1 fix — round2HasHigh reset on ADVERSARIAL REVIEW PASSED)
+- `~/.claude/hooks/minimax-exec.js` v1.1.0 confirmed
+- `~/.claude/hooks/codex-multi-round-reviewer.js` v4.0.0 confirmed
+- Both modules load without errors
 
 ---
 *Phase: 10-adversarial-plan-review*
