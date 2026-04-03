@@ -1,5 +1,26 @@
 # Milestones
 
+## v2.0 Three-Model Intelligence (Shipped: 2026-04-03)
+
+**Phases completed:** 7 phases, 12 plans, 18 tasks
+
+**Key accomplishments:**
+
+- Corrected 3x Opus pricing error ($15/$75 Opus 4.1 -> $5/$25 Opus 4.6), added MiniMax M-2.7 pricing, and recalculated all 215 global.jsonl records; savings percentages now reflect real cost data
+- MiniMax M-2.7 provider module with OpenAI SDK baseURL swap, exponential-backoff retry, and a three-tier fallback chain (Codex CLI -> MiniMax API -> fail-open/closed by taskCategory)
+- MiniMax M-2.7 wired end-to-end: settings.json minimax config block added alongside codex block, connectivity test script created that checks MINIMAX_API_KEY, loads minimax-exec.js, verifies pricing entry, and makes a live API call to api.minimax.io/v1
+- One-liner:
+- MiniMax M-2.7 wired as Round 2 adversarial reviewer with reasoning_split support, D-08 Codex fallback, and per-model token logging
+- REVIEWS.md headers in both GSD and Superpowers plan reviewers updated to show per-round model attribution (Round 1: gpt-5.4, Round 2: minimax-m2.7) with cross-model review type, both bumped to v3.1.0
+- One-liner:
+- MiniMax compress() library + PostToolUse hook compressing large tool outputs above a configurable token threshold, with purpose-aware prompts and fail-silent advisory output
+- gsd-context-monitor upgraded with MiniMax self-summarization directive at 60% context threshold, minimax-compress.js wired as 5th PostToolUse hook completing the full compression pipeline
+- codex-handoff.js three-tier fallback (Codex CLI free -> MiniMax API on rate-limit -> user prompt fail-closed) wired into gsd-executor.md thin orchestrator pattern replacing direct Opus code-writing
+- Token logger v2.0 field pass-through (5 optional fields via !== undefined) and cost reporter three-model breakdown with Codex/MiniMax/Opus-baseline sections and fallback event counting
+- One-liner:
+
+---
+
 ## v1.1 Global Metrics Dashboard (Shipped: 2026-04-03)
 
 **Phases completed:** 3 phases, 7 plans, 11 tasks

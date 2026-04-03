@@ -2,44 +2,41 @@
 
 ## What This Is
 
-A multi-model integration that wires OpenAI Codex (GPT-5.4) into an existing Claude Code + GSD + Superpowers workflow. Claude Opus 4.6 acts as the orchestrator/architect while Codex handles fast execution and review — with a multi-round cross-model plan review loop before any code is written. The system includes 10 hook scripts, a Superpowers skill override, automated cost reporting, and a self-contained HTML dashboard showing global metrics across all projects on this machine.
+A three-model integration wiring OpenAI Codex (GPT-5.4) and MiniMax M-2.7 into an existing Claude Code + GSD + Superpowers workflow. Claude Opus 4.6 orchestrates and architects, Codex handles code execution (with MiniMax as fallback when Codex is rate-limited), and MiniMax provides adversarial review, bug scanning, and context compression — all coordinated through a cross-model plan review loop before any code is written. The system includes 12+ hook scripts, a Superpowers skill override, automated cost reporting, and a self-contained HTML dashboard showing global metrics across all projects on this machine.
 
 ## Core Value
 
-Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution — with cross-model review catching what either model misses alone.
+Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for code execution, MiniMax for analysis and adversarial review — with cross-model review catching what any single model misses alone.
 
-## Current Milestone: v2.0 Three-Model Intelligence
+## Shipped: v2.0 Three-Model Intelligence (2026-04-03)
 
-**Goal:** Integrate MiniMax M2.7 as a third independent model alongside Opus and GPT-5.4 — adding a genuinely different perspective to review workflows, specializing in debugging/test generation, and building a head-to-head benchmark suite to inform optimal task routing.
-
-**Target features:**
-- MiniMax M2.7 integration into existing hook infrastructure (direct SDK, no proxy)
-- Third-perspective review pass in the cross-model review loop
-- M2.7 as dedicated debugging and test generation specialist
-- Head-to-head benchmark suite (M2.7 vs GPT-5.4) across multiple task types
-- Benchmark results dashboard/reporting
-- Three-model token tracking and cost reporting
-- Updated global dashboard for three-model metrics
+All v2.0 features delivered across 7 phases, 12 plans. MiniMax M-2.7 fully integrated as third model.
 
 ## Current State
 
-**v1.1 shipped 2026-04-03.** 7 phases total (3 new in v1.1), 15 plans, 25 tasks.
+**v2.0 shipped 2026-04-03.** 14 phases total across 3 milestones, 27 plans, 43 tasks.
 
-Hook scripts installed at `~/.claude/hooks/`:
+Hook scripts installed at `~/.claude/hooks/` (18 total):
 - `codex-exec.js` — Codex CLI wrapper with timeout, token parsing, GPT-5.4-mini API
 - `codex-router.js` — PreToolUse advisory routing (opt-out, v2.0)
-- `codex-token-logger.js` — PostToolUse token logging to JSONL
-- `codex-review-gate.js` — Stop hook ALLOW/BLOCK review with depth variation
+- `codex-token-logger.js` — PostToolUse token logging to JSONL (v2.0 field pass-through)
+- `codex-review-gate.js` v3.0 — Stop hook parallel Codex+MiniMax dual review
 - `codex-wave-validator.js` + `codex-wave-validator-worker.js` — Non-blocking GSD wave validation
-- `codex-plan-reviewer.js` — SubagentStop multi-round plan review (v3.0)
-- `codex-multi-round-reviewer.js` — Shared 2-round review loop orchestrator
-- `codex-superpowers-plan-reviewer.js` — Superpowers SubagentStop plan review
-- `codex-cost-reporter.js` — SessionStart cost savings report
-- `codex-pricing.js` — Centralized pricing module (GPT + Opus rates)
+- `codex-plan-reviewer.js` v3.1 — SubagentStop cross-model plan review
+- `codex-multi-round-reviewer.js` v4.0 — Round 1 Codex constructive + Round 2 MiniMax adversarial
+- `codex-superpowers-plan-reviewer.js` v3.1 — Superpowers SubagentStop cross-model review
+- `codex-cost-reporter.js` — SessionStart three-model cost savings report
+- `codex-pricing.js` — Centralized pricing (GPT-5.4 + Opus 4.6 + MiniMax M-2.7)
 - `codex-global-aggregator.js` — SessionStart global JSONL aggregator across all projects
-- `codex-dashboard-generator.js` — HTML dashboard generator with Chart.js visualizations
+- `codex-dashboard-generator.js` — Three-model dashboard with Chart.js + Fallback Events panel
+- `codex-handoff.js` — Execution helper: Codex CLI → MiniMax API → user prompt fallback chain
+- `minimax-exec.js` v1.1 — MiniMax M-2.7 provider (runMinimax, runWithFallback, isCodexRateLimited)
+- `minimax-post-scan.js` — PostToolUse bug/security scanner via MiniMax
+- `minimax-compress.js` — Dual-mode compression (PostToolUse hook + require-able library)
+- `minimax-connectivity-test.js` — MiniMax API connectivity verification
+- `migrate-opus-pricing.js` — One-shot historical pricing correction (ran once)
 
-Dashboard at `~/.claude/dashboard/dashboard.html` — auto-regenerated on every session start.
+Dashboard at `~/.claude/dashboard/dashboard.html` — three-model charts, auto-regenerated on every session start.
 
 ## Requirements
 
@@ -60,23 +57,27 @@ Dashboard at `~/.claude/dashboard/dashboard.html` — auto-regenerated on every 
 - ✓ Session history listing recent sessions per project with individual stats — *v1.1*
 - ✓ Self-contained HTML dashboard at ~/.claude/dashboard/ (inline CSS/JS, no server) — *v1.1*
 - ✓ SessionStart hook auto-regenerates the dashboard on every session — *v1.1*
+- ✓ MiniMax M-2.7 SDK module (minimax-exec.js) with OpenAI SDK baseURL swap, zero new deps — *v2.0*
+- ✓ MiniMax pricing added to codex-pricing.js; Opus 4.6 pricing corrected ($5/$25) — *v2.0*
+- ✓ Dual review gate: Codex + MiniMax run in parallel on Stop hook, BLOCK if either flags — *v2.0*
+- ✓ MiniMax serves as adversarial reviewer (Round 2) in plan review — *v2.0*
+- ✓ PostToolUse MiniMax bug/security scanner after every Write/Edit — *v2.0*
+- ✓ Codex execution pipeline: gsd-executor generates handoff specs, Codex CLI writes code — *v2.0*
+- ✓ Fallback chain: Codex CLI → MiniMax API → prompt user (fail-closed) — *v2.0*
+- ✓ Universal context compression via MiniMax (large diffs, files, tool outputs) — *v2.0*
+- ✓ Token tracking and cost reporting updated for three models — *v2.0*
+- ✓ Global dashboard updated to show three-model metrics and Fallback Events — *v2.0*
 
 ### Active
 
-- [ ] MiniMax M2.7 integrated into hook infrastructure via direct OpenAI SDK calls (no proxy)
-- [ ] Third-perspective review pass added to cross-model review loop
-- [ ] M2.7 serves as dedicated debugging and test generation specialist
-- [ ] Head-to-head benchmark suite compares M2.7 vs GPT-5.4 across multiple task types
-- [ ] Benchmark results reporting shows where each model excels
-- [ ] Token tracking and cost reporting updated for three models
-- [ ] Global dashboard updated to show three-model metrics
-- [ ] Opus generates adaptive handoff specs (file-level for complex, feature-level for simple) for Codex execution
+(None — next milestone requirements TBD via `/gsd:new-milestone`)
 
 ### Out of Scope
 
 - Building a new CLI tool or standalone app — this integrates into existing Claude Code plugins
 - Modifying Claude Code itself — only hooks, agents, and plugin source code
-- Supporting models beyond OpenAI's Codex family — no Gemini, no Llama
+- Running MiniMax locally (no open weights for M-2.7; API-only, no filesystem access)
+- Head-to-head benchmark suite — research already provides extensive data; track real-world A/B instead
 - Real-time streaming between models — async handoff is sufficient
 - Mobile or web interface — this is terminal/CLI only
 
@@ -84,25 +85,29 @@ Dashboard at `~/.claude/dashboard/dashboard.html` — auto-regenerated on every 
 
 - **Shipped:** v1.1 with 12 hook scripts, 1 Superpowers skill override, global metrics dashboard
 - **Dashboard:** `~/.claude/dashboard/dashboard.html` — dark-themed, Chart.js charts, session drill-down, auto-regenerated on SessionStart
-- **Research basis:** `docs/research/opus-vs-codex-model-comparison.md` — 34 sources informing routing decisions
-- **Key finding:** Cross-model review produces significantly better results than either model alone
-- **Cost efficiency:** 81.4% savings across 4 projects (global dashboard measurement)
-- **Runtime:** Ubuntu 24.04, Claude Code CLI v2.1.90, Codex CLI v0.118.0, OpenAI SDK v6.33.0
-- **Subscription:** $20/mo ChatGPT Plus (CLI usage preferred over API billing)
-- **MiniMax credits:** $25 available for M2.7 API testing
-- **MiniMax API:** OpenAI-compatible at `https://api.minimax.io/v1`, model `MiniMax-M2.7`, $0.30/$1.20 per M tokens
-- **MiniMax strengths:** SWE-Pro 56.22% (within 1-2pts of Opus/GPT-5.4), AIME 2025 93.3% (beats both), low hallucination (34%), self-evolution training creates different reasoning patterns
-- **MiniMax quirks:** Must preserve thinking content in history; stubborn about distributed rule files (rules must go in main prompt); less proactive about architecture/tests unless asked
+- **Research basis:** `minimax-m2.7-synthesis.md` — 8 research sources (3 Claude agents + 5 ChatGPT Deep Research reports), `minimax-m2.7-research.md` — raw Claude research, `research/` — 5 ChatGPT report source files
+- **Key finding:** Cross-model review produces significantly better results than either model alone; MiniMax's self-evolution training gives it genuinely different reasoning patterns ideal for adversarial review
+- **Cost efficiency:** Savings recalculated with corrected Opus 4.6 pricing ($5/$25). Old baseline ($173.74) was 3x overstated; new baseline ($57.91). Real savings now accurately reported.
+- **Runtime:** Ubuntu 24.04, Claude Code CLI v2.1.91, Codex CLI v0.118.0, OpenAI SDK v6.33.0
+- **Subscription:** $20/mo ChatGPT Plus (CLI usage preferred; subject to 5-hour rolling window and weekly caps)
+- **MiniMax credits:** $25 available for M-2.7 API testing
+- **MiniMax API:** OpenAI-compatible at `https://api.minimax.io/v1`, also Anthropic-compatible at `https://api.minimax.io/anthropic`, model `MiniMax-M2.7`, $0.30/$1.20 per M tokens, cache read $0.06/M
+- **MiniMax architecture:** 230B total params, ~10B active (MoE, 23:1 sparsity), 204K context, 131K max output
+- **MiniMax strengths:** SWE-Pro 56.22% (tied frontier), bug detection 6/6 and security scanning 10/10 (matched Opus in head-to-head), low hallucination (34%), 500 RPM / 20M TPM rate limits
+- **MiniMax weaknesses:** No filesystem access (API-only, not a CLI tool), `<think>` tag fragility in multi-turn, no strict JSON mode, temperature cannot be exactly 0, verbosity tax (~4x output tokens), weaker on architecture and integration test depth
+- **MiniMax quirks:** Must preserve full assistant messages including `<think>` content and tool_calls in conversation history; temperature must be (0.0, 1.0]; Codex CLI integration explicitly "not recommended" by MiniMax
 - **Prior attempt:** ~/projects/Model-routing built a Fastify proxy — failed due to OAuth rejection, stream bugs, crashes. Lesson: integrate directly via SDK, not proxy
+- **Execution gap (v1.x):** gsd-executor subagents run on Opus — all code writing burns Opus tokens. v2.0 moves code writing to Codex CLI (free) with MiniMax API fallback (cheap)
 - **User is non-technical** — all changes implemented by Claude, explained in plain English
 
 ## Constraints
 
-- **Budget**: $20/mo ChatGPT Plus subscription; $15/day max API spend; prefer CLI over API billing
-- **Security**: API keys in environment variables only; CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 active
+- **Budget**: $20/mo ChatGPT Plus subscription; $15/day max API spend; prefer CLI over API billing; MiniMax API as cost-efficient fallback
+- **Security**: API keys in environment variables only; CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 active; MiniMax data privacy policy not fully transparent — don't send credentials or PII
 - **Compatibility**: Works with existing GSD and Superpowers plugin versions without breaking workflows
-- **Runtime**: Codex CLI runs locally in terminal; API calls use OpenAI SDK
-- **Orchestration**: Opus always remains the primary orchestrator; Codex never makes architectural decisions autonomously
+- **Runtime**: Codex CLI runs locally with filesystem access; MiniMax is API-only (no filesystem access, orchestrator writes files on its behalf)
+- **Orchestration**: Opus always remains the primary orchestrator; neither Codex nor MiniMax make architectural decisions autonomously
+- **Fallback chain**: Codex CLI (free) → MiniMax API ($0.30/$1.20) → prompt user. Execution is fail-closed (prompt user); reviews are fail-open (skip if both fail)
 
 ## Key Decisions
 
@@ -120,6 +125,14 @@ Dashboard at `~/.claude/dashboard/dashboard.html` — auto-regenerated on every 
 | TTL-gated discovery cache (1hr) | Warm no-op runs under 5ms by skipping 4x spawnSync find processes | ✓ Good — 2ms warm runs vs 151ms cold |
 | Chart.js sidecar with SHA-256 integrity | Downloaded once, inlined into HTML at gen time; works offline | ✓ Good — 204KB cached, integrity-verified |
 | Atomic write-then-rename for dashboard.html | Prevents concurrent session corruption on shared output file | ✓ Good — Linux renameSync is atomic |
+| MiniMax via OpenAI SDK baseURL swap | Zero new deps; reuses existing openai v6.33.0 package | ✓ Good — 3.5s connectivity, $0.000136 test call |
+| Temperature 0.01 for MiniMax | API rejects exactly 0; 0.01 is the established workaround | ✓ Good — deterministic enough for review tasks |
+| 90s timeout for MiniMax | Mandatory `<think>` phase can produce 55s pre-answer latency | ✓ Good — covers P95 latency without blocking |
+| Direct fs.appendFileSync for token logging | Hooks write directly to JSONL; token-logger passes through CODEX_RESULT markers | ✓ Good — consistent pattern across all hooks |
+| Dual review: parallel Promise.all | Independent .catch() wrappers per leg; either model can block independently | ✓ Good — graceful degradation if either fails |
+| MiniMax as adversarial Round 2 (not Codex) | Different reasoning patterns (self-evolution trained) produce genuinely different critiques | ✓ Good — catches issues Codex misses |
+| Codex handoff thin orchestrator | gsd-executor generates specs, Codex CLI writes code (free via subscription) | ✓ Good — expected cost drop from $10-15/day to $1-3/day |
+| Fail-closed execution, fail-open review | Execution tasks prompt user on both-fail; review tasks skip silently | ✓ Good — matches risk profile of each task type |
 
 ## Evolution
 
@@ -139,4 +152,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-03 after v2.0 milestone start*
+*Last updated: 2026-04-03 after v2.0 milestone completion*
