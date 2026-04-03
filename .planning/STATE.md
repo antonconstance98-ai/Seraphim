@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Three-Model Intelligence
 status: executing
-stopped_at: Completed 08-01-PLAN.md -- Opus 4.6 pricing fix, MiniMax M-2.7 pricing added, 215 global.jsonl records migrated
-last_updated: "2026-04-03T18:12:28.196Z"
+stopped_at: Completed 08-02-PLAN.md -- minimax-exec.js created with runMinimax, runWithFallback, isCodexRateLimited
+last_updated: "2026-04-03T18:16:52.021Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 ## Current Position
 
 Phase: 08 (minimax-foundation) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-03
 
@@ -60,6 +60,7 @@ Last activity: 2026-04-03
 | Phase 07-charts-hook-integration P02 | 2min | 1 tasks | 1 files |
 | Phase 07-charts-hook-integration P01 | 10 | 2 tasks | 2 files |
 | Phase 08-minimax-foundation P01 | 8 | 2 tasks | 2 files |
+| Phase 08-minimax-foundation P02 | 4 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,9 @@ Recent decisions affecting current work:
 - [Phase 08-minimax-foundation]: Opus 4.6 pricing is dollar5/dollar25 per 1M tokens (not dollar15/dollar75 which was Opus 4.1 -- a 3x error corrected in global.jsonl migration)
 - [Phase 08-minimax-foundation]: MiniMax M-2.7 pricing added to CODEX_PRICING (input:0.30, cached:0.06, output:1.20) -- consistent with existing pattern, no function changes needed
 - [Phase 08-minimax-foundation]: Migration rewrites global.jsonl only -- per-project token-log.jsonl never contains opus_baseline_usd; aggregator computes it at merge time
+- [Phase 08-minimax-foundation]: callWithRetry wraps only the API call in runMinimax — AbortController timer clears in finally regardless of retry count
+- [Phase 08-minimax-foundation]: runWithFallback escalates to MiniMax only on rate-limit Codex failure — prevents MiniMax spend for auth errors or misconfigurations
+- [Phase 08-minimax-foundation]: Defensive cached_tokens fallback: checks prompt_tokens_details.cached_tokens then usage.cached_tokens — handles MiniMax API field placement uncertainty
 
 ### Pending Todos
 
@@ -106,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T18:12:28.193Z
-Stopped at: Completed 08-01-PLAN.md -- Opus 4.6 pricing fix, MiniMax M-2.7 pricing added, 215 global.jsonl records migrated
+Last session: 2026-04-03T18:16:52.018Z
+Stopped at: Completed 08-02-PLAN.md -- minimax-exec.js created with runMinimax, runWithFallback, isCodexRateLimited
 Resume file: None

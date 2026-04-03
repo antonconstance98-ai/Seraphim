@@ -34,7 +34,7 @@
   - **Plans:** 3 plans
   - Plans:
     - [x] 08-01-PLAN.md — Fix Opus pricing, add MiniMax pricing entry, migrate historical data
-    - [ ] 08-02-PLAN.md — Create minimax-exec.js shared module (runMinimax, runWithFallback, isCodexRateLimited)
+    - [x] 08-02-PLAN.md — Create minimax-exec.js shared module (runMinimax, runWithFallback, isCodexRateLimited)
     - [ ] 08-03-PLAN.md — Add minimax config to project settings, verify live API connectivity
 - [ ] **Phase 9: Dual Review Gate** — Codex + MiniMax reviews in parallel on Stop hook, merged verdicts
 - [ ] **Phase 10: Adversarial Plan Review** — MiniMax replaces Codex as adversarial (Round 2) in plan review; devil's advocate role
@@ -90,7 +90,7 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
 | 5. Data Pipeline | v1.1 | 3/3 | Complete | 2026-04-03 |
 | 6. Dashboard Generator | v1.1 | 2/2 | Complete | 2026-04-03 |
 | 7. Charts & Hook Integration | v1.1 | 2/2 | Complete | 2026-04-03 |
-| 8. MiniMax Foundation | v2.0 | 0/3 | Planning complete | — |
+| 8. MiniMax Foundation | v2.0 | 2/3 | In Progress|  |
 | 9. Dual Review Gate | v2.0 | — | Pending | — |
 | 10. Adversarial Plan Review | v2.0 | — | Pending | — |
 | 11. PostToolUse Bug Scanner | v2.0 | — | Pending | — |
