@@ -9,10 +9,10 @@ Requirements for Global Metrics Dashboard milestone. Each maps to roadmap phases
 
 ### Data Pipeline
 
-- [ ] **PIPE-01**: Global aggregator scans all projects for `token-log.jsonl` and merges records into `~/.claude/dashboard/global.jsonl` with deduplication
+- [x] **PIPE-01**: Global aggregator scans all projects for `token-log.jsonl` and merges records into `~/.claude/dashboard/global.jsonl` with deduplication
 - [x] **PIPE-02**: Discovery roots are configurable via `~/.claude/dashboard/config.json` with sensible defaults covering all CLAUDE.md key paths
-- [ ] **PIPE-03**: Aggregator uses mtime-gated incremental reads to skip unchanged files
-- [ ] **PIPE-04**: Records with null `session_id` are tracked as "unattributed" category rather than silently dropped
+- [x] **PIPE-03**: Aggregator uses mtime-gated incremental reads to skip unchanged files
+- [x] **PIPE-04**: Records with null `session_id` are tracked as "unattributed" category rather than silently dropped
 
 ### Dashboard Display
 
@@ -70,10 +70,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PIPE-01 | Phase 5 | Pending |
+| PIPE-01 | Phase 5 | Complete |
 | PIPE-02 | Phase 5 | Complete |
-| PIPE-03 | Phase 5 | Pending |
-| PIPE-04 | Phase 5 | Pending |
+| PIPE-03 | Phase 5 | Complete |
+| PIPE-04 | Phase 5 | Complete |
 | DASH-01 | Phase 6 | Pending |
 | DASH-02 | Phase 6 | Pending |
 | DASH-03 | Phase 6 | Pending |

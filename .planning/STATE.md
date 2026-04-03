@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Global Metrics Dashboard
-status: executing
-stopped_at: Executing 05-02-PLAN.md — Task 2 complete, idempotency verified
-last_updated: "2026-04-03T00:15:29.831Z"
+status: verifying
+stopped_at: Completed 05-02-PLAN.md — global aggregator verified, idempotency confirmed
+last_updated: "2026-04-03T00:22:56.335Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
   percent: 40
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 
 Phase: 05 (data-pipeline) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-03
 
 Progress: [████░░░░░░] 40% (v1.0 complete, 4/7 phases done)
@@ -56,6 +56,7 @@ Progress: [████░░░░░░] 40% (v1.0 complete, 4/7 phases done)
 
 *Updated after each plan completion*
 | Phase 05-data-pipeline P01 | 2 | 2 tasks | 3 files |
+| Phase 05-data-pipeline P02 | 3min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,8 @@ Recent decisions affecting current work:
 - [Phase 05-data-pipeline]: computeOpusCost preserves no-rounding behavior — avoids changing stored cost values in existing token-log.jsonl files
 - [Phase 05-data-pipeline]: computeCodexCostStrict added alongside computeCost (not replacement) — new consumers surface pricing gaps; existing consumers unchanged
 - [Phase 05-data-pipeline]: [Phase 05-01]: codex-exec.js re-exports computeCost from codex-pricing.js — codex-token-logger.js import chain preserved with zero downstream changes
+- [Phase 05-data-pipeline]: Aggregator already existed from prior work session — verified acceptance criteria against existing file rather than recreating
+- [Phase 05-data-pipeline]: Idempotency relies on both mtime+size fast path AND dedup Set — cache skips file reads, Set catches stale-cache edge cases
 
 ### Pending Todos
 
@@ -85,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T00:15:29.828Z
-Stopped at: Completed 05-01-PLAN.md — centralized pricing module created, hooks refactored
+Last session: 2026-04-03T00:22:56.332Z
+Stopped at: Completed 05-02-PLAN.md — global aggregator verified, idempotency confirmed
 Resume file: None
