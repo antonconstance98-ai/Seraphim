@@ -6,5 +6,13 @@
     "timeout_seconds": 300,
     "preferred_model": "gpt-5.4",
     "api_model": "gpt-5.4-mini"
+  },
+  "minimax": {
+    "enabled": true,
+    "model": "MiniMax-M2.7",
+    "api_key_env": "MINIMAX_API_KEY",
+    "base_url": "https://api.minimax.io/v1",
+    "max_tokens_default": 2000,
+    "tasks": ["bug-scan", "security-scan", "third-opinion", "context-compress"]
   }
 }
