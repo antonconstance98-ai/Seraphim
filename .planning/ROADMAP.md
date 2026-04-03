@@ -64,6 +64,11 @@
   - Plans:
     - [x] 13-01-PLAN.md — Create codex-handoff.js execution helper, modify gsd-executor.md to use handoff spec pattern
 - [ ] **Phase 14: Three-Model Reporting** — Token logging, cost reports, and dashboard updated for Opus + Codex + MiniMax
+  - **Goal:** Update the entire cost tracking and dashboard pipeline to support three models with v2.0 field pass-through, three-model savings reports, MiniMax chart series, and fallback event health tracking
+  - **Plans:** 2 plans
+  - Plans:
+    - [ ] 14-01-PLAN.md — Add v2.0 field pass-through to token logger, update cost reporter for three-model breakdown and fallback tracking
+    - [ ] 14-02-PLAN.md — Extend dashboard generator with MiniMax chart series, modelSplit pre-init, and Fallback Events panel
 
 **Phase dependencies:**
 - Phase 8 (foundation) must complete first — all other phases depend on `minimax-exec.js` and pricing
@@ -118,4 +123,4 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
 | 11. PostToolUse Bug Scanner | v2.0 | 1/1 | Complete    | 2026-04-03 |
 | 12. Context Compression | v2.0 | 2/2 | Complete    | 2026-04-03 |
 | 13. Codex Execution Pipeline | v2.0 | 1/1 | Complete    | 2026-04-03 |
-| 14. Three-Model Reporting | v2.0 | — | Pending | — |
+| 14. Three-Model Reporting | v2.0 | 0/2 | Planning | — |
