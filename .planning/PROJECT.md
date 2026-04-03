@@ -12,6 +12,17 @@ Every task goes to the model that's best at it — Opus for reasoning and archit
 
 All v2.0 features delivered across 7 phases, 12 plans. MiniMax M-2.7 fully integrated as third model.
 
+## Current Milestone: v3.0 Adaptive Intelligence
+
+**Goal:** Make the multi-model system learn from its own performance and automatically optimize routing, review thresholds, and model selection — turning static rules into self-improving intelligence.
+
+**Target features:**
+- Data collection pipeline — structured logging of every decision (routing choices, review outcomes, false positives, cost, latency, quality signals) into a queryable format
+- ML model that learns patterns from collected data — which model performs best for which task types, which reviews are noise vs signal, which thresholds are too aggressive or too lenient
+- Auto-adjustment engine — system tunes its own config (routing weights, review depth, thresholds) based on learned patterns, with safety guardrails
+- Feedback loop — when auto-adjustments produce better or worse outcomes, that feeds back into the learning cycle
+- Insights dashboard — surfaces what the system learned, what it changed, and why
+
 ## Current State
 
 **v2.0 shipped 2026-04-03.** 14 phases total across 3 milestones, 27 plans, 43 tasks.
@@ -70,7 +81,7 @@ Dashboard at `~/.claude/dashboard/dashboard.html` — three-model charts, auto-r
 
 ### Active
 
-(None — next milestone requirements TBD via `/gsd:new-milestone`)
+(v3.0 requirements TBD — research phase first)
 
 ### Out of Scope
 
@@ -152,4 +163,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-03 after v2.0 milestone completion*
+*Last updated: 2026-04-03 after v3.0 milestone start*
