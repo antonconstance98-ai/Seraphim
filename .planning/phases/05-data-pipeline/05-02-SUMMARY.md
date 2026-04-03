@@ -122,3 +122,15 @@ None — no external service configuration required. All files are written to `~
 ---
 *Phase: 05-data-pipeline*
 *Completed: 2026-04-03*
+
+## Self-Check: PASSED
+
+- FOUND: .planning/phases/05-data-pipeline/05-02-SUMMARY.md
+- FOUND: ~/.claude/hooks/codex-global-aggregator.js
+- FOUND: ~/.claude/dashboard/global.jsonl
+- FOUND: ~/.claude/dashboard/project-index.json
+- FOUND: ~/.claude/dashboard/last-run.json
+- FOUND: ~/.claude/dashboard/cache.json
+- FOUND: ~/.claude/dashboard/config.json
+- FOUND commit: 1ed2d20 (Task 1)
+- FOUND commit: 1855db5 (Task 2)
