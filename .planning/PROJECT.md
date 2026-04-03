@@ -8,6 +8,19 @@ A multi-model integration that wires OpenAI Codex (GPT-5.4) into an existing Cla
 
 Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution — with cross-model review catching what either model misses alone.
 
+## Current Milestone: v2.0 Three-Model Intelligence
+
+**Goal:** Integrate MiniMax M2.7 as a third independent model alongside Opus and GPT-5.4 — adding a genuinely different perspective to review workflows, specializing in debugging/test generation, and building a head-to-head benchmark suite to inform optimal task routing.
+
+**Target features:**
+- MiniMax M2.7 integration into existing hook infrastructure (direct SDK, no proxy)
+- Third-perspective review pass in the cross-model review loop
+- M2.7 as dedicated debugging and test generation specialist
+- Head-to-head benchmark suite (M2.7 vs GPT-5.4) across multiple task types
+- Benchmark results dashboard/reporting
+- Three-model token tracking and cost reporting
+- Updated global dashboard for three-model metrics
+
 ## Current State
 
 **v1.1 shipped 2026-04-03.** 7 phases total (3 new in v1.1), 15 plans, 25 tasks.
@@ -50,6 +63,13 @@ Dashboard at `~/.claude/dashboard/dashboard.html` — auto-regenerated on every 
 
 ### Active
 
+- [ ] MiniMax M2.7 integrated into hook infrastructure via direct OpenAI SDK calls (no proxy)
+- [ ] Third-perspective review pass added to cross-model review loop
+- [ ] M2.7 serves as dedicated debugging and test generation specialist
+- [ ] Head-to-head benchmark suite compares M2.7 vs GPT-5.4 across multiple task types
+- [ ] Benchmark results reporting shows where each model excels
+- [ ] Token tracking and cost reporting updated for three models
+- [ ] Global dashboard updated to show three-model metrics
 - [ ] Opus generates adaptive handoff specs (file-level for complex, feature-level for simple) for Codex execution
 
 ### Out of Scope
@@ -69,6 +89,11 @@ Dashboard at `~/.claude/dashboard/dashboard.html` — auto-regenerated on every 
 - **Cost efficiency:** 81.4% savings across 4 projects (global dashboard measurement)
 - **Runtime:** Ubuntu 24.04, Claude Code CLI v2.1.90, Codex CLI v0.118.0, OpenAI SDK v6.33.0
 - **Subscription:** $20/mo ChatGPT Plus (CLI usage preferred over API billing)
+- **MiniMax credits:** $25 available for M2.7 API testing
+- **MiniMax API:** OpenAI-compatible at `https://api.minimax.io/v1`, model `MiniMax-M2.7`, $0.30/$1.20 per M tokens
+- **MiniMax strengths:** SWE-Pro 56.22% (within 1-2pts of Opus/GPT-5.4), AIME 2025 93.3% (beats both), low hallucination (34%), self-evolution training creates different reasoning patterns
+- **MiniMax quirks:** Must preserve thinking content in history; stubborn about distributed rule files (rules must go in main prompt); less proactive about architecture/tests unless asked
+- **Prior attempt:** ~/projects/Model-routing built a Fastify proxy — failed due to OAuth rejection, stream bugs, crashes. Lesson: integrate directly via SDK, not proxy
 - **User is non-technical** — all changes implemented by Claude, explained in plain English
 
 ## Constraints
@@ -114,4 +139,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-03 after v1.1 milestone completion*
+*Last updated: 2026-04-03 after v2.0 milestone start*

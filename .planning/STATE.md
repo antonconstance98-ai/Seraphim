@@ -1,36 +1,34 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Global Metrics Dashboard
-status: verifying
-stopped_at: Completed 07-01-PLAN.md — Chart.js line+bar charts in dashboard, timeSeries in computeMetrics
-last_updated: "2026-04-03T05:27:52.521Z"
+milestone: v2.0
+milestone_name: Three-Model Intelligence
+status: defining-requirements
+stopped_at: null
+last_updated: "2026-04-03T12:00:00.000Z"
 last_activity: 2026-04-03
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
-  percent: 71
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-02)
+See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution — with cross-model review catching what either model misses alone.
-**Current focus:** Phase 07 — charts-hook-integration
+**Current focus:** Defining requirements for v2.0
 
 ## Current Position
 
-Phase: 07
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-04-03
-
-Progress: [███████░░░] 71% (5/7 plans complete, Phase 07 executing)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-03 — Milestone v2.0 started
 
 ## Performance Metrics
 
