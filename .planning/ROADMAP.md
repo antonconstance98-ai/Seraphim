@@ -59,6 +59,10 @@
     - [x] 12-01-PLAN.md — Create minimax-compress.js dual-mode module, add compression thresholds to settings
     - [x] 12-02-PLAN.md — Integrate compression into gsd-context-monitor.js, register hook in global settings
 - [ ] **Phase 13: Codex Execution Pipeline** — gsd-executor becomes thin orchestrator; Codex CLI writes code; MiniMax API fallback on rate limits; prompt user as last resort
+  - **Goal:** Transform gsd-executor into a thin orchestrator that generates handoff specs for Codex CLI with MiniMax fallback and fail-closed user prompt
+  - **Plans:** 1 plan
+  - Plans:
+    - [ ] 13-01-PLAN.md — Create codex-handoff.js execution helper, modify gsd-executor.md to use handoff spec pattern
 - [ ] **Phase 14: Three-Model Reporting** — Token logging, cost reports, and dashboard updated for Opus + Codex + MiniMax
 
 **Phase dependencies:**
@@ -113,5 +117,5 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
 | 10. Adversarial Plan Review | v2.0 | 2/2 | Complete    | 2026-04-03 |
 | 11. PostToolUse Bug Scanner | v2.0 | 1/1 | Complete    | 2026-04-03 |
 | 12. Context Compression | v2.0 | 2/2 | Complete    | 2026-04-03 |
-| 13. Codex Execution Pipeline | v2.0 | — | Pending | — |
+| 13. Codex Execution Pipeline | v2.0 | 0/1 | Pending | — |
 | 14. Three-Model Reporting | v2.0 | — | Pending | — |
