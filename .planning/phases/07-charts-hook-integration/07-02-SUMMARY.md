@@ -85,5 +85,12 @@ None - no external service configuration required. The hook runs automatically o
 - Dashboard at `~/.claude/dashboard/dashboard.html` will be refreshed with latest cross-project metrics on every session start
 
 ---
+## Self-Check: PASSED
+
+- FOUND: `.planning/phases/07-charts-hook-integration/07-02-SUMMARY.md`
+- FOUND: commit `b9b4d86`
+- settings.json verification script: PASS (aggregator present, after cost-reporter, timeout:30)
+
+---
 *Phase: 07-charts-hook-integration*
 *Completed: 2026-04-03*
