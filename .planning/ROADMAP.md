@@ -36,9 +36,9 @@
   2. Records with `session_id: null` appear in `global.jsonl` tagged as "Unattributed" rather than being missing
   3. A second consecutive run with no new data completes in under 5 ms and adds zero new records to `global.jsonl`
   4. Discovery roots and depth limits are read from `~/.claude/dashboard/config.json` with sensible defaults so no projects are silently skipped
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 05-01-PLAN.md — Centralized pricing module and refactor existing hooks to use it
+- [x] 05-01-PLAN.md — Centralized pricing module and refactor existing hooks to use it
 - [ ] 05-02-PLAN.md — Global aggregator with discovery, dedup, incremental reads, and null session handling
 
 ### Phase 6: Dashboard Generator
@@ -73,6 +73,6 @@ Plans:
 | 2. Review Gate & GSD Integration | v1.0 | 2/2 | Complete | 2026-04-02 |
 | 3. Plan Review Loop & Superpowers | v1.0 | 2/2 | Complete | 2026-04-02 |
 | 4. Cost Reporting | v1.0 | 1/1 | Complete | 2026-04-02 |
-| 5. Data Pipeline | v1.1 | 0/2 | Planning | - |
+| 5. Data Pipeline | v1.1 | 1/2 | In Progress|  |
 | 6. Dashboard Generator | v1.1 | 0/? | Not started | - |
 | 7. Charts & Hook Integration | v1.1 | 0/? | Not started | - |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Global Metrics Dashboard
 status: executing
-stopped_at: v1.1 roadmap created — ready to plan Phase 5 (Data Pipeline)
-last_updated: "2026-04-03T00:10:50.304Z"
-last_activity: 2026-04-03 -- Phase 05 execution started
+stopped_at: Completed 05-01-PLAN.md — centralized pricing module created, hooks refactored
+last_updated: "2026-04-03T00:15:29.831Z"
+last_activity: 2026-04-03
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 2
-  completed_plans: 0
+  completed_plans: 1
   percent: 40
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 ## Current Position
 
 Phase: 05 (data-pipeline) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 05
-Last activity: 2026-04-03 -- Phase 05 execution started
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-04-03
 
 Progress: [████░░░░░░] 40% (v1.0 complete, 4/7 phases done)
 
@@ -55,6 +55,7 @@ Progress: [████░░░░░░] 40% (v1.0 complete, 4/7 phases done)
 - Trend: Stable
 
 *Updated after each plan completion*
+| Phase 05-data-pipeline P01 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - [v1.1 Research]: 25% of live records have `session_id: null` (codex-multi-round-reviewer.js) — treat as "Unattributed", never drop
 - [v1.1 Research]: All dashboard writes must use write-to-temp-then-renameSync (atomic on Linux) — prevents concurrent session corruption
 - [Phase 04-cost-reporting]: OPUS_PRICING inline in cost reporter — keeps codex-exec.js Codex-only, avoids cross-model pricing confusion
+- [Phase 05-data-pipeline]: computeOpusCost preserves no-rounding behavior — avoids changing stored cost values in existing token-log.jsonl files
+- [Phase 05-data-pipeline]: computeCodexCostStrict added alongside computeCost (not replacement) — new consumers surface pricing gaps; existing consumers unchanged
+- [Phase 05-data-pipeline]: [Phase 05-01]: codex-exec.js re-exports computeCost from codex-pricing.js — codex-token-logger.js import chain preserved with zero downstream changes
 
 ### Pending Todos
 
@@ -81,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02
-Stopped at: v1.1 roadmap created — ready to plan Phase 5 (Data Pipeline)
+Last session: 2026-04-03T00:15:29.828Z
+Stopped at: Completed 05-01-PLAN.md — centralized pricing module created, hooks refactored
 Resume file: None
