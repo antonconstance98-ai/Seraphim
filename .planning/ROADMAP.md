@@ -29,7 +29,7 @@
 
 ### v2.0 Three-Model Intelligence (Phases 8-14)
 
-- [ ] **Phase 8: MiniMax Foundation** — Pricing module, SDK wrapper, Opus pricing fix, env config
+- [x] **Phase 8: MiniMax Foundation** — Pricing module, SDK wrapper, Opus pricing fix, env config
   - **Goal:** Add MiniMax M-2.7 as a model provider with working SDK wrapper, corrected pricing, and verified API connectivity
   - **Plans:** 3 plans
   - Plans:
@@ -37,6 +37,10 @@
     - [x] 08-02-PLAN.md — Create minimax-exec.js shared module (runMinimax, runWithFallback, isCodexRateLimited)
     - [x] 08-03-PLAN.md — Add minimax config to project settings, verify live API connectivity
 - [ ] **Phase 9: Dual Review Gate** — Codex + MiniMax reviews in parallel on Stop hook, merged verdicts
+  - **Goal:** Run Codex and MiniMax reviews in parallel on the Stop hook with merged verdicts and dual token logging
+  - **Plans:** 1 plan
+  - Plans:
+    - [ ] 09-01-PLAN.md — Parallel dual-model review gate with verdict merge, differentiated prompts, and dual token logging
 - [ ] **Phase 10: Adversarial Plan Review** — MiniMax replaces Codex as adversarial (Round 2) in plan review; devil's advocate role
 - [ ] **Phase 11: PostToolUse Bug Scanner** — MiniMax bug/security scan after every Write/Edit ($0.01-0.03/scan)
 - [ ] **Phase 12: Context Compression** — Universal MiniMax compression for large diffs, files, tool outputs, conversations
@@ -90,8 +94,8 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
 | 5. Data Pipeline | v1.1 | 3/3 | Complete | 2026-04-03 |
 | 6. Dashboard Generator | v1.1 | 2/2 | Complete | 2026-04-03 |
 | 7. Charts & Hook Integration | v1.1 | 2/2 | Complete | 2026-04-03 |
-| 8. MiniMax Foundation | v2.0 | 2/3 | In Progress|  |
-| 9. Dual Review Gate | v2.0 | — | Pending | — |
+| 8. MiniMax Foundation | v2.0 | 3/3 | Complete | 2026-04-03 |
+| 9. Dual Review Gate | v2.0 | 0/1 | In Progress | — |
 | 10. Adversarial Plan Review | v2.0 | — | Pending | — |
 | 11. PostToolUse Bug Scanner | v2.0 | — | Pending | — |
 | 12. Context Compression | v2.0 | — | Pending | — |
