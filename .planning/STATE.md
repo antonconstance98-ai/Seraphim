@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Adaptive Intelligence
-status: defining-requirements
-stopped_at: Milestone v3.0 started — defining requirements
+status: phase-active
+stopped_at: Phase 15 — Decision Capture Infrastructure (not started)
 last_updated: "2026-04-03T23:59:00.000Z"
 last_activity: 2026-04-03
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,22 +20,26 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution, MiniMax for analysis — with cross-model review catching what any single model misses alone.
-**Current focus:** v3.0 Adaptive Intelligence — research phase
+**Current focus:** v3.0 Adaptive Intelligence — Phase 15: Decision Capture Infrastructure
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 15 — Decision Capture Infrastructure
 Plan: —
-Status: Defining requirements
-Last activity: 2026-04-03 — Milestone v3.0 started
+Status: Not started
+Last activity: 2026-04-03 — Roadmap created for v3.0
+
+```
+v3.0 Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 phases
+```
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 13 (8 v1.0 + 5 v1.1)
+- Total plans completed: 27 (across v1.0 + v1.1 + v2.0)
 - Average duration: ~5 min/plan
-- Total execution time: ~65 min
+- Total execution time: ~135 min
 
 **By Phase:**
 
@@ -48,7 +52,7 @@ Last activity: 2026-04-03 — Milestone v3.0 started
 
 **Recent Trend:**
 
-- Last 5 plans: 3, 6, 4, 4, 3 min
+- Last 5 plans: 2, 2, 4, 2, 2 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -138,6 +142,8 @@ Recent decisions affecting current work:
 - [Phase 14-three-model-reporting]: modelSplit pre-initialization ensures minimax-m2.7 row appears even with zero MiniMax records in global.jsonl
 - [Phase 14-three-model-reporting]: minimaxCost in timeSeries is MiniMax-only spend; Actual Cost line retains total (no double-counting, per Pitfall 3)
 - [Phase 14-three-model-reporting]: Fallback event definition is dual-condition: source=api-fallback AND model=minimax-m2.7
+- [v3.0 Roadmap]: Granularity=coarse applied: research's 5-phase structure compressed to 4 phases by merging config-writer (Phase 3) into auto-tuning+gate (Phase 17) — config writer only fires through the analyzer, so standalone phase adds no delivery boundary
+- [v3.0 Roadmap]: Phase 18 bundles XPRJ-* and OBSV-* — both require Phase 16 data and deliver user-visible output; splitting would create a phase with no verifiable user-facing outcome until the other completes
 
 ### Pending Todos
 
@@ -145,11 +151,13 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 5]: Decide whether to fix `session_id` propagation in `codex-multi-round-reviewer.js` (pass from callers) or use "Unattributed" label — both acceptable; affects Phase 5 scope
-- [Phase 6]: Validate Chart.js `<canvas>` renders from `file://` during Phase 6 verification; SVG fallback path exists if canvas is blocked by browser security
+- [Phase 16]: Window size, anomaly weighting, and confidence calibration depend on actual data distributions that only emerge from Phase 15. Plan Phase 16 after 2+ weeks of Phase 15 data is available.
+- [Phase 18]: Implicit git signal via backward-looking SessionStart hook is a novel pattern with untested edge cases (rebases, force-pushes, multi-project sessions). Design review needed before implementation.
+- [Phase 16/17]: MiniMax cached-token cost semantics flagged HIGH severity in Phase 10 adversarial review. Cost normalization tables must be verified before any budget guardrail logic is written.
+- [Phase 15]: Advisory text format contracts for each signal-producing hook must be documented and frozen before Phase 15 ships — decision-logger.js parses this text and breakage is silent.
 
 ## Session Continuity
 
-Last session: 2026-04-03T21:48:29.514Z
-Stopped at: Completed 14-02-PLAN.md -- three-model dashboard with MiniMax chart series and Fallback Events panel
+Last session: 2026-04-03T23:59:00.000Z
+Stopped at: v3.0 roadmap created — ready to plan Phase 15
 Resume file: None

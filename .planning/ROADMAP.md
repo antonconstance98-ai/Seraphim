@@ -4,7 +4,8 @@
 
 - ✅ **v1.0 Claude X Codex** — Phases 1-4 (shipped 2026-04-02) — [archive](milestones/v1.0-ROADMAP.md)
 - ✅ **v1.1 Global Metrics Dashboard** — Phases 5-7 (shipped 2026-04-03) — [archive](milestones/v1.1-ROADMAP.md)
-- 🔄 **v2.0 Three-Model Intelligence** — Phases 8-14 (in progress)
+- ✅ **v2.0 Three-Model Intelligence** — Phases 8-14 (shipped 2026-04-03)
+- 🔄 **v3.0 Adaptive Intelligence** — Phases 15-18 (in progress)
 
 ## Phases
 
@@ -27,54 +28,31 @@
 
 </details>
 
-### v2.0 Three-Model Intelligence (Phases 8-14)
+<details>
+<summary>✅ v2.0 Three-Model Intelligence (Phases 8-14) — SHIPPED 2026-04-03</summary>
 
-- [x] **Phase 8: MiniMax Foundation** — Pricing module, SDK wrapper, Opus pricing fix, env config
-  - **Goal:** Add MiniMax M-2.7 as a model provider with working SDK wrapper, corrected pricing, and verified API connectivity
-  - **Plans:** 3 plans
-  - Plans:
-    - [x] 08-01-PLAN.md — Fix Opus pricing, add MiniMax pricing entry, migrate historical data
-    - [x] 08-02-PLAN.md — Create minimax-exec.js shared module (runMinimax, runWithFallback, isCodexRateLimited)
-    - [x] 08-03-PLAN.md — Add minimax config to project settings, verify live API connectivity
-- [x] **Phase 9: Dual Review Gate** — Codex + MiniMax reviews in parallel on Stop hook, merged verdicts (completed 2026-04-03)
-  - **Goal:** Run Codex and MiniMax reviews in parallel on the Stop hook with merged verdicts and dual token logging
-  - **Plans:** 1 plan
-  - Plans:
-    - [x] 09-01-PLAN.md — Parallel dual-model review gate with verdict merge, differentiated prompts, and dual token logging
-- [x] **Phase 10: Adversarial Plan Review** — MiniMax replaces Codex as adversarial (Round 2) in plan review; devil's advocate role (completed 2026-04-03)
-  - **Goal:** Route Round 2 of multi-round plan review to MiniMax as adversarial reviewer with full reasoning chain transparency
-  - **Plans:** 2 plans
-  - Plans:
-    - [x] 10-01-PLAN.md — Add reasoning_split to minimax-exec.js, route Round 2 to MiniMax in codex-multi-round-reviewer.js
-    - [x] 10-02-PLAN.md — Update REVIEWS.md headers in GSD and Superpowers plan reviewers for dual-model attribution
-- [x] **Phase 11: PostToolUse Bug Scanner** — MiniMax bug/security scan after every Write/Edit ($0.01-0.03/scan) (completed 2026-04-03)
-  - **Goal:** Catch bugs and security vulnerabilities in real-time as code is written via advisory MiniMax scans on every code-file Write/Edit
-  - **Plans:** 1 plan
-  - Plans:
-    - [x] 11-01-PLAN.md — Create minimax-post-scan.js hook, register in settings.json, add scan config
-- [x] **Phase 12: Context Compression** — Universal MiniMax compression for large diffs, files, tool outputs, conversations (completed 2026-04-03)
-  - **Goal:** Create a dual-mode compression utility (PostToolUse hook + require() library) that auto-compresses large tool outputs and integrates with gsd-context-monitor for context-aware summarization
-  - **Plans:** 2 plans
-  - Plans:
-    - [x] 12-01-PLAN.md — Create minimax-compress.js dual-mode module, add compression thresholds to settings
-    - [x] 12-02-PLAN.md — Integrate compression into gsd-context-monitor.js, register hook in global settings
-- [x] **Phase 13: Codex Execution Pipeline** — gsd-executor becomes thin orchestrator; Codex CLI writes code; MiniMax API fallback on rate limits; prompt user as last resort (completed 2026-04-03)
-  - **Goal:** Transform gsd-executor into a thin orchestrator that generates handoff specs for Codex CLI with MiniMax fallback and fail-closed user prompt
-  - **Plans:** 1 plan
-  - Plans:
-    - [x] 13-01-PLAN.md — Create codex-handoff.js execution helper, modify gsd-executor.md to use handoff spec pattern
-- [x] **Phase 14: Three-Model Reporting** — Token logging, cost reports, and dashboard updated for Opus + Codex + MiniMax (completed 2026-04-03)
-  - **Goal:** Update the entire cost tracking and dashboard pipeline to support three models with v2.0 field pass-through, three-model savings reports, MiniMax chart series, and fallback event health tracking
-  - **Plans:** 2 plans
-  - Plans:
-    - [x] 14-01-PLAN.md — Add v2.0 field pass-through to token logger, update cost reporter for three-model breakdown and fallback tracking
-    - [x] 14-02-PLAN.md — Extend dashboard generator with MiniMax chart series, modelSplit pre-init, and Fallback Events panel
+- [x] Phase 8: MiniMax Foundation (3/3 plans) — completed 2026-04-03
+- [x] Phase 9: Dual Review Gate (1/1 plan) — completed 2026-04-03
+- [x] Phase 10: Adversarial Plan Review (2/2 plans) — completed 2026-04-03
+- [x] Phase 11: PostToolUse Bug Scanner (1/1 plan) — completed 2026-04-03
+- [x] Phase 12: Context Compression (2/2 plans) — completed 2026-04-03
+- [x] Phase 13: Codex Execution Pipeline (1/1 plan) — completed 2026-04-03
+- [x] Phase 14: Three-Model Reporting (2/2 plans) — completed 2026-04-03
+
+</details>
+
+### v3.0 Adaptive Intelligence (Phases 15-18)
+
+- [ ] **Phase 15: Decision Capture Infrastructure** — Structured logging of every routing decision; task-type taxonomy; dismiss command; freeze flag
+- [ ] **Phase 16: Analysis Engine** — Read-only statistical analysis; noise profiles; per-project weights; SessionStart analyzer
+- [ ] **Phase 17: Auto-Tuning + Confidence Gate** — Atomic config writer; safety bounds; confidence gate; routing audit log
+- [ ] **Phase 18: Cross-Project Intelligence + Observability** — Global hypothesis engine; experiment design; adaptive dashboard panels
 
 **Phase dependencies:**
-- Phase 8 (foundation) must complete first — all other phases depend on `minimax-exec.js` and pricing
-- Phases 9, 10, 11, 12 can run in parallel after Phase 8
-- Phase 13 depends on Phase 8 (MiniMax fallback needs the SDK wrapper)
-- Phase 14 depends on all prior phases (needs to track all three models)
+- Phase 15 (data capture) must complete first — all downstream phases depend on structured decision logs
+- Phase 16 depends on Phase 15 (needs data to analyze; read-only validation before Phase 17 can write)
+- Phase 17 depends on Phase 16 (analyzer must produce validated recommendations before config writer is wired)
+- Phase 18 depends on Phase 16 (hypotheses require cross-project data; dashboard panels require Phase 15-16 signals)
 
 ## Phase Details
 
@@ -106,6 +84,57 @@ Modify gsd-executor agent from a code-writing Opus subagent into a thin orchestr
 
 Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex-cost-reporter.js` for three-model savings reports (Codex + MiniMax vs Opus-only baseline). Update `codex-global-aggregator.js` to aggregate MiniMax data from token logs. Update `codex-dashboard-generator.js` with three-model charts, per-model breakdowns, and fallback event tracking.
 
+### Phase 15: Decision Capture Infrastructure
+
+**Goal**: The system records every routing and review decision in a structured, queryable format that unblocks all downstream analysis.
+**Depends on**: Phase 14 (extends existing token-log.jsonl schema)
+**Requirements**: DCAP-01, DCAP-02, DCAP-03, DCAP-04, DCAP-05
+**Success Criteria** (what must be TRUE):
+  1. After any model call, token-log.jsonl contains outcome (accepted/dismissed/committed), latency_ms, and task-type fields alongside existing data — verifiable by reading the file
+  2. User can run `/gsd:dismiss-last` after a false-positive review block and a negative training signal record appears in decision-log.jsonl
+  3. Task types are categorized into 12 distinct categories (not 4) — verifiable by checking the task_type field across a session's log entries
+  4. Setting `"adaptive": false` in settings.json causes the system to skip all adaptive behavior and operate on static rules — verifiable by adding the flag and running a session
+**Plans**: TBD
+
+### Phase 16: Analysis Engine
+
+**Goal**: The system reads accumulated decision data and produces statistical recommendations about routing and review thresholds, without touching any config file.
+**Depends on**: Phase 15 (requires structured decision data to analyze)
+**Requirements**: ANLZ-01, ANLZ-02, ANLZ-03, ANLZ-04
+**Success Criteria** (what must be TRUE):
+  1. After a SessionStart, `recommendations.json` exists and contains weighted statistics per tunable parameter — verifiable by reading the file
+  2. A review rule that has been dismissed 3 times in 30 days for a project is suppressed in that project's noise profile — verifiable by triggering the condition and checking that subsequent sessions skip the rule
+  3. When a git commit follows a session without edits to Claude's output, the matching decision-log.jsonl record has `committed: true` — verifiable by checking the log after a clean commit
+  4. Per-project routing weights (keyed by project path prefix) are read by the analyzer and reflected in its recommendations — verifiable by setting a project weight and observing a recommendation change
+**Plans**: TBD
+
+### Phase 17: Auto-Tuning + Confidence Gate
+
+**Goal**: The system applies validated recommendations to live config files atomically, with safety bounds enforced, and only when statistical confidence is sufficient.
+**Depends on**: Phase 16 (config writer is called only by the analyzer; analyzer must be validated read-only first)
+**Requirements**: TUNE-01, TUNE-02, TUNE-03, TUNE-04
+**Success Criteria** (what must be TRUE):
+  1. A config change applied by the system appears atomically — no partial write is ever visible during the rename — and the previous value is preserved in adjustment-log.jsonl with before/after values and confidence score
+  2. A parameter value the analyzer recommends setting outside its hard bounds (e.g., scan threshold below 1 or above 100) is clamped at the boundary, never written as an out-of-range value
+  3. With fewer than 30 events per parameter or confidence below 0.8, the system logs the recommendation as advisory only and makes no config change — verifiable by inspecting adjustment-log.jsonl
+  4. The routing audit log records the reason each call was routed to a specific model — verifiable by opening the log and reading why a recent decision was made
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 18: Cross-Project Intelligence + Observability
+
+**Goal**: The system learns from patterns across all projects on this machine and surfaces those insights — including active hypotheses and experiment proposals — in the dashboard.
+**Depends on**: Phase 16 (needs cross-project decision data flowing; dashboard panels need Phase 15-16 signals)
+**Requirements**: XPRJ-01, XPRJ-02, XPRJ-03, XPRJ-04, OBSV-01, OBSV-02
+**Success Criteria** (what must be TRUE):
+  1. The global aggregator collects decision logs from every project with the three-model router installed — verifiable by checking that `global-decision-log.jsonl` contains entries from multiple projects
+  2. After enough cross-project data accumulates, the system generates at least one hypothesis (e.g., "MiniMax outperforms Codex on security reviews in this codebase") and writes it to a hypotheses file — verifiable by reading the file
+  3. A proposed experiment to test a hypothesis is presented to the user for approval before any code or config is changed — verifiable by running the experiment proposal flow and confirming no changes occur without approval
+  4. The dashboard shows a panel with dismiss rate, false-positive trend, and routing efficiency over time — verifiable by opening dashboard.html and seeing the panel with real data
+  5. The dashboard shows active hypotheses, experiment status, and cross-project insights — verifiable by opening dashboard.html and seeing the panel populated
+**Plans**: TBD
+**UI hint**: yes
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -118,9 +147,13 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
 | 6. Dashboard Generator | v1.1 | 2/2 | Complete | 2026-04-03 |
 | 7. Charts & Hook Integration | v1.1 | 2/2 | Complete | 2026-04-03 |
 | 8. MiniMax Foundation | v2.0 | 3/3 | Complete | 2026-04-03 |
-| 9. Dual Review Gate | v2.0 | 1/1 | Complete   | 2026-04-03 |
-| 10. Adversarial Plan Review | v2.0 | 2/2 | Complete    | 2026-04-03 |
-| 11. PostToolUse Bug Scanner | v2.0 | 1/1 | Complete    | 2026-04-03 |
-| 12. Context Compression | v2.0 | 2/2 | Complete    | 2026-04-03 |
-| 13. Codex Execution Pipeline | v2.0 | 1/1 | Complete    | 2026-04-03 |
-| 14. Three-Model Reporting | v2.0 | 2/2 | Complete    | 2026-04-03 |
+| 9. Dual Review Gate | v2.0 | 1/1 | Complete | 2026-04-03 |
+| 10. Adversarial Plan Review | v2.0 | 2/2 | Complete | 2026-04-03 |
+| 11. PostToolUse Bug Scanner | v2.0 | 1/1 | Complete | 2026-04-03 |
+| 12. Context Compression | v2.0 | 2/2 | Complete | 2026-04-03 |
+| 13. Codex Execution Pipeline | v2.0 | 1/1 | Complete | 2026-04-03 |
+| 14. Three-Model Reporting | v2.0 | 2/2 | Complete | 2026-04-03 |
+| 15. Decision Capture Infrastructure | v3.0 | 0/? | Not started | - |
+| 16. Analysis Engine | v3.0 | 0/? | Not started | - |
+| 17. Auto-Tuning + Confidence Gate | v3.0 | 0/? | Not started | - |
+| 18. Cross-Project Intelligence + Observability | v3.0 | 0/? | Not started | - |

@@ -52,22 +52,22 @@
 
 | REQ-ID | Phase | Plan | Status |
 |--------|-------|------|--------|
-| DCAP-01 | — | — | Pending |
-| DCAP-02 | — | — | Pending |
-| DCAP-03 | — | — | Pending |
-| DCAP-04 | — | — | Pending |
-| DCAP-05 | — | — | Pending |
-| ANLZ-01 | — | — | Pending |
-| ANLZ-02 | — | — | Pending |
-| ANLZ-03 | — | — | Pending |
-| ANLZ-04 | — | — | Pending |
-| TUNE-01 | — | — | Pending |
-| TUNE-02 | — | — | Pending |
-| TUNE-03 | — | — | Pending |
-| TUNE-04 | — | — | Pending |
-| XPRJ-01 | — | — | Pending |
-| XPRJ-02 | — | — | Pending |
-| XPRJ-03 | — | — | Pending |
-| XPRJ-04 | — | — | Pending |
-| OBSV-01 | — | — | Pending |
-| OBSV-02 | — | — | Pending |
+| DCAP-01 | Phase 15 | — | Pending |
+| DCAP-02 | Phase 15 | — | Pending |
+| DCAP-03 | Phase 15 | — | Pending |
+| DCAP-04 | Phase 15 | — | Pending |
+| DCAP-05 | Phase 15 | — | Pending |
+| ANLZ-01 | Phase 16 | — | Pending |
+| ANLZ-02 | Phase 16 | — | Pending |
+| ANLZ-03 | Phase 16 | — | Pending |
+| ANLZ-04 | Phase 16 | — | Pending |
+| TUNE-01 | Phase 17 | — | Pending |
+| TUNE-02 | Phase 17 | — | Pending |
+| TUNE-03 | Phase 17 | — | Pending |
+| TUNE-04 | Phase 17 | — | Pending |
+| XPRJ-01 | Phase 18 | — | Pending |
+| XPRJ-02 | Phase 18 | — | Pending |
+| XPRJ-03 | Phase 18 | — | Pending |
+| XPRJ-04 | Phase 18 | — | Pending |
+| OBSV-01 | Phase 18 | — | Pending |
+| OBSV-02 | Phase 18 | — | Pending |
