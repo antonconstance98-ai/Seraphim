@@ -1,538 +1,654 @@
-# Architecture Research: v1.1 Global Metrics Dashboard Integration
+# Architecture Research
 
-**Domain:** Global aggregation layer over per-project hook-generated JSONL data, with HTML dashboard output
-**Researched:** 2026-04-02
-**Confidence:** HIGH — based on live codebase inspection, not assumptions
+**Domain:** ML-driven self-optimization layer for a hook-based multi-model CLI orchestration system
+**Researched:** 2026-04-03
+**Confidence:** HIGH — based on live codebase inspection of all 18 hooks and settings.json
 
 ---
 
 ## System Overview
 
+The existing system is a synchronous hook pipeline where each hook receives JSON on stdin, does
+its work, and writes JSON to stdout. The ML self-optimization layer adds three new concerns
+without modifying the existing pipeline: decision capture, offline analysis, and config propagation.
+
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│                   CLAUDE CODE SESSION (any project)                  │
-│                                                                      │
-│  PostToolUse hook fires on Bash/Edit/Write                           │
-│  ┌────────────────────────────────────────────────────────────┐      │
-│  │ codex-token-logger.js                                       │      │
-│  │   → reads stdin: { cwd, session_id, tool_result }          │      │
-│  │   → detects [CODEX_RESULT] marker                          │      │
-│  │   → appends JSONL record to {cwd}/.planning/token-log.jsonl│      │
-│  └────────────────────────────────────────────────────────────┘      │
-│                                                                      │
-│  SessionStart hook fires when session begins                         │
-│  ┌────────────────────────────────────────────────────────────┐      │
-│  │ codex-cost-reporter.js (EXISTING — per-project scope)      │      │
-│  │   → reads {cwd}/.planning/token-log.jsonl                  │      │
-│  │   → writes {cwd}/.planning/session-reports/YYYY-MM-DD.md  │      │
-│  │   → outputs additionalContext summary to Claude            │      │
-│  └────────────────────────────────────────────────────────────┘      │
-│                                                                      │
-│  SessionStart hook (NEW — after cost-reporter)                       │
-│  ┌────────────────────────────────────────────────────────────┐      │
-│  │ codex-global-aggregator.js (NEW)                           │      │
-│  │   → discovers all projects with token-log.jsonl            │      │
-│  │   → merges records into ~/.claude/dashboard/global.jsonl   │      │
-│  │   → calls dashboard generator                              │      │
-│  │   → outputs additionalContext: "Dashboard updated"         │      │
-│  └────────────────────────────────────────────────────────────┘      │
-└──────────────────────────────────────────────────────────────────────┘
-                               │
-                               │ fs.readdirSync (project discovery)
-                               │ fs.appendFileSync (dedup-merge)
-                               ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                   ~/.claude/dashboard/                               │
-│                                                                      │
-│  global.jsonl          — merged, deduplicated records from all       │
-│                          projects; append-only; keyed on             │
-│                          (session_id + timestamp) for dedup          │
-│                                                                      │
-│  project-index.json    — discovery manifest: { project_path,        │
-│                          project_name, last_seen, record_count }    │
-│                          updated on each aggregation run            │
-│                                                                      │
-│  dashboard.html        — self-contained (inline CSS/JS), written    │
-│                          by codex-dashboard-generator.js after      │
-│                          every aggregation                           │
-│                                                                      │
-│  last-run.json         — { timestamp, projects_scanned,             │
-│                            records_added, total_records }           │
-│                          guards against double-processing            │
-└──────────────────────────────────────────────────────────────────────┘
-                               │
-                               │ require('./codex-dashboard-generator')
-                               ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│               codex-dashboard-generator.js (NEW)                    │
-│                                                                      │
-│  Input:  ~/.claude/dashboard/global.jsonl                           │
-│  Output: ~/.claude/dashboard/dashboard.html                         │
-│                                                                      │
-│  Computes:                                                           │
-│    - Per-project totals (cost, savings, calls, review catch rate)   │
-│    - Time series: daily cost and savings (last 30 days)             │
-│    - Session history: last 20 sessions across all projects          │
-│    - Global totals                                                   │
-│                                                                      │
-│  Writes: single HTML file with inline <style> and <script>          │
-│    - Chart.js bundled inline (CDN URL with fallback, or bundled)    │
-│    - No server, no dependencies, opens directly in browser          │
-└──────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                            Claude Code Session                                  │
+│                                                                                 │
+│  PreToolUse chain              PostToolUse chain          Stop / SubagentStop   │
+│  ┌──────────────────┐          ┌──────────────────┐       ┌──────────────────┐  │
+│  │ settings-guard   │          │ gsd-context-mon  │       │ codex-review-    │  │
+│  │ gsd-prompt-guard │          │ codex-token-     │       │ gate  (Stop)     │  │
+│  │ codex-router     │          │   logger         │       │ codex-plan-      │  │
+│  └────────┬─────────┘          │ codex-wave-      │       │   reviewer (Sub) │  │
+│           │                    │   validator      │       │ codex-superpow-  │  │
+│   reads   │                    │ minimax-post-    │       │   ers-reviewer   │  │
+│  config   │                    │   scan           │       └────────┬─────────┘  │
+│           │                    │ minimax-compress │                │             │
+│           │                    ├──────────────────┤                │             │
+│           │                    │ decision-logger  │◀───────────────┘             │
+│           │                    │  (NEW — last)    │  also runs as Stop advisory  │
+│           │                    └────────┬─────────┘                              │
+└───────────┼──────────────────────────── │ ───────────────────────────────────────┘
+            │                             │
+            │                             ▼
+            │              ┌──────────────────────────────┐
+            │              │  decision-log.jsonl           │
+            │              │  (per-project + global)       │
+            │              └──────────────┬───────────────┘
+            │                             │
+            │                    [SessionStart]
+            │                             │
+            │                             ▼
+            │              ┌──────────────────────────────┐
+            │              │  ml-analyzer.js  (NEW)        │
+            │              │  reads decision-log.jsonl     │
+            │              │  runs weighted statistics     │
+            │              │  writes recommendations.json  │
+            │              │  calls config-writer.js if    │
+            │              │  confidence >= threshold      │
+            │              └──────────────┬───────────────┘
+            │                             │
+            │                             ▼
+            │              ┌──────────────────────────────┐
+            │              │  config-writer.js  (NEW)      │
+            │              │  atomic write-then-rename     │
+            │◀─────────────│  updates .claude/settings.    │
+            │              │  json or .planning/config.    │
+     behavior              │  json                        │
+     changes               │  appends adjustment-log.jsonl │
+     next call             └──────────────────────────────┘
 ```
 
 ---
 
 ## Component Responsibilities
 
-| Component | Responsibility | File Location | Status |
-|-----------|---------------|---------------|--------|
-| `codex-token-logger.js` | Appends JSONL records to `{cwd}/.planning/token-log.jsonl` after each Codex call | `~/.claude/hooks/` | Existing — no changes needed |
-| `codex-cost-reporter.js` | Per-project session report (Markdown) on SessionStart | `~/.claude/hooks/` | Existing — no changes needed |
-| `codex-global-aggregator.js` | Discovers projects, merges JSONL to global store, triggers HTML generation | `~/.claude/hooks/` | New |
-| `codex-dashboard-generator.js` | Reads global JSONL, computes metrics, writes self-contained HTML | `~/.claude/hooks/` | New |
-| `~/.claude/dashboard/global.jsonl` | Global deduplicated record store (append-only) | `~/.claude/dashboard/` | New (auto-created) |
-| `~/.claude/dashboard/project-index.json` | Discovery manifest with per-project metadata | `~/.claude/dashboard/` | New (auto-created) |
-| `~/.claude/dashboard/dashboard.html` | The output: self-contained HTML dashboard | `~/.claude/dashboard/` | New (auto-generated) |
+| Component | Responsibility | Type | Modifies existing? |
+|-----------|----------------|------|--------------------|
+| `decision-logger.js` | Appends one structured record per hook event to `decision-log.jsonl` | New PostToolUse + Stop hook | No |
+| `ml-analyzer.js` | Reads decision log, runs statistical model, writes `recommendations.json` | New offline SessionStart script | No |
+| `config-writer.js` | Applies validated recommendations to config files atomically | New module (called by analyzer) | No |
+| `decision-log.jsonl` | Per-project + global structured log of every hook decision + outcome | New data store | n/a |
+| `adjustment-log.jsonl` | Append-only audit trail of every config change applied | New data store | n/a |
+| `recommendations.json` | Latest analyzer output — overwritten each run, not a log | New data store | n/a |
+| `defaults.json` | Cold-start priors with confidence scores | New data store | n/a |
+| Existing 18 hooks | Unchanged — read config as before; behavior changes only when config changes | Existing | No |
 
 ---
 
 ## Recommended File Structure
 
 ```
-~/.claude/
-├── hooks/
-│   ├── codex-token-logger.js          # EXISTING — no changes
-│   ├── codex-cost-reporter.js         # EXISTING — no changes
-│   ├── codex-global-aggregator.js     # NEW — Phase 1
-│   └── codex-dashboard-generator.js  # NEW — Phase 2
+~/.claude/hooks/
+├── decision-logger.js          # NEW Phase 1: PostToolUse + Stop decision capture
+├── ml-analyzer.js              # NEW Phase 2: offline analysis + recommendation writer
+├── config-writer.js            # NEW Phase 3: atomic config update module
 │
-└── dashboard/                         # NEW — auto-created by aggregator
-    ├── global.jsonl                   # merged records from all projects
-    ├── project-index.json             # project discovery manifest
-    ├── last-run.json                  # idempotency guard
-    └── dashboard.html                 # output: open in browser
-```
+├── codex-router.js             # EXISTING — reads .claude/settings.json, unchanged
+├── codex-review-gate.js        # EXISTING — reads config, unchanged
+├── codex-plan-reviewer.js      # EXISTING — reads config, unchanged
+├── codex-superpowers-plan-     # EXISTING — reads config, unchanged
+│   reviewer.js
+├── minimax-post-scan.js        # EXISTING — reads config, unchanged
+├── minimax-compress.js         # EXISTING — reads config, unchanged
+├── codex-token-logger.js       # EXISTING — token log source
+├── codex-wave-validator.js     # EXISTING — wave boundary check
+├── codex-wave-validator-       # EXISTING — background worker
+│   worker.js
+├── gsd-context-monitor.js      # EXISTING
+├── gsd-workflow-guard.js       # EXISTING
+├── gsd-prompt-guard.js         # EXISTING
+├── gsd-check-update.js         # EXISTING
+├── gsd-statusline.js           # EXISTING
+├── claude-settings-guard.js    # EXISTING
+├── codex-cost-reporter.js      # EXISTING
+├── codex-global-aggregator.js  # EXISTING
+├── codex-dashboard-generator.js# EXISTING
+├── codex-handoff.js            # EXISTING
+├── codex-multi-round-reviewer.js# EXISTING
+└── ... (other existing)
 
-```
-~/projects/<any-project>/
-└── .planning/
-    ├── token-log.jsonl                # EXISTING per-project source
-    └── session-reports/              # EXISTING per-project reports
-        └── YYYY-MM-DD.md
+~/.claude/dashboard/
+├── global.jsonl                # EXISTING — token log aggregate
+├── decision-log.jsonl          # NEW: global ML training signal (mirrors per-project)
+├── adjustment-log.jsonl        # NEW: audit trail of every config change
+├── recommendations.json        # NEW: latest analyzer output
+└── defaults.json               # NEW: cold-start priors
+
+~/<project>/.planning/
+├── token-log.jsonl             # EXISTING — per-project token log
+└── decision-log.jsonl          # NEW: per-project decision log
 ```
 
 ### Structure Rationale
 
-- **`~/.claude/dashboard/` as global store:** User-scoped, not project-scoped. Survives project deletion. Parallel with how `~/.claude/settings.json` is user-scope for hooks.
-- **`global.jsonl` append-only:** Preserves the same JSONL pattern as per-project logs. Supports time-series queries by timestamp field. Safe for concurrent reads from multiple scripts.
-- **`project-index.json` separate from records:** Avoids scanning all records to answer "which projects exist?" Fast project list for dashboard header.
-- **`dashboard.html` inline everything:** No Node.js server, no npm serve. Open directly with `xdg-open ~/.claude/dashboard/dashboard.html`. Self-contained.
+- **Global `~/.claude/dashboard/decision-log.jsonl`**: Spans all projects. Enables cross-project
+  patterns (e.g., `.sh` files trigger scan issues at 40% rate regardless of project).
+- **Per-project `.planning/decision-log.jsonl`**: Enables per-project tuning. A project that is
+  all markdown should have `routing_disabled: true` in its own `.claude/settings.json`, not globally.
+- **`recommendations.json` is not a log**: It is overwritten each analyzer run. It represents the
+  current best guess. The audit trail is `adjustment-log.jsonl`.
+- **`defaults.json` is read-only at runtime**: Written at install time, never overwritten by the
+  analyzer. The analyzer reads it for cold-start priors only.
 
 ---
 
-## Data Flow: Per-Project JSONL to Global Dashboard
+## Data Flow: Full Self-Optimization Loop
 
 ```
-[Any Claude Code Session Start]
-           │
-           ▼
-codex-global-aggregator.js (hook, runs on SessionStart)
-           │
-           ├── 1. Load project-index.json (known projects list)
-           │        → { "/path/to/project": { last_seen, record_count, project_name } }
-           │
-           ├── 2. DISCOVER new projects
-           │        Search roots: [ ~/projects, ~/gsd-workspaces, ~/agent ]
-           │        Pattern: find -name "token-log.jsonl" -not -path "*/.claude/worktrees/*"
-           │        Exclude: git worktrees (.claude/worktrees/) — these are ephemeral
-           │        Add new discoveries to project-index.json
-           │
-           ├── 3. For each known project:
-           │        a. Read all JSONL lines from {project}/.planning/token-log.jsonl
-           │        b. Skip records already in global.jsonl
-           │           (dedup key: session_id + timestamp string)
-           │        c. Enrich each record with: { project_path, project_name }
-           │        d. Append new records to ~/.claude/dashboard/global.jsonl
-           │
-           ├── 4. Write updated project-index.json
-           │        (last_seen, record_count per project)
-           │
-           ├── 5. Write last-run.json
-           │        { timestamp, projects_scanned, records_added, total_records }
-           │
-           └── 6. Call codex-dashboard-generator.js
-                    (require() or child_process.spawnSync — same process is simpler)
-                           │
-                           ▼
-               codex-dashboard-generator.js
-                           │
-                           ├── Read global.jsonl → array of records
-                           │
-                           ├── Compute per-project metrics
-                           │     { project_name, total_cost, opus_baseline, savings,
-                           │       savings_pct, call_count, review_count, catch_rate }
-                           │
-                           ├── Compute daily time series (last 30 days)
-                           │     Group records by date(timestamp)
-                           │     Sum: actual_cost, opus_baseline per day
-                           │
-                           ├── Build session history
-                           │     Group records by session_id
-                           │     Last 20 unique session_ids by timestamp
-                           │     Per session: project, date, cost, savings, calls
-                           │
-                           └── Write dashboard.html (self-contained)
-                                 <style> inline CSS
-                                 <script> inline Chart.js + data
-                                 No external dependencies
+Claude Code session opens
+         │
+         ▼
+SessionStart hooks (sequential, registered in settings.json)
+  1. gsd-check-update.js       (existing)
+  2. codex-cost-reporter.js    (existing)
+  3. codex-global-aggregator.js (existing)
+  4. ml-analyzer.js             (NEW — reads decision-log from previous sessions)
+         │
+         ├── Reads ~/.claude/dashboard/decision-log.jsonl
+         ├── Runs weighted statistics per tunable parameter
+         ├── Writes ~/.claude/dashboard/recommendations.json
+         └── If confidence >= 0.8: calls config-writer.js
+                  │
+                  ├── Reads current .claude/settings.json or .planning/config.json
+                  ├── Merges recommendation
+                  ├── Validates merged config (schema + safety bounds)
+                  ├── Writes to .tmp.{pid} then fs.renameSync (atomic)
+                  └── Appends record to adjustment-log.jsonl (audit)
+         │
+         ▼
+User submits prompt → Claude calls Write / Edit / Bash
+         │
+         ▼
+PreToolUse chain fires (existing, unchanged)
+  codex-router.js reads .claude/settings.json
+  → routing decision based on current config (which may have been updated at SessionStart)
+         │
+         ▼
+Tool executes
+         │
+         ▼
+PostToolUse chain fires (existing + new)
+  gsd-context-monitor.js     → context warning if near limit
+  codex-token-logger.js      → appends to token-log.jsonl
+  codex-wave-validator.js    → wave boundary check
+  minimax-post-scan.js       → bug scan, emits advisory text to tool_result
+  minimax-compress.js        → compress large outputs, emits advisory text
+  decision-logger.js  (NEW)  → reads tool_result advisory text from above hooks
+         │                      infers routing/scan/compress decisions made
+         │                      appends one record to .planning/decision-log.jsonl
+         │                      appends one record to ~/.claude/dashboard/decision-log.jsonl
+         │
+         ▼
+Stop hook fires (existing + new)
+  codex-review-gate.js  → BLOCK or ALLOW, emits verdict text to tool_result
+  decision-logger.js    → reads Stop tool_result, records review_verdict field
+         │
+         ▼ (if BLOCK: Claude gets another turn; decision-logger fires again next turn)
+         │
+         ▼
+Session closes → next SessionStart processes accumulated decision-log.jsonl
 ```
 
 ---
 
-## Integration Points with Existing Architecture
+## Decision Log Schema
 
-### Integration Point 1: settings.json Hook Registration
+Every record answers: "Under what conditions did this hook behave this way, and was the outcome good?"
 
-The aggregator runs on `SessionStart`, after `codex-cost-reporter.js`. The hook array is ordered — add the new hook second:
+```jsonc
+{
+  // Identity
+  "timestamp":          "2026-04-03T10:00:00.000Z",
+  "session_id":         "30092b41-eaa3-45bf-95b4-64463d5a2dbd",  // null if unknown
+  "project":            "Claude_X_Codex",
+  "cwd":                "/home/alucard/projects/Claude_X_Codex",
+
+  // Tool context (what triggered the hooks)
+  "tool_name":          "Write",             // Write | Edit | MultiEdit | Bash
+  "file_ext":           ".js",              // extension of modified file, "" for Bash
+  "file_path_hash":     "a3f9c2",           // first 6 chars of SHA-256(file_path)
+  "diff_lines_changed": 42,                 // from git diff --stat; null if no git
+
+  // codex-router.js signal
+  "routing_advice_given": true,             // did router advise Codex delegation?
+  "routing_disabled":     false,            // was routing disabled in config?
+
+  // minimax-post-scan.js signal
+  "scan_triggered":    true,               // did scan run (not skipped by threshold)?
+  "scan_verdict":      "ISSUES_FOUND",     // "ISSUES_FOUND" | "CLEAN" | "SKIPPED" | "ERROR"
+  "scan_severity":     "medium",           // "high" | "medium" | "low" | null
+  "scan_issues_count": 2,                  // 0 if CLEAN
+
+  // minimax-compress.js signal
+  "compress_triggered": false,             // did compressor run?
+  "compress_ratio":     null,              // original_chars / compressed_chars, or null
+
+  // codex-review-gate.js signal (Stop hook — null if this is a PostToolUse record)
+  "review_verdict":        null,           // "ALLOW" | "BLOCK" | null
+  "review_block_category": null,           // "correctness" | "security" | "logic" | null
+
+  // Cost signal (read from last token-log.jsonl record for this turn)
+  "total_tokens_this_turn": 1240,
+  "cost_usd_this_turn":     0.012,
+
+  // Config snapshot at time of decision (for drift detection)
+  "config_snapshot": {
+    "routing_disabled":              false,
+    "scan_skip_threshold":           5,
+    "compress_tool_output_tokens":   2000,
+    "compress_context_pct":          80
+  }
+}
+```
+
+**Field selection rationale:**
+
+- `file_ext` + `diff_lines_changed`: the two strongest predictors of whether scan/review adds value.
+  A 2-line `.md` change and a 200-line `.js` change should be treated differently.
+- `config_snapshot`: without this, it is impossible to correlate a behavioral pattern to the config
+  that was active when the pattern occurred. Essential for detecting if a prior adjustment worked.
+- `file_path_hash`: avoids logging sensitive file names to a shared file while still enabling
+  file-level duplicate detection.
+- `review_block_category`: the most important outcome signal. A BLOCK on "security" when scan_verdict
+  was "CLEAN" means the scan is missing something the review gate catches — actionable signal.
+- All fields null-safe: the logger never blocks on missing data. Missing fields are simply null.
+
+---
+
+## ML Model: Weighted Running Statistics (Not Neural Network)
+
+**Recommendation: use weighted running statistics with a confidence gate, not a neural network or
+gradient-boosted model.**
+
+Rationale:
+- **Data volume is low**: a typical power user generates 50-200 hook events per day. Neural networks
+  require thousands of labeled examples to generalize. Statistical rules on 50 examples are more
+  reliable than a 10-parameter model trained on 50 examples.
+- **Interpretability is critical**: when the system changes a config, the user must be able to
+  understand why. "`.py` and `.sh` files have scan ISSUES_FOUND rate 40% vs `.md` at 2% →
+  recommend lowering `scan_skip_threshold` for those extensions" is auditable. Neural network
+  weights are not.
+- **The decision space is small**: tunable config parameters are a handful of numeric thresholds
+  and boolean flags — discrete optimization, not representation learning.
+- **Cold start is handled by priors**: sensible defaults in `defaults.json` are easy to understand,
+  easy to override, and require zero training data.
+
+**What the statistical model computes (per tunable parameter P):**
+
+```
+signal_rate(P)  = count(events where P's hook fired)      / total_events
+value_rate(P)   = count(events where P's hook found value) / count(events P's hook fired)
+cost_rate(P)    = mean(cost_usd_this_turn where P's hook fired)
+
+Recommendation logic:
+  if value_rate < 0.05 AND cost_rate > HIGH_COST_THRESHOLD:
+    → suggest disabling or raising threshold
+    → reason: "fires often (N times), finds nothing (value_rate M%)"
+
+  if value_rate > 0.30 AND signal_rate < 0.10:
+    → suggest enabling or lowering threshold
+    → reason: "rarely fires, but finds issues when it does (value_rate M%)"
+
+confidence = min(event_count_for_P / 30, 1.0)
+  → < 0.8: surface as advisory suggestion only, no auto-apply
+  → >= 0.8: auto-apply if AUTO_APPLY_THRESHOLD set in analyzer config
+```
+
+---
+
+## Cold Start Problem
+
+**The problem:** On a fresh project, `decision-log.jsonl` is empty. The ML model has no signal.
+Applying random defaults is dangerous — a bad routing config on day one poisons every session.
+
+**Solution: curated defaults with explicit confidence scores (never auto-applied).**
+
+`~/.claude/dashboard/defaults.json` (written at install time, never overwritten):
 
 ```json
-"SessionStart": [
+{
+  "_version": 1,
+  "routing_disabled": {
+    "value": false,
+    "confidence": 0.5,
+    "rationale": "Routing on by default. codex-router.js already exits silently if no project config."
+  },
+  "scan_skip_threshold": {
+    "value": 5,
+    "confidence": 0.5,
+    "rationale": "Existing default from minimax-post-scan.js. No change until data accumulates."
+  },
+  "compress_tool_output_tokens": {
+    "value": 2000,
+    "confidence": 0.5,
+    "rationale": "Existing default. Do not lower until project tool output size is known."
+  },
+  "compress_context_pct": {
+    "value": 80,
+    "confidence": 0.5,
+    "rationale": "Existing default. Aggressive compression risks losing context."
+  }
+}
+```
+
+Cold-start behavior in `ml-analyzer.js`:
+
+1. Count records in `decision-log.jsonl`.
+2. If count < 30: read `defaults.json`, emit all values as recommendations with confidence 0.5.
+   No auto-apply (0.5 < 0.8 threshold). Advisory context only: "ML optimizer: N/30 events collected.
+   Using defaults. Tuning activates at 30 events."
+3. 30-100 records: mixed mode — use defaults for parameters with fewer than 30 supporting events,
+   use computed statistics for parameters with sufficient events.
+4. >100 records: full statistics mode. Confidence gate still applies per-parameter.
+
+This means the system starts conservatively and earns the right to adjust configs by accumulating
+evidence. The user sees the count and knows when tuning will activate.
+
+---
+
+## Integration Points with All 18 Existing Hooks
+
+### Hooks That Produce Signal for the ML Model
+
+| Hook | Event | Signal captured | How captured |
+|------|-------|-----------------|--------------|
+| `codex-router.js` | PreToolUse | `routing_advice_given` | advisory text "delegate to Codex" in tool_result |
+| `minimax-post-scan.js` | PostToolUse | `scan_triggered`, `scan_verdict`, `scan_severity`, `scan_issues_count` | advisory text markers in tool_result |
+| `minimax-compress.js` | PostToolUse | `compress_triggered`, `compress_ratio` | "[Compressed from ~NK tokens]" header in tool_result |
+| `codex-review-gate.js` | Stop | `review_verdict`, `review_block_category` | advisory text in Stop tool_result |
+| `codex-token-logger.js` | PostToolUse | `total_tokens_this_turn`, `cost_usd_this_turn` | reads last record from token-log.jsonl |
+| `gsd-context-monitor.js` | PostToolUse | `context_warning_fired` | advisory text in tool_result |
+| `codex-wave-validator.js` | PostToolUse | `wave_validation_result` | advisory text in tool_result |
+| `codex-plan-reviewer.js` | SubagentStop | `plan_review_block` | block decision in tool_result |
+| `codex-superpowers-plan-reviewer.js` | SubagentStop | `superpowers_plan_block` | block decision in tool_result |
+| `gsd-workflow-guard.js` | PreToolUse | `workflow_guard_fired` | advisory text in tool_result |
+| `claude-settings-guard.js` | PreToolUse | `settings_guard_fired` | block decision in tool_result |
+| `gsd-prompt-guard.js` | PreToolUse | `prompt_guard_fired` | advisory text in tool_result |
+
+Hooks producing no direct signal (captured only as cost context via token-log.jsonl):
+- `codex-cost-reporter.js` (SessionStart — produces reports, not per-turn decisions)
+- `codex-global-aggregator.js` (SessionStart — aggregation, not decisions)
+- `codex-dashboard-generator.js` (called via require, not a hook)
+- `codex-handoff.js` (handoff utility)
+- `gsd-check-update.js` (update check)
+- `gsd-statusline.js` (status display)
+
+### Hooks Whose Behavior the ML Model Can Tune
+
+| Hook | Tunable Config Key | Config File | Effect of tuning |
+|------|--------------------|-------------|------------------|
+| `codex-router.js` | `codex.routing_disabled` | `.claude/settings.json` | Disable routing for a project |
+| `minimax-post-scan.js` | `minimax.scan_skip_threshold` | `.claude/settings.json` | Lines-changed threshold below which scan is skipped |
+| `minimax-compress.js` | `minimax.compress_tool_output_tokens` | `.claude/settings.json` | Token count threshold for compression |
+| `minimax-compress.js` | `minimax.compress_context_pct` | `.claude/settings.json` | Context fill % threshold for compression |
+| `gsd-workflow-guard.js` | `hooks.workflow_guard` | `.planning/config.json` | Enable/disable workflow guard |
+
+### New Hook Registrations Required in settings.json
+
+```json
+"PostToolUse": [
+  {
+    "matcher": "Bash|Edit|Write|MultiEdit|Agent|Task",
+    "hooks": [
+      // ... existing 5 hooks unchanged (gsd-context-monitor, codex-token-logger,
+      //      codex-wave-validator, minimax-post-scan, minimax-compress) ...
+      {
+        "type": "command",
+        "command": "node \"/home/alucard/.claude/hooks/decision-logger.js\"",
+        "timeout": 5
+      }
+    ]
+  }
+],
+"Stop": [
   {
     "hooks": [
       {
         "type": "command",
-        "command": "node \"/home/alucard/.claude/hooks/gsd-check-update.js\""
+        "command": "node \"/home/alucard/.claude/hooks/codex-review-gate.js\"",
+        "timeout": 300
       },
       {
         "type": "command",
-        "command": "node \"/home/alucard/.claude/hooks/codex-cost-reporter.js\"",
-        "timeout": 15
-      },
+        "command": "node \"/home/alucard/.claude/hooks/decision-logger.js\"",
+        "timeout": 5
+      }
+    ]
+  }
+],
+"SessionStart": [
+  {
+    "hooks": [
+      // ... existing gsd-check-update, codex-cost-reporter, codex-global-aggregator ...
       {
         "type": "command",
-        "command": "node \"/home/alucard/.claude/hooks/codex-global-aggregator.js\"",
-        "timeout": 30
+        "command": "node \"/home/alucard/.claude/hooks/ml-analyzer.js\"",
+        "timeout": 10
       }
     ]
   }
 ]
 ```
 
-**Why after cost-reporter:** The cost-reporter writes the per-project Markdown report. The aggregator reads from per-project JSONL (not the Markdown report) — so order doesn't technically matter for correctness. Placing it after cost-reporter is conventional — per-project first, then global.
+---
 
-**Why timeout 30:** Discovery scans multiple directories. Writing HTML with Chart.js inline data is fast. 30s is ample; 15s is tight if many projects exist.
+## Separation of Concerns
 
-### Integration Point 2: Existing JSONL Schema (no changes needed)
+```
+Logging               Analysis              Adjustment
+(decision-logger)     (ml-analyzer)         (config-writer)
 
-The existing `token-log.jsonl` records written by `codex-token-logger.js` are the input. The schema is already stable:
+Runs every turn       Runs once/session     Called by analyzer only
+Advisory only         Advisory output       Write-only
+Fail-silent always    Read-only input       Atomic + validated
+No external calls     No hook I/O           No analysis
+5s timeout            10s timeout           Sync, fast (< 100ms)
+Append-only output    Overwrites recs.json  Append-only audit log
+```
 
-```json
-{
-  "timestamp": "2026-04-02T22:52:30.644Z",
-  "session_id": "30092b41-...",
-  "model": "gpt-5.4",
-  "source": "cli",
-  "task_type": "review",
-  "review_task_type": "feature",
-  "verdict": "ALLOW",
-  "block_summary": null,
-  "tokens": {
-    "input": 12860,
-    "cached_input": 10624,
-    "output": 365,
-    "reasoning_output": 0
-  },
-  "cost_usd": 0.04908,
-  "rate_limit_pct": null
+**Invariants:**
+- `decision-logger.js` never modifies any config file.
+- `ml-analyzer.js` never writes to hook inputs — only to `recommendations.json` and advisory stdout.
+- `config-writer.js` never reads decision logs or computes statistics.
+- None of the existing 18 hooks are modified or aware that an ML layer exists.
+- If any new component crashes: existing 18 hooks continue working exactly as before.
+
+---
+
+## Atomic Config Update Pattern
+
+Config files are read by multiple hooks on every invocation. Writing without atomic rename produces
+torn reads.
+
+```javascript
+// config-writer.js — apply one recommendation atomically
+function applyRecommendation(configPath, key, newValue, reason, confidence) {
+  const current = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  const previous = current[key];
+  const updated = deepSet(current, key, newValue);  // handles nested keys like "codex.routing_disabled"
+
+  // Validate before writing — schema check + safety bounds
+  if (!isValidConfig(updated)) {
+    throw new Error(`Config validation failed for key ${key}=${newValue}`);
+  }
+
+  // Atomic write: tmp file then rename (POSIX rename(2) is atomic on same filesystem)
+  const tmp = configPath + '.tmp.' + process.pid;
+  fs.writeFileSync(tmp, JSON.stringify(updated, null, 2) + '\n', 'utf8');
+  fs.renameSync(tmp, configPath);  // atomic
+
+  // Audit trail — append BEFORE applying so a crash mid-apply is detectable
+  appendJsonl(ADJUSTMENT_LOG_PATH, {
+    timestamp: new Date().toISOString(),
+    config_file: configPath,
+    key,
+    previous_value: previous,
+    new_value: newValue,
+    reason,
+    confidence,
+    auto_applied: true,
+  });
 }
 ```
 
-The global aggregator adds two fields when copying to `global.jsonl`:
-- `project_path` — absolute path to the project root
-- `project_name` — derived from the last path segment (e.g., `Claude_X_Codex`)
-
-No changes to `codex-token-logger.js` or `codex-cost-reporter.js`.
-
-### Integration Point 3: Deduplication Strategy
-
-The aggregator must be idempotent — SessionStart fires every time any project opens. The same records must not be added to `global.jsonl` twice.
-
-**Dedup key:** `session_id + timestamp` combined as a string.
-- `session_id` alone is not unique (some records have `session_id: null`)
-- `timestamp` alone is not unique (multiple records per session)
-- `session_id + timestamp` is unique for all observed records in the live JSONL
-
-**Implementation:** On startup, the aggregator reads `global.jsonl` once and builds a `Set` of seen keys. New records from per-project logs are filtered against this set before appending.
-
-**Edge case — null session_id:** Records with `session_id: null` exist (from `codex-multi-round-reviewer.js` calls outside a hook context). Use `null|timestamp` as key. This is still unique because the timestamp is precise to the millisecond.
-
-### Integration Point 4: Project Discovery Scope
-
-Two token-log.jsonl files exist on this machine today:
-- `/home/alucard/projects/Claude_X_Codex/.planning/token-log.jsonl`
-- `/home/alucard/projects/The-Crucible/.planning/token-log.jsonl`
-
-Git worktrees at `b2b-sales-ops/.claude/worktrees/*/` have `.planning/` directories but no `token-log.jsonl` (confirmed by inspection). Worktrees must be excluded from discovery — they are ephemeral and their data would duplicate the parent project.
-
-**Discovery strategy: configurable roots with sensible defaults.**
-
-The aggregator scans a configurable list of root directories. Defaults cover all known project locations on this machine (from CLAUDE.md Key Paths + GSD workspace convention):
-
-```javascript
-// Default discovery roots — all known project locations on this machine
-const DEFAULT_DISCOVERY_ROOTS = [
-  path.join(os.homedir(), 'projects'),       // Primary project directory (CLAUDE.md)
-  path.join(os.homedir(), 'agent'),           // Agent workspace (CLAUDE.md)
-  path.join(os.homedir(), 'gsd-workspaces'),  // GSD isolated workspaces
-  '/mnt/hdd'                                  // User files from Windows (CLAUDE.md)
-];
-
-// User can extend via ~/.claude/dashboard/config.json
-// { "extra_roots": ["/path/to/more/projects"] }
-const configPath = path.join(dashboardDir, 'config.json');
-let extraRoots = [];
-try {
-  const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  extraRoots = cfg.extra_roots || [];
-} catch (e) { /* no config file — use defaults only */ }
-
-const DISCOVERY_ROOTS = [...DEFAULT_DISCOVERY_ROOTS, ...extraRoots]
-  .filter(root => fs.existsSync(root));  // Skip roots that don't exist
-```
-
-**Why configurable:** Hardcoded roots miss valid token logs if the user creates projects in new locations. The `config.json` mechanism lets users add roots without modifying hook code. Defaults cover all locations documented in CLAUDE.md.
-
-**Exclusion patterns:** Skip any path matching these patterns:
-- `/.claude/worktrees/` — ephemeral GSD worktrees (would duplicate parent project data)
-- `/node_modules/` — npm packages should never contain token logs
-- `/.git/` — git internals
-
-**Note:** `~/.claude/projects/` contains Claude Code session JSONL data (not project token logs) and should NOT be scanned.
-
-**Discovery command (Node.js):**
-```javascript
-const { execSync } = require('child_process');
-// Use find for speed — globbing caches and npm dirs is slow
-const findCmd = `find ${root} -maxdepth 5 -name "token-log.jsonl" -not -path "*/.claude/worktrees/*" -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null`;
-const output = execSync(findCmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
-```
-
-`-maxdepth 5` covers `projects/NAME/.planning/token-log.jsonl` (depth 3) and deeper structures like `/mnt/hdd/CATEGORY/NAME/.planning/token-log.jsonl` (depth 4) with headroom.
+Safety bounds enforced in `isValidConfig()`:
+- `scan_skip_threshold`: integer, 1–100 (never 0 — would scan every whitespace change)
+- `compress_tool_output_tokens`: integer, 500–10000 (never below 500 — would compress tiny outputs)
+- `compress_context_pct`: integer, 50–95 (never below 50 — compression at 50% context is already aggressive)
+- `routing_disabled`: boolean only
+- `workflow_guard`: boolean only
 
 ---
 
-## Architectural Patterns
+## Anti-Patterns
 
-### Pattern 1: Require-Based Module Composition
+### Anti-Pattern 1: Modifying Existing Hooks to Emit Decision Signal
 
-**What:** The aggregator calls the generator via `require('./codex-dashboard-generator')`, not via `child_process.spawnSync`.
+**What people do:** Add `appendJsonl(decisionLog, {...})` lines inside `codex-router.js`,
+`minimax-post-scan.js`, etc.
 
-**When to use:** Both scripts run in the same SessionStart hook invocation. `require()` avoids a second Node.js process startup, shares the already-loaded JSONL data, and keeps the total SessionStart overhead under 30 seconds.
+**Why it's wrong:** Every hook has two responsibilities. When the decision schema changes, you
+edit 7 hooks. When a hook fails, it is unclear if the failure was in the original job or in logging.
+The fail-silent pattern becomes ambiguous.
 
-**Trade-off:** Both scripts must be in `~/.claude/hooks/` (same directory). This is already where all hook scripts live — not a constraint.
+**Do this instead:** Run `decision-logger.js` last in the PostToolUse chain. Parse the advisory
+text that preceding hooks already emit. Each hook stays single-responsibility.
 
-**Example:**
-```javascript
-// codex-global-aggregator.js
-const generator = require('./codex-dashboard-generator');
-// After merging records:
-generator.generateDashboard(dashboardDir);
-```
+### Anti-Pattern 2: Auto-Applying Changes Without a Confidence Gate
 
-```javascript
-// codex-dashboard-generator.js
-function generateDashboard(dashboardDir) {
-  const globalLog = path.join(dashboardDir, 'global.jsonl');
-  // ... read, compute, write HTML
-}
-module.exports = { generateDashboard };
-```
+**What people do:** Apply every ML recommendation immediately, regardless of sample size.
 
-### Pattern 2: Append-Only Global Log with In-Memory Dedup
+**Why it's wrong:** With 10 events, a 70% "scan finds nothing" rate may reflect a quiet week, not
+a real pattern. On day 3, the system turns off your security scanner because you wrote markdown.
 
-**What:** Never rewrite `global.jsonl`. Load existing keys into a `Set` at startup, append only truly new records.
+**Do this instead:** Hold all changes behind `confidence >= 0.8`. Below that, surface as advisory
+context only. Let data accumulate to earn the right to auto-apply.
 
-**When to use:** Always. This preserves historical data even if a per-project `token-log.jsonl` is deleted or rotated.
+### Anti-Pattern 3: Putting the Analyzer in the PostToolUse Chain
 
-**Trade-off:** `global.jsonl` grows indefinitely. At current usage rates (8-11 records per session), this is ~1KB per session. 1,000 sessions = ~1MB. Not a concern for a single-user machine.
+**What people do:** Run the ML analyzer on every Write/Edit event to tune configs in real time.
 
-### Pattern 3: Generator as Pure Transform (No Side Effects Outside Output Dir)
+**Why it's wrong:** PostToolUse hooks run inside the tool call latency budget. An analyzer
+reading JSONL and computing statistics adds 100-500ms to every edit. Worse, config changes
+in PostToolUse would not affect other hooks that already read config at chain start.
 
-**What:** `codex-dashboard-generator.js` reads from `~/.claude/dashboard/global.jsonl` and writes only to `~/.claude/dashboard/dashboard.html`. No project directory reads. No settings writes.
+**Do this instead:** Analyze at SessionStart. Config changes apply at the next session open,
+which is the correct granularity.
 
-**When to use:** Separation of concerns. The aggregator owns discovery and merging. The generator owns computation and rendering. This makes each testable in isolation.
+### Anti-Pattern 4: Writing Config Changes Without an Audit Trail
 
-### Pattern 4: Self-Contained HTML (No Server Required)
+**What people do:** Overwrite `.claude/settings.json` with new values, no record of what changed.
 
-**What:** Inline Chart.js from CDN URL in a `<script>` tag. Inline all computed data as a `const DATA = {...}` JavaScript literal. No `fetch()` calls at render time.
+**Why it's wrong:** When the ML model makes a bad recommendation that slips through validation,
+there is no way to know what was changed or why. The user sees unexpected behavior with no
+traceable cause.
 
-**When to use:** Always — this is a local developer tool, not a web app. The dashboard must open from `file://` protocol without a server.
+**Do this instead:** Append one record to `adjustment-log.jsonl` before applying every change.
+Record includes previous value, new value, reason, and confidence score. Rollback is two steps:
+read the log, write the old value back with config-writer.
 
-**Implementation approach:** Use Chart.js from `https://cdn.jsdelivr.net/npm/chart.js` in a `<script src>` tag — this loads from CDN when internet is available, fails gracefully (no charts, but tables still render) when offline. This is simpler than bundling 200KB of Chart.js inline.
+### Anti-Pattern 5: A Neural Network on Low-Volume Data
 
-**Trade-off:** Chart.js from CDN loads from internet on each open. For an offline machine, bundle Chart.js inline. Current machine has internet — CDN approach is fine for v1.1.
+**What people do:** Install TensorFlow/PyTorch, train a model on session data, predict optimal
+config values.
 
----
+**Why it's wrong:** 50-200 events per day is statistical noise for a neural network. A model
+with 10 parameters trained on 50 examples will overfit trivially and make worse predictions
+than a simple threshold rule. The infrastructure overhead (Python runtime, dependencies, training
+pipeline) is disproportionate.
 
-## New vs Modified Components
-
-### New Components (to build)
-
-| Component | Type | Phase |
-|-----------|------|-------|
-| `~/.claude/hooks/codex-global-aggregator.js` | New hook script | Phase 1 |
-| `~/.claude/hooks/codex-dashboard-generator.js` | New generator module | Phase 2 |
-| `~/.claude/dashboard/` directory | Auto-created by aggregator | Phase 1 |
-| SessionStart hook entry in `~/.claude/settings.json` | New hook registration | Phase 1 |
-
-### Modified Components (what changes)
-
-| Component | Change | Why |
-|-----------|--------|-----|
-| `~/.claude/settings.json` | Add `codex-global-aggregator.js` to SessionStart hooks array | Register new hook |
-
-### Unchanged Components (confirmed no modifications needed)
-
-| Component | Why unchanged |
-|-----------|---------------|
-| `codex-token-logger.js` | JSONL schema already has all needed fields; no changes |
-| `codex-cost-reporter.js` | Per-project report unchanged; global report is additive |
-| Per-project `token-log.jsonl` files | Source data, never modified by aggregator |
-| All other hook scripts | No interaction with dashboard system |
+**Do this instead:** Weighted running statistics with explicit confidence scores. Interpretable,
+auditable, and calibrated to the data volume this system actually generates.
 
 ---
 
-## Build Order
+## Scaling Considerations
 
-The dependency graph drives this order:
+This is a single-user local CLI tool. The relevant scaling axis is data volume over time.
+
+| Records in decision-log.jsonl | Analyzer behavior | SessionStart overhead |
+|-------------------------------|-------------------|-----------------------|
+| 0–29 | Cold start: defaults, no changes | < 1ms |
+| 30–500 | Mixed mode, low-confidence suggestions | 5–20ms |
+| 500–10,000 | Full statistics, auto-apply enabled | 20–100ms |
+| 10,000–100,000 | Full statistics | 100ms–1s: add mtime-gated incremental read (same pattern as codex-global-aggregator.js) |
+| 100,000+ | Same incremental read pattern | < 50ms with byte-offset seek |
+
+The 10,000-record threshold takes approximately 3-6 months at typical usage. Implement the
+mtime-gated incremental read in Phase 2 to avoid a retrofit.
+
+---
+
+## Build Order (dependency-first)
+
+Dependencies drive the order. Each phase can be tested in isolation before the next begins.
 
 ```
-Phase 1: Data Pipeline — Aggregator + Storage
+Phase 1: Decision Capture
+  No dependencies on later phases.
+  → decision-logger.js (PostToolUse + Stop advisory hook)
+  → decision-log.jsonl schema
+  → defaults.json (cold-start priors)
+  Validation: run a session, confirm records appear in
+              .planning/decision-log.jsonl and
+              ~/.claude/dashboard/decision-log.jsonl
 
-  Step 1. Create ~/.claude/dashboard/ directory structure
-          (can be done by the hook itself on first run)
+Phase 2: Analysis Engine (depends on Phase 1 data)
+  → ml-analyzer.js (statistics only, no config writes yet)
+  → recommendations.json schema
+  → mtime-gated incremental read (prevents 10k-record slowdown later)
+  Validation: node ml-analyzer.js --dry-run
+              confirm sensible recommendations from real Phase 1 data
+              confirm advisory context output format
 
-  Step 2. Implement codex-global-aggregator.js
-          Dependencies: none (reads existing JSONL files)
-          Validates: can scan projects, can dedup, can write global.jsonl
-          Test: run standalone, verify global.jsonl created with correct records
+Phase 3: Config Writer + Audit Trail (depends on Phase 2 recommendations)
+  → config-writer.js (atomic write-then-rename + safety validation)
+  → adjustment-log.jsonl
+  Validation: apply a known recommendation manually
+              confirm atomic write (no torn file on concurrent read)
+              confirm audit record appears in adjustment-log.jsonl
+              confirm bad value rejected by isValidConfig()
 
-  Step 3. Register hook in ~/.claude/settings.json
-          Add to SessionStart array after codex-cost-reporter.js
-          Test: open a new session, verify global.jsonl updated
-
-Phase 2: Dashboard Generator — HTML Output
-
-  Step 4. Implement codex-dashboard-generator.js
-          Dependencies: Phase 1 (needs global.jsonl to exist with real data)
-          Implements: per-project table, time series, session history
-          Test: run standalone, verify dashboard.html opens in browser
-
-  Step 5. Wire generator into aggregator
-          Call generator.generateDashboard() at end of aggregation run
-          Test: SessionStart → global.jsonl updated → dashboard.html regenerated
-
-Phase 3: Polish — Chart.js Integration
-
-  Step 6. Add Chart.js time series charts to dashboard
-          Dependencies: Phase 2 HTML structure established
-          Adds: line chart (daily cost/savings) using existing time series data
-          Test: open dashboard.html, verify charts render with real data
+Phase 4: SessionStart Integration (depends on all above)
+  → register ml-analyzer.js in settings.json SessionStart chain (timeout: 10)
+  → wire analyzer → config-writer with confidence gate (threshold: 0.8)
+  Validation: open a session, confirm config changes apply for
+              high-confidence recommendations;
+              confirm no changes for low-confidence recommendations;
+              confirm session opens in under 3 seconds total
 ```
 
 **Why this order:**
-
-- Aggregator before generator: the generator needs `global.jsonl` to exist with real data to test against
-- Data pipeline before charts: Chart.js integration is display-only; the underlying data structure must be solid first
-- Registration after implementation: avoid a broken hook in the hot path until it's tested standalone
-
----
-
-## Anti-Patterns to Avoid
-
-### Anti-Pattern 1: Rewriting global.jsonl on Every Run
-
-**What:** Read all per-project logs, compute deduplicated set, write a fresh `global.jsonl` each time.
-
-**Why bad:** If a per-project `token-log.jsonl` is deleted (project archived, worktree cleaned), those records disappear from the global view. The append-only pattern preserves historical records permanently regardless of source file state.
-
-**Instead:** Read existing `global.jsonl` keys into a Set, append only new records from current per-project files.
-
-### Anti-Pattern 2: Scanning All of ~/
-
-**What:** `find ~ -name "token-log.jsonl"` without restricting roots.
-
-**Why bad:** The home directory contains `.npm-global`, `.cache`, `node_modules`, plugin caches, and other large directory trees. The scan would be slow and could traverse thousands of directories.
-
-**Instead:** Scan configurable roots with `-maxdepth 5`. Defaults cover all CLAUDE.md key paths (`~/projects`, `~/agent`, `/mnt/hdd`) plus `~/gsd-workspaces`. Users can add more via `~/.claude/dashboard/config.json`.
-
-### Anti-Pattern 3: Including Git Worktree Token Logs
-
-**What:** Treating `.claude/worktrees/agent-*/` `.planning/token-log.jsonl` files as separate projects.
-
-**Why bad:** Git worktrees are ephemeral GSD parallelism environments. Their JSONL records represent the same project (b2b-sales-ops) and the same session work. Including them would duplicate records for the parent project.
-
-**Instead:** Exclude any path matching `/.claude/worktrees/`.
-
-### Anti-Pattern 4: Blocking SessionStart for Long Discovery
-
-**What:** Synchronous deep directory scan on every session start, including large projects or slow filesystems.
-
-**Why bad:** SessionStart hooks run before the session is usable. A slow aggregator delays every session open. The hook has a 30s timeout — scan must complete well within this.
-
-**Instead:** Use `find` with `-maxdepth 4` (fast, bounded). The `project-index.json` manifest caches known projects — on subsequent runs, re-scan only to find new projects, not to re-read all records.
-
-### Anti-Pattern 5: Generating HTML with String Concatenation of Unescaped User Data
-
-**What:** Building the HTML by concatenating project names, file paths, and block summaries directly into the HTML string.
-
-**Why bad:** Block summaries from `codex-review-gate.js` contain arbitrary text (backticks, quotes, angle brackets). Unescaped insertion breaks the HTML or creates XSS in a local context.
-
-**Instead:** HTML-escape all user-originated strings before insertion. A minimal `htmlEscape()` function covering `<`, `>`, `&`, `"`, `'` is sufficient.
-
----
-
-## Scalability Considerations
-
-This is a single-user local tool. "Scale" means handling more projects and longer history, not concurrent users.
-
-| Concern | At 5 projects (now) | At 50 projects | At 500 projects |
-|---------|---------------------|---------------|-----------------|
-| Discovery scan time | ~100ms | ~500ms | Could exceed 30s timeout — add depth limit and config |
-| global.jsonl size | ~10KB | ~100KB | ~1MB — still fast for Node.js readline |
-| Dashboard render time | <1s | ~1s | ~5s — add pagination for session history table |
-| Memory during generation | ~1MB | ~10MB | ~100MB — read global.jsonl as stream, not all at once |
-
-Current machine has 2 projects with token logs. The 50-project boundary is not near. Optimize only if performance becomes noticeable.
-
----
-
-## Confidence Assessment
-
-| Area | Confidence | Source |
-|------|------------|--------|
-| Hook protocol (SessionStart, additionalContext, timeout) | HIGH | Live `settings.json` + `codex-cost-reporter.js` source |
-| Existing JSONL schema | HIGH | Live `token-log.jsonl` from two projects, `codex-token-logger.js` source |
-| Project discovery scope | HIGH | Live `find` command confirmed 2 token logs; worktrees confirmed no token logs |
-| Deduplication key (session_id + timestamp) | HIGH | Verified from live JSONL: null session_ids exist, timestamps are millisecond-precise |
-| Chart.js CDN approach for HTML | MEDIUM | Standard approach for local HTML files; CDN load assumption requires internet |
-| require() composition vs spawnSync | MEDIUM | Both work; require() is faster; confirmed no circular dep risk (generator doesn't require aggregator) |
-| global.jsonl growth rate | HIGH | 8-11 records/session observed; arithmetic projection is reliable |
+- Phase 1 has no dependencies. It captures data regardless of whether analysis is built.
+- Phase 2 requires real data from Phase 1 to be meaningful. Statistical models on synthetic data
+  have hidden calibration bugs.
+- Phase 3 is the highest-risk component (writes to files other hooks read). Test standalone before
+  wiring to automatic triggers.
+- Phase 4 wires everything together only after each component is verified standalone. A broken
+  SessionStart hook delays every session open — it must be robust before registration.
 
 ---
 
 ## Sources
 
-- Live source: `/home/alucard/.claude/hooks/codex-cost-reporter.js` — SessionStart hook pattern, JSONL reading, report generation
-- Live source: `/home/alucard/.claude/hooks/codex-token-logger.js` — JSONL record schema, `[CODEX_RESULT]` marker protocol
-- Live source: `/home/alucard/.claude/settings.json` — Hook registration format, SessionStart array structure, timeout values
-- Live data: `/home/alucard/projects/Claude_X_Codex/.planning/token-log.jsonl` — 11 real records, schema confirmed
-- Live data: `/home/alucard/projects/The-Crucible/.planning/token-log.jsonl` — 4 real records, cross-project confirmed
-- Live inspection: `find ~/projects -name "token-log.jsonl"` — 2 projects with token logs; worktrees excluded confirmed
-- Previous research: `.planning/research/ARCHITECTURE.md` (v1.0) — hook protocol, component boundaries, anti-patterns
+- Live source: `/home/alucard/.claude/hooks/` — all 18 hook scripts inspected; stdin/stdout
+  patterns, advisory text formats, config key names, timeout budgets confirmed from source
+- Live source: `/home/alucard/.claude/settings.json` — all hook registrations, event types,
+  timeout values confirmed
+- Live data: `/home/alucard/projects/Claude_X_Codex/.planning/token-log.jsonl` — JSONL schema
+  confirmed; null session_id pattern confirmed (25% of records)
+- Live source: `/home/alucard/.claude/hooks/codex-global-aggregator.js` — mtime-gated incremental
+  read pattern reused for decision-log scaling
+- Prior research: `.planning/research/SUMMARY.md` — write-then-rename and mtime guard already
+  proven in this codebase
+- Linux `rename(2)` POSIX specification — atomic same-filesystem rename on Linux confirmed
+- WebSearch: Gemini CLI hooks (2026) — confirms hook-as-advisory-observer is established pattern
+  across CLI AI tools; hook-based config feedback loops are an emerging standard
 
 ---
 
-*Architecture research for: v1.1 Global Metrics Dashboard integration with per-project hook architecture*
-*Researched: 2026-04-02*
+*Architecture research for: ML-driven self-optimization layer on Claude X Codex hook pipeline*
+*Researched: 2026-04-03*

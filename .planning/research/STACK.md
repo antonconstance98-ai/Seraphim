@@ -259,3 +259,143 @@ node --version    # Must be v18+ for built-in fetch; v22.22.0 confirmed
 ---
 *Stack research for: v1.1 Global Metrics Dashboard (Claude X Codex)*
 *Researched: 2026-04-02*
+
+---
+---
+
+# Stack Additions: ML-Driven Self-Optimization Milestone
+
+**Researched:** 2026-04-03
+**Confidence:** MEDIUM-HIGH (npm versions live-verified; ML library maturity caveats flagged)
+
+This section covers **new additions only** for adaptive intelligence (ML-based auto-tuning). All existing stack components above remain unchanged.
+
+---
+
+## Recommended Stack — New Libraries Only
+
+### Core Technologies
+
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| `better-sqlite3` | 12.8.0 | Structured decision log storage; time-series queries via SQL | Synchronous API matches hook script execution model — no async overhead in hot paths. Fastest SQLite binding for Node.js. Supports JSON columns, window functions, and date-range queries needed for trend detection. Production-ready — `node:sqlite` is still experimental behind a flag on Node.js 22 and explicitly not recommended for production. |
+| `simple-statistics` | 7.8.9 | Statistical analysis: means, stddev, Z-score, linear regression, percentiles | Zero dependencies. Pure JS — no native binaries, no compilation step. Covers 90% of the analysis needed for anomaly detection and trend detection on small datasets (hundreds to low thousands of rows). Actively maintained. |
+| `ml-regression` | 6.3.0 | Curve fitting and predictive trend lines (simple linear, polynomial) | Part of the `mljs` ecosystem — the only serious ML suite that is pure JS, no Python, no native bindings, actively maintained. Use for forecasting token cost trends and routing performance over time. |
+
+### Supporting Libraries
+
+| Library | Version | Purpose | When to Use |
+|---------|---------|---------|-------------|
+| `regression` | 2.0.1 | Alternative curve fitting (exponential, logarithmic, power fits) | Use instead of `ml-regression` only if you need exponential or logarithmic curve fitting — `ml-regression` covers linear and polynomial out of the box, but stops there. Minimal API, zero dependencies. |
+| `ml-matrix` | pulled transitively | Matrix operations underlying regression | Only reference directly if you implement multi-feature scoring models. Comes in automatically with `ml-regression`. |
+
+### Development Tools
+
+| Tool | Purpose | Notes |
+|------|---------|-------|
+| `better-sqlite3` REPL (via `node -e`) | Inspect decision log database during development | Query live data: `node -e "const db = require('better-sqlite3')(process.env.HOME+'/.claude/optimization.db'); console.log(db.prepare('SELECT * FROM decisions LIMIT 5').all())"` |
+| Existing `ccusage` | Cross-reference JSONL cost data with SQLite decision logs | No new install. Aggregate JSONL first, write summaries to SQLite for ML queries. |
+
+---
+
+## Installation
+
+```bash
+# Run from the hooks directory or project root
+npm install better-sqlite3@12.8.0
+npm install simple-statistics@7.8.9
+npm install ml-regression@6.3.0
+
+# regression is optional — only needed for exponential/log curve fits
+# npm install regression@2.0.1
+```
+
+All three are runtime dependencies (used inside hook scripts), not devDependencies.
+
+---
+
+## Integration Points with Existing Hook Scripts
+
+| Existing Component | New Library | Integration Pattern |
+|-------------------|-------------|---------------------|
+| JSONL token logs | `better-sqlite3` | Post-session aggregator reads JSONL, writes normalized rows into `~/.claude/optimization.db`. Hook scripts query SQLite for analysis — never raw JSONL scan. |
+| `PostToolUse` hooks | `simple-statistics` | After each tool execution, hook reads last N rows from SQLite and computes rolling Z-score. If anomaly detected, injects advisory context via `additionalContext`. |
+| Routing decision hooks | `ml-regression` | Weekly (or session-end) batch job fits linear regression on routing outcome metrics. Writes updated routing thresholds back to a `config` table in SQLite. Hook scripts read thresholds at startup. |
+| Chart.js HTML dashboard | `better-sqlite3` | Dashboard generator queries SQLite directly instead of scanning JSONL files. Faster and enables date-range filtering via SQL `WHERE timestamp > ?`. |
+
+---
+
+## Alternatives Considered
+
+| Recommended | Alternative | When to Use Alternative |
+|-------------|-------------|-------------------------|
+| `better-sqlite3` | LevelDB / `classic-level` | Only if write throughput exceeds ~10,000 inserts/second. LevelDB has no SQL — every range query and aggregation requires manual key iteration. At this project's volume (dozens of hook events per session), SQLite's query power is the right trade-off. |
+| `better-sqlite3` | Extended append-only JSONL | Acceptable for Phase 1 logging only. As soon as you need range queries ("last 7 days"), percentile aggregations, or correlating routing decisions with outcomes, JSONL becomes a maintenance burden. Migrate to SQLite early. |
+| `simple-statistics` | TensorFlow.js | Only if you need trained neural networks with backpropagation. TFjs requires `@tensorflow/tfjs-node`, which pulls in native binaries and adds ~150 MB to node_modules. Complete overkill for Z-score and linear regression on hundreds of rows. |
+| `simple-statistics` | `brain.js` | brain.js 2.0.0-beta.24 has been in beta for over a year (last npm publish ~April 2025, confirmed via npm registry). GPU acceleration is irrelevant for CLI hook scripts. Avoid until a stable 2.x releases. |
+| `ml-regression` | Python `scikit-learn` via `child_process` | Only if model complexity demands ensemble methods or gradient boosting. Adds a Python runtime dependency, complicates deployment, and introduces 2-5 second subprocess startup in synchronous hook paths. `simple-statistics` + `ml-regression` are sufficient for this dataset size. |
+| `better-sqlite3` (sync) | `sqlite` async wrapper | Only if hook scripts are refactored to async-first patterns. Existing infrastructure uses synchronous execution and `additionalContext` injection — synchronous SQLite is the correct match. |
+
+---
+
+## What NOT to Use
+
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| TensorFlow.js (`@tensorflow/tfjs-node`) | ~150 MB native binary, requires recompilation per Node.js version, complete overkill for statistical trend detection on <10,000 rows | `simple-statistics` + `ml-regression` |
+| `brain.js` | Stuck at beta (2.0.0-beta.24, last release ~April 2025, confirmed from npm registry). API changed between releases; GPU acceleration irrelevant for CLI hooks. | `simple-statistics` for threshold-based classification logic |
+| Python ML services (FastAPI + scikit-learn, etc.) | Introduces a second runtime, network hop, and service lifecycle management. Violates "local CLI tool" constraint. Adds 2-5 second latency in synchronous hook paths. | Pure JS libraries listed above |
+| Cloud ML services (SageMaker, Vertex AI, Azure ML) | Violates budget constraint ($15/day), adds cloud dependency, introduces network latency incompatible with synchronous hook execution | Local statistical libraries |
+| `node:sqlite` (Node.js built-in) | Experimental on Node.js 22 — requires `--experimental-sqlite` flag, API not stable, not suitable for production hook scripts that run on every tool use | `better-sqlite3@12.8.0` |
+| LevelDB / `classic-level` | No SQL — range queries on time-series data (the core use case) require multi-step key scans. SQLite handles this in a single indexed query. | `better-sqlite3` |
+| `lowdb` (JSON file database) | Loads entire dataset into memory on every read. Breaks on decision logs growing across weeks of sessions. | `better-sqlite3` |
+| Neural networks for routing optimization | Small dataset (hundreds of sessions) makes neural nets statistically unreliable. Linear regression on structured features is more interpretable, more stable, and far simpler to debug. | `simple-statistics` + `ml-regression` |
+
+---
+
+## Stack Patterns by Variant
+
+**If dataset stays small (under 5,000 decision records):**
+- `simple-statistics` alone covers all needed analysis
+- `simple-statistics.linearRegression()` handles trend detection
+- Skip `ml-regression` to keep dependency count minimal
+
+**If routing decisions need multi-feature correlation (task type + token count + model + latency combined):**
+- Use `ml-regression` multivariate support or direct `ml-matrix` for multivariate linear regression
+- SQLite `GROUP BY` + window functions handle feature extraction before regression input
+
+**If you want cost anomaly alerting ("cost spiked 3x baseline"):**
+- Z-score via `simple-statistics.zScore()` against a rolling 7-day mean
+- No additional library needed — implement as a `lib/anomaly-detector.js` utility in the hooks directory
+
+**If brain.js reaches a stable 2.x release:**
+- Re-evaluate for routing decision classification (framing routing as a classification problem)
+- Current beta state makes it unsuitable for a hook that fires on every tool use
+
+---
+
+## Version Compatibility — New Libraries
+
+| Package | Version | Compatible With | Notes |
+|---------|---------|-----------------|-------|
+| `better-sqlite3` | 12.8.0 | Node.js v22.x | Node 22 support added May 2024. Requires `node-gyp` at install time; pre-built binaries usually available. |
+| `simple-statistics` | 7.8.9 | Node.js v14+ | Pure JS, no native bindings, no compilation step. No compatibility concerns. |
+| `ml-regression` | 6.3.0 | Node.js v12+ | Pure JS, no native bindings. Works with Node.js 22 without modification. |
+| All three | — | `openai@6.33.0` | No dependency overlap. Safe to coexist in the same `package.json`. |
+
+---
+
+## Sources (ML Optimization Section)
+
+- npm live version check (2026-04-03): `node -e "require('child_process').execSync('npm show <pkg> version')"` — confirmed `simple-statistics@7.8.9`, `ml-regression@6.3.0`, `better-sqlite3@12.8.0`, `brain.js@2.0.0-beta.24`
+- [better-sqlite3 GitHub](https://github.com/WiseLibs/better-sqlite3) — synchronous API rationale, Node.js 22 support timeline
+- [better-sqlite3 Discussion #1245](https://github.com/WiseLibs/better-sqlite3/discussions/1245) — production readiness vs `node:sqlite` — MEDIUM confidence
+- [Node.js SQLite docs](https://nodejs.org/api/sqlite.html) — experimental flag requirement confirmed
+- [simple-statistics npm](https://www.npmjs.com/package/simple-statistics) — zero dependencies confirmed
+- [ml-regression npm](https://www.npmjs.com/package/ml-regression) — mljs ecosystem, pure JS confirmed
+- [brain.js npm](https://www.npmjs.com/package/brain.js) — beta status, last publish ~April 2025 — HIGH confidence (direct npm registry)
+- WebSearch: "Node.js machine learning libraries 2026 lightweight local inference" — candidate identification only, LOW-MEDIUM confidence
+
+---
+*Stack research additions for: ML-Driven Self-Optimization Milestone (Claude X Codex)*
+*Researched: 2026-04-03*

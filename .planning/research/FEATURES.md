@@ -1,52 +1,30 @@
 # Feature Research
 
-**Domain:** Local HTML metrics dashboard — multi-project AI model usage, costs, savings, and review quality
-**Researched:** 2026-04-02
-**Confidence:** HIGH
+**Domain:** ML-driven self-optimization for multi-model AI orchestration (Claude Opus + Codex GPT-5.4 + MiniMax M-2.7)
+**Researched:** 2026-04-03
+**Confidence:** MEDIUM — routing optimization patterns drawn from RouteLLM, Not-Diamond, Martian, and 2025 academic literature; false-positive filtering from Datadog and vLLM Signal-Decision Architecture; no direct prior art for single-user CLI adaptive orchestration at this exact scope.
 
-> **Milestone scope:** v1.1 Global Metrics Dashboard only. Features from v1.0 (hook scripts,
-> routing, review gate) are already shipped and not re-researched here. This file covers only
-> what needs to be built for the dashboard.
+> **Milestone scope:** v3.0 — Adaptive Intelligence (ML-based auto-tuning). The existing v2.0
+> infrastructure (static routing rules, dual review gate, multi-round plan review, PostToolUse
+> scanner, JSONL token logging, global dashboard) is already shipped and forms the dependency
+> base for every feature listed here. This file covers only what needs to be built for
+> adaptive/self-improving behaviour.
 
 ---
 
-## Existing Data Contract (token-log.jsonl Schema)
+## Existing Infrastructure (v2.0 Contract)
 
-All features depend on this schema. Verified consistent across both live projects on this machine.
+Everything in this section is already live. New features depend on it, not replace it.
 
-```jsonc
-{
-  "timestamp":        "2026-04-02T22:52:30.644Z",   // ISO 8601 — required for time trends
-  "session_id":       "30092b41-...",                // nullable string; groups records into sessions
-  "model":            "gpt-5.4",                     // "gpt-5.4" | "gpt-5.4-mini"
-  "source":           "cli",                         // "cli" | "api"
-  "task_type":        "review",                      // "review" | "multi-round-plan-review" | ...
-  "review_task_type": "feature",                     // nullable; "feature" | "plan" | ...
-  "verdict":          "ALLOW",                       // nullable; "ALLOW" | "BLOCK"
-  "block_summary":    "...",                         // nullable string — issue Codex caught
-  "tokens": {
-    "input":            12860,
-    "cached_input":     10624,
-    "output":           365,
-    "reasoning_output": 0
-  },
-  "cost_usd":         0.04908,                       // actual cost already computed per record
-  "rate_limit_pct":   null                           // nullable float 0–100
-}
-```
-
-**Critical schema gaps for aggregation (must be inferred at read time, not stored):**
-
-| Field Needed | Not In Schema | How to Derive |
-|---|---|---|
-| Project name | Not stored | Infer from file path: last path segment before `.planning/` |
-| Opus baseline cost | Not stored | Compute at read time: reprice token volumes at Opus rates ($15/$3.75/$75 per 1M in/cached/out) |
-| Savings amount | Not stored | `opusBaseline - cost_usd` per record |
-| Session date | Not stored directly | `timestamp.slice(0, 10)` → YYYY-MM-DD |
-
-**Known projects with token-log.jsonl (live on this machine):**
-- `/home/alucard/projects/Claude_X_Codex/.planning/token-log.jsonl`
-- `/home/alucard/projects/The-Crucible/.planning/token-log.jsonl`
+| Component | What It Provides | Key Data Available |
+|-----------|-----------------|-------------------|
+| `token-log.jsonl` per project | One record per model call | `model`, `task_type`, `verdict`, `block_summary`, `tokens.*`, `cost_usd`, `timestamp`, `session_id` |
+| Global dashboard (`dashboard.html`) | Aggregated cost + catch-rate view | Cross-project summaries, per-session stats, BLOCK issue log |
+| Dual review gate (Stop hook) | Codex + MiniMax parallel review | Pass/block decisions, summaries |
+| Multi-round plan review | Round 1 constructive, Round 2 adversarial | Structured feedback per round |
+| PostToolUse scanner | Bug/security scan after every file write | Per-tool verdict + block_summary |
+| Three-tier fallback | Codex CLI → MiniMax API → user prompt | Fallback events, reasons |
+| Static routing config | Advisory rules, Opus decides | `~/.claude/settings.json` routing weights |
 
 ---
 
@@ -54,148 +32,134 @@ All features depend on this schema. Verified consistent across both live project
 
 ### Table Stakes (Users Expect These)
 
-Features required for the dashboard to answer more questions than the existing Markdown session
-reports. Missing any of these means the dashboard is a regression, not an upgrade.
+Self-optimizing orchestration systems are expected to provide these. Missing any of them makes the
+system feel manual and not meaningfully different from static rule-based routing.
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| Global cost summary | Primary reason to build this — one number across all projects | LOW | Sum `cost_usd` + compute Opus baseline across all JSONL files |
-| Total savings % vs Opus baseline | The core success metric from v1.0 (86.7% demonstrated) — must be at the top | LOW | `(opusBaseline - actualCost) / opusBaseline * 100` |
-| Per-project breakdown table | User needs to know which project drove which cost | LOW | Group by inferred project name; columns: project, calls, actual cost, savings, catch rate |
-| Review catch-rate (global + per-project) | Cross-project quality metric; without it, "how well is Codex working?" is unanswerable | LOW | `reviewBlock / reviewTotal * 100`; filter where `task_type === 'review'` |
-| Model split (GPT-5.4 vs GPT-5.4-mini) | Two models billed at different rates; user must know the breakdown | LOW | Group by `model` field |
-| Session history list | Session-level granularity that the per-day reports obscure | MEDIUM | Group by `session_id` (non-null); sort by most recent; columns: project, date, calls, cost, catch rate |
-| BLOCK issue log | Shows exactly what Codex caught — the "proof of value" log | LOW | Filter where `verdict === 'BLOCK'` and `block_summary !== null` |
-| Time trend chart | Makes cost trajectory visible — impossible to see in static Markdown tables | MEDIUM | Aggregate `cost_usd` by YYYY-MM-DD; line chart; one series per project or stacked total |
-| Self-contained HTML (no server) | Opened with `file://` in a browser; no Node/Python server; no `fetch()` to local files | MEDIUM | Inline all CSS + Chart.js source; serialize all data as `const DASHBOARD_DATA = {...}` in a `<script>` block at generation time |
-| Auto-regenerate on SessionStart | Dashboard is useless if it goes stale; must stay current automatically | LOW | Add a second SessionStart hook (`codex-dashboard-gen.js`) alongside existing `codex-cost-reporter.js` |
-| Last-updated timestamp | Tells user when data was last refreshed; prevents acting on stale data | LOW | Write `new Date().toISOString()` into the HTML footer at generation time |
+| Feature | Why Expected | Complexity | v2.0 Dependency | Notes |
+|---------|--------------|------------|-----------------|-------|
+| Outcome recording — per-call verdict stored with context | All downstream learning depends on having labeled examples. Without it, there is nothing to optimize against. | LOW | `token-log.jsonl` schema already has `verdict` and `block_summary`; needs `accepted` / `dismissed` / `no_action` enrichment | Research: RouteLLM, Not-Diamond, and Martian all require some form of outcome label per routed call. Even thumbs-up/thumbs-down suffices (Wang et al. 2025). |
+| Routing metrics collection — latency, cost, task-type per call | Metrics are the raw material for every optimization decision. Without them, the system cannot know which routes are expensive, slow, or low-quality. | LOW | `cost_usd` and `tokens.*` already logged; add `latency_ms` field and enrich `task_type` taxonomy | Martian and LiteLLM routing both track cost + latency + quality score as the three primary axes. |
+| False-positive tracking — user can dismiss a review flag as noise | The most painful UX failure in existing static review gates is flag fatigue. Providing a dismiss path creates the training signal needed to suppress recurring noise without breaking the hook pipeline. | MEDIUM | PostToolUse scanner and dual review gate already emit `block_summary`; need a dismiss command (e.g. `/gsd:dismiss-last`) that appends `"dismissed": true` to the relevant JSONL record | Datadog Bits AI: "users can confirm or correct the classification...this human feedback helps refine performance over time." Same pattern works for CLI — thumbs-down = dismiss. |
+| Task-type classification enrichment | Routing quality degrades when every call is logged as `"review"`. The ML layer needs richer labels (refactor, explain, security-scan, plan-review, etc.) to learn which models excel at which tasks. | LOW | `task_type` field exists but has only 4 values; expand taxonomy to 8–12 task categories matching actual hook trigger contexts | Not-Diamond trains on task-type + evaluation score pairs. RouteLLM uses MMLU/MT-Bench task categories. |
+| Routing decision audit log | Users must be able to see why a call was routed to a specific model. Without explainability, adaptive changes feel opaque and erode trust. | LOW | Dashboard already shows BLOCK issue log; extend it with routing decision column (rule name, confidence score, why this model) | vLLM Signal-Decision Architecture: separates signal extraction from routing decisions explicitly to maintain interpretability. |
+| Opt-out / freeze mode | Self-optimization must be pauseable. If the system starts making poor routing decisions (e.g. after a bad batch of training data), the user needs one command to revert to static rules. | LOW | Static routing config in `~/.claude/settings.json` is the freeze target; add `"adaptive": false` flag | Standard safety requirement for any auto-tuning system. Not specific to LLM routing. |
 
-### Differentiators (What Makes This More Valuable Than Markdown Reports)
+### Differentiators (Competitive Advantage)
 
-These are the features that justify building an HTML dashboard at all, rather than continuing with
-per-project Markdown session reports.
+These features go beyond what any existing router (RouteLLM, Not-Diamond, Martian) provides out of
+the box, because they are specific to the code-review + CLI-hook execution context of this system.
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Time trend line chart with daily/weekly toggle | Surfaces cost trajectory and savings trend over time — impossible in tabular session reports; weekly view removes daily noise for leadership-level reading | MEDIUM | Daily grouping is native (`timestamp.slice(0,10)`); weekly toggle regroups daily data client-side into ISO week buckets (JS: `getFullYear() + '-W' + getWeek()`) |
-| Project comparison bar chart | Side-by-side cost, savings, and catch rate across all projects at a glance | MEDIUM | Horizontal bar chart; one bar per project sorted by savings %; Chart.js bar type |
-| Cache efficiency per project | Shows what fraction of Codex input tokens hit the cache (cost avoidance within Codex itself) | LOW | `cached_input / (input + cached_input) * 100` per project; shown as a column in the breakdown table |
-| Session history with per-session stats | Drill into individual sessions across all projects — what was done, what was caught, what it cost | MEDIUM | Group non-null `session_id` records; compute per-session cost, call count, catch rate; link to project |
-| Orphan call tracking | Records with `session_id === null` (hook calls outside a Claude session) — surfacing these explains cost attribution gaps | LOW | Bucket null-session records into a synthetic "orphan" group per project |
+| Feature | Value Proposition | Complexity | v2.0 Dependency | Notes |
+|---------|-------------------|------------|-----------------|-------|
+| Noise profile per review rule — system learns which MiniMax / Codex flags are recurring false positives for this codebase | Reduces alert fatigue without requiring the user to manually whitelist patterns. The system builds a per-project suppression model from dismiss history. | MEDIUM | Requires dismiss tracking (table stakes above) + per-project rule frequency analysis; no new infrastructure | Datadog's approach: confidence badges per vulnerability type; suppression rules trained from triage history. Equivalent: suppress a rule after N consecutive dismissals in the same project. |
+| Implicit outcome signal from git commits — if Claude's output was committed without further edits, that is a positive training signal | Eliminates the need for explicit thumbs-up feedback for the majority of sessions. Leverages existing git history as ground truth. | MEDIUM | Requires a PostSessionEnd hook that checks `git log --since="session_start"` for commits touching files Claude edited; append `"committed": true` to relevant session records | RouteLLM uses Chatbot Arena preference data as its training signal. Equivalent implicit signal in a coding context: the user accepted and committed the output. Under-explored in current literature. |
+| Per-project routing weights — high-security projects route more calls to the adversarial (MiniMax) reviewer, low-complexity projects reduce review depth | Cost and review depth are not uniform across projects. Self-optimization should adapt routing intensity to each project's observed risk profile, not apply global defaults. | MEDIUM | Project identity is already inferred from JSONL file path; routing config in `settings.json` could be keyed by project path prefix | Not-Diamond supports custom per-use-case router training. This applies the same principle at project-boundary granularity without retraining a model. |
+| Trend-based budget guardrail — system reduces model tier (e.g. swaps GPT-5.4 → GPT-5.4-mini) automatically when 7-day spend approaches the $15/day ceiling | Prevents end-of-month cost surprises. Existing budget constraint ($15/day) is a hard project requirement; adaptive downgrade makes it self-enforcing. | MEDIUM | 7-day rolling cost is computable from existing `token-log.jsonl`; needs a `budget-guardrail.js` module consumed by the routing decision layer | Martian's cost-quality trade-off slider is the commercial equivalent. Adaptive budget guardrails are the single-user CLI equivalent. |
+| Review quality score — numerical confidence score (0–1) stored per review verdict, used to weight training signal | Binary BLOCK/ALLOW is too coarse for meaningful learning. A confidence-weighted signal lets the system learn that a low-confidence ALLOW is worth tracking, not just confirmed BLOCKs. | HIGH | Requires prompting MiniMax/Codex to return a structured `{"verdict": "BLOCK", "confidence": 0.87, "summary": "..."}` JSON response instead of free text; backward-incompatible schema change | Confidence-Aware Routing paper (2025): F1 improved from 0.61 to 0.82 and FP rate dropped to 0.09 when confidence scores were used to route borderline cases to human review. |
+| Feedback loop dashboard panel — shows dismiss rate, false positive rate trend, routing efficiency over time | Makes the adaptive system's behaviour visible. Without this, the user cannot tell if the system is actually improving or drifting. | MEDIUM | Extends existing `dashboard.html`; needs dismiss + noise profile data from above features | Standard requirement for any production ML system: "you can't improve what you can't measure." |
 
 ### Anti-Features (Do Not Build)
 
 | Feature | Why It Seems Good | Why Problematic | What to Do Instead |
 |---------|-------------------|-----------------|-------------------|
-| Real-time auto-refresh | Dashboard feels "live" | JSONL files are append-only and written by hooks, not streamed. Polling them with `setInterval` adds complexity, risks reading a partially-written line, and provides zero value for a tool that regenerates on SessionStart. | Regenerate at SessionStart; show "Last updated" timestamp. User knows to re-open after a session. |
-| Server process (Express, Python HTTP) | Enables `fetch()` for live data reloads | Violates the "no server" project requirement. Every server is a process to manage, a port to expose, and a dependency to break. The `file://` constraint eliminates this class of complexity entirely. | Inline all data as a JS variable in the generated HTML file at build time. |
-| SQLite or any database | Enables complex queries over historical data | JSONL is already the canonical storage format (written by hooks, read by the reporter). Introducing a DB means a migration job, a sync job, and a second source of truth. At this data volume (hundreds of records per project), reading and aggregating JSONL at generation time is under 100 ms. | Aggregate JSONL at HTML generation time in Node.js. No DB needed. |
-| Editable charts / drill-down interactivity | Feels powerful and modern | High JS complexity for a read-only metrics view. Interactive filters add 3-5x the client-side code of static charts. Research confirms dashboards with too many interactive elements increase time-to-insight by 35%. | Static charts with Chart.js tooltips (built-in) are sufficient. Add date-range filter only in v2 if users request it. |
-| Web UI dashboard vs local HTML | Accessible from any device | Contradicts the project's terminal-first, local-only design. The existing `file://` constraint is a feature (no auth, no hosting, no maintenance). A web UI would require hosting, auth, and a running server. | Self-contained `~/.claude/dashboard/index.html` opened directly in browser. |
-| Alert / notification system | Notify on cost spikes | Disproportionate complexity for a single-user local tool. The SessionStart hook already injects a cost summary into Claude's context (the `additionalContext` mechanism). | SessionStart hook `additionalContext` is already the notification channel. |
-| Cross-machine aggregation | Show data from all machines the user works on | Requires network, auth, and a server. Explicitly out of scope per PROJECT.md. | Single-machine only; all JSONL files are local. |
-| Plotly.js as the chart library | More chart types, scientific charts | Bundle is 3-4x larger than Chart.js (~1 MB minified vs ~265 KB). Requires React internally. For line + bar + pie, Chart.js is sufficient and lighter. | Use Chart.js. Register only the chart types needed to minimize inline bundle size. |
+| Full online ML model retraining (fine-tuning a classifier on local JSONL data) | "Real" ML; matches academic RouteLLM architecture | Training a local classifier requires 100s–1000s of labeled examples to generalise. At single-user CLI scale, the data volume will not be reached for months. Premature ML adds sklearn/torch dependency, a training pipeline, and model versioning — all for a model that predicts from 40 examples. | Use rule-based suppression (N consecutive dismissals → suppress rule) and weighted moving averages for budget guardrails. These are analytically correct at this data volume. Graduate to ML training only when JSONL record count exceeds 500 labeled outcomes. |
+| Fully automatic routing without human override | Removes friction; feels like a smart assistant | At this project's scope (one user, CLI, creative/architectural work), fully automatic routing removes the user's ability to course-correct bad routing decisions quickly. The existing design principle — Opus always remains the orchestrator — is violated if routing becomes fully automatic. | Keep all routing advisory. Adaptive system proposes route changes; Opus (and the user) approve via config update. Auto-apply only for budget guardrails where the constraint is a hard cap, not a quality judgement. |
+| Embeddings-based semantic router (sentence-transformers, vector similarity) | Matches prompts to known task types semantically; more robust than regex | Requires a local embedding model (100 MB–1 GB), GPU or slow CPU inference, and a vector store. For the task-type taxonomy needed here (8–12 categories), a keyword-rule classifier with 10–20 patterns per category achieves 90%+ accuracy with zero infrastructure. | Keyword + regex task classifier per hook event type. Hook event type alone (PostToolUse vs Stop vs UserPromptSubmit) narrows the task space to 3–4 categories before any text analysis. |
+| Human-preference dataset collection (asking the user to rate every output) | More training signal; academic best practice | Annotation burden destroys the UX. Even Chatbot Arena (RouteLLM's training source) notes that labelling fatigue limits dataset size. For a CLI tool used by one person, any UI requiring explicit per-call rating will be ignored within days. | Implicit signals only: git commit presence (positive), dismiss command (negative), session abort without commit (weak negative). Zero annotation burden on the user. |
+| Cross-project global routing model | One model for all projects; simpler than per-project models | Different projects have radically different risk profiles (security-critical vs exploratory vs documentation). A global model trained on mixed data will regress toward the mean and underperform on outlier projects. | Per-project routing weights keyed by project path prefix. These are simple JSON config values, not trained models — cheap to inspect, override, and reset. |
+| A/B testing framework for routing strategies | Systematic measurement of routing alternatives | A/B testing requires splitting traffic across strategies, tracking outcomes per group, and running statistical significance tests. At single-user CLI scale, this produces no statistically significant results and adds substantial infrastructure. | Sequential comparison: observe baseline metrics for 2 weeks, apply a routing change, observe for another 2 weeks, compare manually. Adequate for a single-user system. |
+| Real-time adaptive routing (routing decision updates mid-session) | Most responsive to live session context | Session-level state is not persisted between hook invocations (hooks are stateless processes). Real-time adaptation within a session would require a background daemon with IPC, which contradicts the stateless hook architecture. | Session-to-session adaptation only: routing weights update between sessions based on previous session outcomes logged to JSONL. No mid-session changes. |
 
 ---
 
 ## Feature Dependencies
 
 ```
-[Global aggregator: scan all token-log.jsonl files]
-    required-by --> [Global cost summary card]
-    required-by --> [Per-project breakdown table]
-    required-by --> [Time trend chart]
-    required-by --> [Session history table]
-    required-by --> [Project comparison bar chart]
-    required-by --> [BLOCK issue log]
-    required-by --> [Cache efficiency metric]
+[Outcome recording — per-call verdict enrichment]
+    required-by --> [Noise profile per review rule]
+    required-by --> [Implicit signal from git commits]
+    required-by --> [Feedback loop dashboard panel]
+    required-by --> [Per-project routing weights]
 
-[Global aggregator]
-    feeds --> [Data inlined as JS variable in HTML]
-                  feeds --> [All chart rendering code]
+[Task-type classification enrichment]
+    required-by --> [Per-project routing weights]
+    required-by --> [Routing decision audit log]
 
-[Data inlined as JS variable]
-    required-by --> [Self-contained HTML (no server, no fetch())]
+[Dismiss tracking (false-positive path)]
+    required-by --> [Noise profile per review rule]
+    required-by --> [Feedback loop dashboard panel]
 
-[Self-contained HTML generation script (Node.js)]
-    required-by --> [All rendered features]
-    triggered-by --> [SessionStart hook integration]
+[Noise profile per review rule]
+    required-by --> [Feedback loop dashboard panel]
 
-[Time trend chart (daily)]
-    enhanced-by --> [Weekly toggle] (client-side JS regroups same data)
+[Latency_ms field in token-log.jsonl]
+    required-by --> [Routing metrics collection]
+    required-by --> [Routing decision audit log]
 
-[Session history table]
-    depends-on --> [session_id grouping logic in aggregator]
+[Trend-based budget guardrail]
+    depends-on --> [7-day rolling cost (computable from existing JSONL)]
+    feeds --> [Model tier downgrade (GPT-5.4 → GPT-5.4-mini)]
+
+[Review quality score (confidence 0–1)]
+    required-by --> [Noise profile (confidence-weighted suppression)]
+    conflicts-with --> [Current free-text block_summary schema — breaking change]
+
+[Opt-out / freeze mode]
+    enhances --> [All adaptive features] (safety escape hatch)
 ```
 
 ### Dependency Notes
 
-- **Global aggregator is the root:** Every visual feature depends on one Node.js function that
-  finds all `token-log.jsonl` files and merges them with inferred project names. This must be built
-  first and tested independently before any rendering code is written.
+- **Outcome recording is the root dependency:** Every adaptive feature requires labeled outcome
+  data. This must be the first feature built — it is a schema extension to `token-log.jsonl`, not
+  new infrastructure. Add `"accepted"`, `"dismissed"`, and `"committed"` nullable boolean fields.
 
-- **Project name requires path inference:** The JSONL schema stores no `project` field. The
-  aggregator derives it with:
-  `path.basename(path.dirname(path.dirname(logPath)))` where `logPath` ends in `.planning/token-log.jsonl`.
+- **Review quality score is a breaking schema change:** If confidence scores are added to hook
+  responses, the existing `block_summary` string field must be replaced or supplemented with a
+  structured JSON object. All downstream consumers (dashboard, session reporter) need updating.
+  Defer this feature until outcome recording and noise profiling are stable.
 
-- **Scan paths (both must be checked):**
-  - `~/projects/*/. planning/token-log.jsonl`
-  - `~/.claude/projects/*/.planning/token-log.jsonl`
-  Future projects may live in either location.
+- **Implicit git signal requires a new hook event or a PostSessionEnd script:** Claude Code does
+  not fire a native "session completed" hook that includes git state. A workaround is a
+  `SessionStart` hook that looks backward at the previous session's git activity (commits since
+  last session start timestamp). This is architecturally similar to the existing
+  `codex-cost-reporter.js` pattern.
 
-- **Self-contained HTML requires data inlining at generation time:** Because `file://` pages
-  cannot `fetch()` local files, the generator serializes all aggregated data as a JS variable before
-  writing the HTML file:
-  ```html
-  <script>const DASHBOARD_DATA = /* JSON.stringify(aggregated) */;</script>
-  ```
-  This means the HTML file is completely regenerated on each SessionStart, not incrementally updated.
-
-- **SessionStart hook is a second hook, not a modification of the existing one:**
-  `codex-cost-reporter.js` generates per-project Markdown reports. The new
-  `codex-dashboard-gen.js` generates the global HTML dashboard. They run independently.
-  Both are registered under the `SessionStart` hook event in `~/.claude/settings.json`.
-
-- **Null session_id records ("orphan" calls):** Records where `session_id === null` are hook
-  invocations that fired outside a Claude Code session context. They must be included in all cost
-  totals but grouped separately in the session history view (not mixed with named sessions).
+- **Per-project routing weights depend on task-type enrichment:** Without richer task labels, per-
+  project weights cannot distinguish "this project gets more security scanning" from "this project
+  makes more plan-review calls." Both look the same with the current 4-value taxonomy.
 
 ---
 
 ## MVP Definition
 
-### Launch With (v1.1 — this milestone)
+### Launch With (v3.0 — this milestone)
 
-Minimum viable dashboard that provides visible value beyond existing per-project Markdown reports.
+Minimum viable adaptive layer. Provides measurable learning without ML infrastructure.
 
-- [ ] `codex-dashboard-gen.js` — global aggregator + HTML generator
-- [ ] `~/.claude/dashboard/index.html` — self-contained HTML with inline CSS + Chart.js
-- [ ] Global summary section: total cost, Opus baseline, savings %, total calls, global catch rate
-- [ ] Per-project breakdown table: project, calls, actual cost, savings $, savings %, catch rate, cache efficiency %
-- [ ] Time trend line chart: daily total cost for last 30 days (stacked by project or multi-series)
-- [ ] Session history table: project, session date, calls, cost, catch rate (sorted by most recent)
-- [ ] BLOCK issue log: timestamp, project, task type, issue summary (most recent 20)
-- [ ] "Last updated" footer with ISO timestamp
-- [ ] SessionStart hook registration in `~/.claude/settings.json`
-- [ ] Silent fail: any error in generator exits 0 and never blocks session start
+- [ ] `token-log.jsonl` schema extension — add `latency_ms`, `accepted`, `dismissed`, `committed` nullable fields (backward-compatible: existing records read as null)
+- [ ] `/gsd:dismiss-last` command — appends `"dismissed": true` to most recent relevant JSONL record; writes human-readable reason to a `dismiss-log.jsonl` sidecar
+- [ ] Task-type taxonomy expansion — update hook scripts to classify calls into 8–12 categories (refactor, explain, security-scan, plan-review, doc-update, test-write, architecture, debug, other)
+- [ ] Noise profile module (`noise-profile.js`) — reads dismiss history, returns suppression list per project (suppress rule after 3 consecutive dismissals in same project within 30 days)
+- [ ] Routing decision log column in dashboard — shows model, task-type, rule that fired, confidence (static placeholder until review quality scores are added)
+- [ ] Opt-out freeze flag — `"adaptive": false` in `~/.claude/settings.json` reverts all hooks to v2.0 static behaviour
+- [ ] Budget guardrail module (`budget-guardrail.js`) — computes 7-day rolling spend, emits downgrade advisory when >80% of $15/day ceiling reached; Opus decides whether to honour it
 
-### Add After Validation (v1.x)
+### Add After Validation (v3.x)
 
-Add once core dashboard is running and the data model is confirmed stable across multiple sessions.
+Add once noise profile and budget guardrail are running and showing measurable changes.
 
-- [ ] Weekly trend toggle — client-side JS; regroups same daily data into ISO week buckets
-- [ ] Project comparison horizontal bar chart — cost and savings side-by-side per project
-- [ ] Model split chart (pie or bar) — GPT-5.4 vs GPT-5.4-mini token and cost share
-- [ ] Task-type breakdown column in per-project table
+- [ ] Implicit git commit signal — `SessionStart` hook looks back at previous session's git log, appends `"committed": true` to matching session records
+- [ ] Per-project routing weights — JSON config keyed by project path prefix; dashboard shows per-project weight diffs from global baseline
+- [ ] Feedback loop dashboard panel — dismiss rate, false positive rate trend, routing efficiency over time (cost per accepted output)
 
-### Future Consideration (v2+)
+### Future Consideration (v4+)
 
-Defer until the tool has been used for a full month and patterns are confirmed.
+Defer until outcome recording has accumulated 500+ labeled records.
 
-- [ ] Date range filter (client-side JS) — last 7 / 30 / 90 days selector
-- [ ] Task-type drill-down — click a project row to see task breakdown in a modal or expanded section
-- [ ] Export to CSV — download aggregated data for external analysis
+- [ ] Review quality confidence score — structured JSON verdict from MiniMax/Codex with `confidence` field; breaking schema change; requires all consumers updated first
+- [ ] ML-trained task classifier — only if keyword/regex classifier accuracy degrades below 85% on observed task distribution
+- [ ] Cost-quality Pareto frontier visualisation — plots each model/task-type combination by cost vs catch-rate; useful for tuning but requires rich labeled dataset first
 
 ---
 
@@ -203,65 +167,65 @@ Defer until the tool has been used for a full month and patterns are confirmed.
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|---------------------|----------|
-| Global aggregator script | HIGH | LOW | P1 |
-| Global cost summary card | HIGH | LOW | P1 |
-| Per-project breakdown table | HIGH | LOW | P1 |
-| BLOCK issue log | HIGH | LOW | P1 |
-| Time trend line chart (daily) | HIGH | MEDIUM | P1 |
-| Session history table | HIGH | MEDIUM | P1 |
-| Self-contained HTML generation | HIGH | MEDIUM | P1 |
-| SessionStart hook integration | HIGH | LOW | P1 |
-| Cache efficiency column | MEDIUM | LOW | P2 |
-| Weekly trend toggle | MEDIUM | LOW | P2 |
-| Project comparison bar chart | MEDIUM | MEDIUM | P2 |
-| Model split chart | MEDIUM | LOW | P2 |
-| Date range filter | MEDIUM | MEDIUM | P3 |
-| Task-type drill-down | LOW | HIGH | P3 |
-| Export to CSV | LOW | LOW | P3 |
+| Outcome recording schema extension | HIGH | LOW | P1 |
+| Dismiss command (`/gsd:dismiss-last`) | HIGH | LOW | P1 |
+| Task-type taxonomy expansion | HIGH | LOW | P1 |
+| Opt-out freeze flag | HIGH | LOW | P1 |
+| Budget guardrail module | HIGH | MEDIUM | P1 |
+| Noise profile module | HIGH | MEDIUM | P1 |
+| Routing decision log in dashboard | MEDIUM | LOW | P2 |
+| Implicit git commit signal | MEDIUM | MEDIUM | P2 |
+| Per-project routing weights | MEDIUM | MEDIUM | P2 |
+| Feedback loop dashboard panel | MEDIUM | MEDIUM | P2 |
+| Review quality confidence score | HIGH | HIGH | P3 |
+| ML-trained task classifier | LOW | HIGH | P3 |
+| Cost-quality Pareto frontier chart | LOW | HIGH | P3 |
 
 **Priority key:**
-- P1: Must have for v1.1 launch
-- P2: Should have, add in a follow-on patch
-- P3: Nice to have, defer to v2+
+- P1: Must have for v3.0 launch — these are the learning infrastructure
+- P2: Should have in a follow-on patch once P1 data is flowing
+- P3: Nice to have, defer to v4+ or until data volume justifies it
 
 ---
 
-## Competitor Comparison (for context)
+## Competitor / Prior Art Analysis
 
-This is a personal local tool — no direct commercial competitors. Closest analogues:
+| Capability | RouteLLM | Not-Diamond | Martian | LiteLLM Router | This System (v3.0) |
+|------------|----------|-------------|---------|-----------------|-------------------|
+| Routing signal | Chatbot Arena preference labels | User-uploaded eval dataset | Proprietary | Static rules + cost tiers | Implicit git commits + explicit dismiss |
+| False positive suppression | Not applicable (Q&A domain) | Not applicable | Not applicable | Not applicable | Per-project noise profile from dismiss history |
+| Budget guardrail | Cost threshold parameter | Cost-quality slider | Cost slider | Budget limits per model | 7-day rolling spend adaptive downgrade |
+| Human-in-loop | Not supported | Not supported | Not supported | Not supported | Dismiss command + opt-out freeze |
+| Task classification | MMLU/MT-Bench categories | User-defined | Proprietary | Regex rules | Hook event type + enriched 12-category taxonomy |
+| Per-project weights | No | Yes (custom router training) | No | No | Yes (JSON config, no model retraining) |
+| Explainability | Routing score logged | Not documented | Not documented | Rule name logged | Decision audit log in dashboard |
+| Single-user CLI fit | No (service) | No (service) | No (service) | No (proxy) | Yes (hook-native, stateless, no daemon) |
 
-| Feature | ccusage (CLI) | Claude-Code-Usage-Monitor (CLI) | This HTML Dashboard |
-|---------|--------------|----------------------------------|---------------------|
-| Multi-project aggregation | Yes (`--project` flag) | No | Yes (automatic scan) |
-| Time trend charts | No (tables only) | Real-time CLI bar | Yes (line chart) |
-| HTML / browser output | No | No | Yes (primary output) |
-| Codex (OpenAI) cost tracking | No (Claude only) | No | Yes (primary focus) |
-| Cross-model savings vs Opus baseline | No | No | Yes (core metric) |
-| Review catch-rate tracking | No | No | Yes |
-| BLOCK issue log | No | No | Yes |
-| Offline / no server | Yes | Yes | Yes |
-
-**Gap being filled:** ccusage covers Claude Code (Anthropic) usage but has no concept of Codex
-(OpenAI) costs, cross-model savings comparison, or review quality metrics. Neither tool produces
-HTML output. This dashboard is the only view that ties Codex routing decisions to cost outcomes
-and shows whether the v1.0 integration is delivering its claimed 86.7% savings consistently.
+**Gap being filled:** All existing routers are designed for multi-user services with large labeled
+datasets. None of them fit a single-user CLI context where: (a) explicit annotation is not viable,
+(b) no persistent service can run, (c) the "task" is code review not Q&A, and (d) false positive
+suppression is more valuable than raw routing accuracy improvement.
 
 ---
 
 ## Sources
 
-- ccusage feature set: https://ccusage.com/ and https://github.com/ryoppippi/ccusage (verified 2026-04-02)
-- Dashboard design: 12-KPI engagement threshold from https://improvado.io/blog/dashboard-design-guide (2026)
-- Dashboard overload: 35% increased time-to-insight from https://www.smashingmagazine.com/2025/09/ux-strategies-real-time-dashboards/
-- Time aggregation UX: https://writesonic.com/blog/introducing-aggregated-views
-- Chart type selection (line for trends, bar for comparison): https://www.datacamp.com/tutorial/dashboard-design-tutorial
-- Chart.js bundle size (~265 KB) and CDN: https://www.chartjs.org/docs/latest/getting-started/installation.html (verified 2026-04-02)
-- Chart.js vs Plotly.js: https://www.luzmo.com/blog/plotly-js (2025)
-- Existing token-log.jsonl schema: verified from live files — `/home/alucard/projects/Claude_X_Codex/.planning/token-log.jsonl` and `/home/alucard/projects/The-Crucible/.planning/token-log.jsonl`
-- Existing cost reporter logic: `/home/alucard/.claude/hooks/codex-cost-reporter.js` (canonical source for aggregation patterns)
-- Project requirements: `/home/alucard/projects/Claude_X_Codex/.planning/PROJECT.md`
+- RouteLLM framework and 85% cost reduction claims: [GitHub lm-sys/RouteLLM](https://github.com/lm-sys/RouteLLM) and [LMSYS Blog 2024-07-01](https://www.lmsys.org/blog/2024-07-01-routellm/)
+- RouteLLM learning from preference data: [arXiv 2406.18665](https://arxiv.org/pdf/2406.18665) — ICLR 2025 published version
+- Adaptive LLM routing under budget constraints: [arXiv 2508.21141](https://arxiv.org/abs/2508.21141)
+- LLM Routing with Dueling Feedback (bandit feedback approach): [arXiv 2510.00841](https://arxiv.org/html/2510.00841v1)
+- Confidence-Aware Routing (F1 0.61 → 0.82): [arXiv 2510.01237](https://arxiv.org/abs/2510.01237)
+- Generalised Routing / MoMA framework: [arXiv 2509.07571](https://arxiv.org/abs/2509.07571)
+- Not-Diamond meta-model routing: [notdiamond.ai](https://www.notdiamond.ai/) and [Hacker News discussion](https://news.ycombinator.com/item?id=41108787)
+- Martian cost-quality trade-off: [VentureBeat model routing article](https://venturebeat.com/ai/why-accenture-and-martian-see-model-routing-as-key-to-enterprise-ai-success)
+- Datadog false-positive filtering with LLMs + human feedback: [Datadog blog](https://www.datadoghq.com/blog/using-llms-to-filter-out-false-positives/)
+- vLLM Signal-Decision Architecture (signal/decision separation for interpretability): [vLLM Blog 2025-11-19](https://blog.vllm.ai/2025/11/19/signal-decision.html)
+- Sifting the Noise — LLM agents for SAST false positive filtering (92% FP → 6.3%): [arXiv 2601.22952](https://arxiv.org/abs/2601.22952)
+- Signal and Noise framework for LLM evaluation: [arXiv 2508.13144](https://arxiv.org/html/2508.13144v1)
+- IDC — The future of AI is model routing: [IDC Blog](https://www.idc.com/resource-center/blog/the-future-of-ai-is-model-routing/)
+- Existing v2.0 infrastructure: verified from live files at `/home/alucard/projects/Claude_X_Codex/.planning/`
 
 ---
 
-*Feature research for: Local HTML metrics dashboard — Claude X Codex v1.1 milestone*
-*Researched: 2026-04-02*
+*Feature research for: ML-driven self-optimization — Claude X Codex v3.0 Adaptive Intelligence milestone*
+*Researched: 2026-04-03*
