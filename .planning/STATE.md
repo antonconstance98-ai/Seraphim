@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Adaptive Intelligence
-status: Not started
-stopped_at: Phase 15 context gathered
-last_updated: "2026-04-04T01:41:45.255Z"
-last_activity: 2026-04-03 — Roadmap created for v3.0
+status: executing
+stopped_at: Completed 15-01-PLAN.md
+last_updated: "2026-04-04T02:45:39.327Z"
+last_activity: 2026-04-04
 progress:
   total_phases: 11
   completed_phases: 7
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 14
+  completed_plans: 13
 ---
 
 # Project State
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution, MiniMax for analysis — with cross-model review catching what any single model misses alone.
-**Current focus:** v3.0 Adaptive Intelligence — Phase 15: Decision Capture Infrastructure
+**Current focus:** Phase 15 — decision-capture-infrastructure
 
 ## Current Position
 
-Phase: 15 — Decision Capture Infrastructure
-Plan: —
-Status: Not started
-Last activity: 2026-04-03 — Roadmap created for v3.0
+Phase: 15 (decision-capture-infrastructure) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-04-04
 
 ```
 v3.0 Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 phases
@@ -75,6 +75,7 @@ v3.0 Progress: [░░░░░░░░░░░░░░░░░░░░] 0/
 | Phase 13-codex-execution-pipeline P01 | 4 | 2 tasks | 2 files |
 | Phase 14-three-model-reporting P01 | 2 | 2 tasks | 2 files |
 | Phase 14-three-model-reporting P02 | 2 | 2 tasks | 1 files |
+| Phase 15-decision-capture-infrastructure P01 | 6 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -144,6 +145,10 @@ Recent decisions affecting current work:
 - [Phase 14-three-model-reporting]: Fallback event definition is dual-condition: source=api-fallback AND model=minimax-m2.7
 - [v3.0 Roadmap]: Granularity=coarse applied: research's 5-phase structure compressed to 4 phases by merging config-writer (Phase 3) into auto-tuning+gate (Phase 17) — config writer only fires through the analyzer, so standalone phase adds no delivery boundary
 - [v3.0 Roadmap]: Phase 18 bundles XPRJ-* and OBSV-* — both require Phase 16 data and deliver user-visible output; splitting would create a phase with no verifiable user-facing outcome until the other completes
+- [Phase 15-decision-capture-infrastructure]: Append-only JSONL state files: writeHookSignal appends one line per call; readHookState merges all lines (last wins). Eliminates read-merge-write race entirely.
+- [Phase 15-decision-capture-infrastructure]: Per-model latency measured inside each Promise wrapper, not around Promise.all -- gives each token-log record its TRUE individual latency.
+- [Phase 15-decision-capture-infrastructure]: Review-gate writes BLOCK events directly to decision-log.jsonl -- ensures capture even when Stop chain halts after decision:block output.
+- [Phase 15-decision-capture-infrastructure]: hook-dev rule uses path.join(os.homedir(), '.claude', 'hooks') literal prefix -- matches only ~/.claude/hooks/, not src/hooks/. explain returned for null toolName (not 'review').
 
 ### Pending Todos
 
@@ -158,6 +163,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-04T01:41:45.252Z
-Stopped at: Phase 15 context gathered
-Resume file: .planning/phases/15-decision-capture-infrastructure/15-CONTEXT.md
+Last session: 2026-04-04T02:45:39.324Z
+Stopped at: Completed 15-01-PLAN.md
+Resume file: None
