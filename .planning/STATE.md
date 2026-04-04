@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Adaptive Intelligence
 status: verifying
-stopped_at: Completed 15-02-PLAN.md
-last_updated: "2026-04-04T02:49:52.451Z"
+stopped_at: Completed 15-03-PLAN.md
+last_updated: "2026-04-04T04:37:32.568Z"
 last_activity: 2026-04-04
 progress:
   total_phases: 11
   completed_phases: 8
-  total_plans: 14
-  completed_plans: 14
+  total_plans: 15
+  completed_plans: 15
 ---
 
 # Project State
@@ -77,6 +77,7 @@ v3.0 Progress: [░░░░░░░░░░░░░░░░░░░░] 0/
 | Phase 14-three-model-reporting P02 | 2 | 2 tasks | 1 files |
 | Phase 15-decision-capture-infrastructure P01 | 6 | 2 tasks | 6 files |
 | Phase 15-decision-capture-infrastructure P02 | 2 | 2 tasks | 3 files |
+| Phase 15-decision-capture-infrastructure P03 | 3 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -153,6 +154,8 @@ Recent decisions affecting current work:
 - [Phase 15]: /gsd:dismiss-last targets event_type===Stop guard in addition to review_verdict===BLOCK — prevents accidentally dismissing PostToolUse scan records
 - [Phase 15]: freeze/unfreeze write to project-scope .claude/settings.json via process.cwd() — never ~/.claude/settings.json which would globally freeze all projects
 - [Phase 15]: adaptive flag lives at root level of settings.json (sibling of codex and minimax) — hooks check settings.adaptive directly
+- [Phase 15]: outcome: null used as sentinel in token-log records at write time — outcome value determined later via user action (dismiss/commit)
+- [Phase 15]: review_model_latency_ms written as Math.max of per-model latencies in review-gate — decision-logger key mismatch resolved without touching decision-logger.js
 
 ### Pending Todos
 
@@ -167,6 +170,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-04T02:49:52.448Z
-Stopped at: Completed 15-02-PLAN.md
+Last session: 2026-04-04T04:37:32.565Z
+Stopped at: Completed 15-03-PLAN.md
 Resume file: None

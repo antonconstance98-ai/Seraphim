@@ -114,7 +114,7 @@ Plans:
 
 Plans:
 - [x] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
-- [ ] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
+- [x] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
 
 ### Phase 17: Auto-Tuning + Confidence Gate
 
@@ -129,7 +129,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
+- [x] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
 - [ ] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
 **UI hint**: yes
 
@@ -169,7 +169,7 @@ Plans:
 | 12. Context Compression | v2.0 | 2/2 | Complete | 2026-04-03 |
 | 13. Codex Execution Pipeline | v2.0 | 1/1 | Complete | 2026-04-03 |
 | 14. Three-Model Reporting | v2.0 | 2/2 | Complete | 2026-04-03 |
-| 15. Decision Capture Infrastructure | v3.0 | 2/2 | Complete   | 2026-04-04 |
+| 15. Decision Capture Infrastructure | v3.0 | 3/3 | Complete   | 2026-04-04 |
 | 16. Analysis Engine | v3.0 | 0/? | Not started | - |
 | 17. Auto-Tuning + Confidence Gate | v3.0 | 0/? | Not started | - |
 | 18. Cross-Project Intelligence + Observability | v3.0 | 0/? | Not started | - |
