@@ -169,7 +169,7 @@ Plans:
 | 12. Context Compression | v2.0 | 2/2 | Complete | 2026-04-03 |
 | 13. Codex Execution Pipeline | v2.0 | 1/1 | Complete | 2026-04-03 |
 | 14. Three-Model Reporting | v2.0 | 2/2 | Complete | 2026-04-03 |
-| 15. Decision Capture Infrastructure | v3.0 | 3/3 | Complete   | 2026-04-04 |
+| 15. Decision Capture Infrastructure | v3.0 | 3/3 | Complete    | 2026-04-04 |
 | 16. Analysis Engine | v3.0 | 0/? | Not started | - |
 | 17. Auto-Tuning + Confidence Gate | v3.0 | 0/? | Not started | - |
 | 18. Cross-Project Intelligence + Observability | v3.0 | 0/? | Not started | - |
