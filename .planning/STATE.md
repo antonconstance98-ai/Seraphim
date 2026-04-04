@@ -161,6 +161,12 @@ Recent decisions affecting current work:
 
 None yet.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260404-d1u | Global decision-log aggregation and dashboard panel | 2026-04-04 | 8dd12a8 | [260404-d1u-global-decision-log-aggregation-and-dash](./quick/260404-d1u-global-decision-log-aggregation-and-dash/) |
+
 ### Blockers/Concerns
 
 - [Phase 16]: Window size, anomaly weighting, and confidence calibration depend on actual data distributions that only emerge from Phase 15. Plan Phase 16 after 2+ weeks of Phase 15 data is available.
