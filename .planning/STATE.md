@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Adaptive Intelligence
-status: executing
-stopped_at: Completed 15-01-PLAN.md
-last_updated: "2026-04-04T02:45:39.327Z"
+status: verifying
+stopped_at: Completed 15-02-PLAN.md
+last_updated: "2026-04-04T02:49:52.451Z"
 last_activity: 2026-04-04
 progress:
   total_phases: 11
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 14
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 
 Phase: 15 (decision-capture-infrastructure) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-04
 
 ```
@@ -76,6 +76,7 @@ v3.0 Progress: [░░░░░░░░░░░░░░░░░░░░] 0/
 | Phase 14-three-model-reporting P01 | 2 | 2 tasks | 2 files |
 | Phase 14-three-model-reporting P02 | 2 | 2 tasks | 1 files |
 | Phase 15-decision-capture-infrastructure P01 | 6 | 2 tasks | 6 files |
+| Phase 15-decision-capture-infrastructure P02 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -149,6 +150,9 @@ Recent decisions affecting current work:
 - [Phase 15-decision-capture-infrastructure]: Per-model latency measured inside each Promise wrapper, not around Promise.all -- gives each token-log record its TRUE individual latency.
 - [Phase 15-decision-capture-infrastructure]: Review-gate writes BLOCK events directly to decision-log.jsonl -- ensures capture even when Stop chain halts after decision:block output.
 - [Phase 15-decision-capture-infrastructure]: hook-dev rule uses path.join(os.homedir(), '.claude', 'hooks') literal prefix -- matches only ~/.claude/hooks/, not src/hooks/. explain returned for null toolName (not 'review').
+- [Phase 15]: /gsd:dismiss-last targets event_type===Stop guard in addition to review_verdict===BLOCK — prevents accidentally dismissing PostToolUse scan records
+- [Phase 15]: freeze/unfreeze write to project-scope .claude/settings.json via process.cwd() — never ~/.claude/settings.json which would globally freeze all projects
+- [Phase 15]: adaptive flag lives at root level of settings.json (sibling of codex and minimax) — hooks check settings.adaptive directly
 
 ### Pending Todos
 
@@ -163,6 +167,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-04T02:45:39.324Z
-Stopped at: Completed 15-01-PLAN.md
+Last session: 2026-04-04T02:49:52.448Z
+Stopped at: Completed 15-02-PLAN.md
 Resume file: None

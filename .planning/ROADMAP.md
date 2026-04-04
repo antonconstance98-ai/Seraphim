@@ -43,7 +43,7 @@
 
 ### v3.0 Adaptive Intelligence (Phases 15-18)
 
-- [ ] **Phase 15: Decision Capture Infrastructure** — Structured logging of every routing decision; task-type taxonomy; dismiss command; freeze flag
+- [x] **Phase 15: Decision Capture Infrastructure** — Structured logging of every routing decision; task-type taxonomy; dismiss command; freeze flag (completed 2026-04-04)
 - [ ] **Phase 16: Analysis Engine** — Read-only statistical analysis; noise profiles; per-project weights; SessionStart analyzer
 - [ ] **Phase 17: Auto-Tuning + Confidence Gate** — Atomic config writer; safety bounds; confidence gate; routing audit log
 - [ ] **Phase 18: Cross-Project Intelligence + Observability** — Global hypothesis engine; experiment design; adaptive dashboard panels
@@ -98,7 +98,7 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
 
 Plans:
 - [x] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
-- [ ] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
+- [x] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
 
 ### Phase 16: Analysis Engine
 
@@ -113,7 +113,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
+- [x] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
 - [ ] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
 
 ### Phase 17: Auto-Tuning + Confidence Gate
@@ -169,7 +169,7 @@ Plans:
 | 12. Context Compression | v2.0 | 2/2 | Complete | 2026-04-03 |
 | 13. Codex Execution Pipeline | v2.0 | 1/1 | Complete | 2026-04-03 |
 | 14. Three-Model Reporting | v2.0 | 2/2 | Complete | 2026-04-03 |
-| 15. Decision Capture Infrastructure | v3.0 | 1/2 | In Progress|  |
+| 15. Decision Capture Infrastructure | v3.0 | 2/2 | Complete   | 2026-04-04 |
 | 16. Analysis Engine | v3.0 | 0/? | Not started | - |
 | 17. Auto-Tuning + Confidence Gate | v3.0 | 0/? | Not started | - |
 | 18. Cross-Project Intelligence + Observability | v3.0 | 0/? | Not started | - |

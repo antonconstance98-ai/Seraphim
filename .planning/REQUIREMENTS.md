@@ -5,8 +5,8 @@
 - [x] **DCAP-01**: Every model call logs outcome (accepted/dismissed/committed) alongside existing token data
 - [x] **DCAP-02**: Every model call logs latency_ms for performance trend analysis
 - [x] **DCAP-03**: Task-type taxonomy expanded from 4 to 12 categories for routing accuracy
-- [ ] **DCAP-04**: User can dismiss a false-positive review flag via /gsd:dismiss-last, creating explicit negative training signal
-- [ ] **DCAP-05**: User can freeze adaptive behavior via adaptive:false flag, reverting to static rules instantly
+- [x] **DCAP-04**: User can dismiss a false-positive review flag via /gsd:dismiss-last, creating explicit negative training signal
+- [x] **DCAP-05**: User can freeze adaptive behavior via adaptive:false flag, reverting to static rules instantly
 
 ## Analysis Engine (ANLZ)
 
