@@ -94,7 +94,11 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
   2. User can run `/gsd:dismiss-last` after a false-positive review block and a negative training signal record appears in decision-log.jsonl
   3. Task types are categorized into 12 distinct categories (not 4) — verifiable by checking the task_type field across a session's log entries
   4. Setting `"adaptive": false` in settings.json causes the system to skip all adaptive behavior and operate on static rules — verifiable by adding the flag and running a session
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
+- [ ] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
 
 ### Phase 16: Analysis Engine
 
@@ -106,7 +110,11 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
   2. A review rule that has been dismissed 3 times in 30 days for a project is suppressed in that project's noise profile — verifiable by triggering the condition and checking that subsequent sessions skip the rule
   3. When a git commit follows a session without edits to Claude's output, the matching decision-log.jsonl record has `committed: true` — verifiable by checking the log after a clean commit
   4. Per-project routing weights (keyed by project path prefix) are read by the analyzer and reflected in its recommendations — verifiable by setting a project weight and observing a recommendation change
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
+- [ ] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
 
 ### Phase 17: Auto-Tuning + Confidence Gate
 
@@ -118,7 +126,11 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
   2. A parameter value the analyzer recommends setting outside its hard bounds (e.g., scan threshold below 1 or above 100) is clamped at the boundary, never written as an out-of-range value
   3. With fewer than 30 events per parameter or confidence below 0.8, the system logs the recommendation as advisory only and makes no config change — verifiable by inspecting adjustment-log.jsonl
   4. The routing audit log records the reason each call was routed to a specific model — verifiable by opening the log and reading why a recent decision was made
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
+- [ ] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
 **UI hint**: yes
 
 ### Phase 18: Cross-Project Intelligence + Observability
@@ -132,7 +144,11 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
   3. A proposed experiment to test a hypothesis is presented to the user for approval before any code or config is changed — verifiable by running the experiment proposal flow and confirming no changes occur without approval
   4. The dashboard shows a panel with dismiss rate, false-positive trend, and routing efficiency over time — verifiable by opening dashboard.html and seeing the panel with real data
   5. The dashboard shows active hypotheses, experiment status, and cross-project insights — verifiable by opening dashboard.html and seeing the panel populated
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
+- [ ] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
 **UI hint**: yes
 
 ## Progress
@@ -153,7 +169,7 @@ Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex
 | 12. Context Compression | v2.0 | 2/2 | Complete | 2026-04-03 |
 | 13. Codex Execution Pipeline | v2.0 | 1/1 | Complete | 2026-04-03 |
 | 14. Three-Model Reporting | v2.0 | 2/2 | Complete | 2026-04-03 |
-| 15. Decision Capture Infrastructure | v3.0 | 0/? | Not started | - |
+| 15. Decision Capture Infrastructure | v3.0 | 0/2 | Planned | - |
 | 16. Analysis Engine | v3.0 | 0/? | Not started | - |
 | 17. Auto-Tuning + Confidence Gate | v3.0 | 0/? | Not started | - |
 | 18. Cross-Project Intelligence + Observability | v3.0 | 0/? | Not started | - |
