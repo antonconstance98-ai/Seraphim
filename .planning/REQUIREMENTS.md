@@ -26,8 +26,8 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 - [ ] **EXEC-05**: `perplexity-exec.js` integrates Perplexity Sonar via OpenAI SDK baseURL swap (`https://api.perplexity.ai`), extracts citations from `response.citations`
 - [ ] **EXEC-06**: Every executor implements `execute(prompt, opts)`, `stream(prompt, opts)`, and `available()` returning consistent `{success, output, tokens, cost, error}` shape
 - [ ] **EXEC-07**: `qwen-exec.js` `available()` sends a minimal inference probe (not just `/api/tags` check) and returns false gracefully when GPU/ollama is absent
-- [ ] **EXEC-08**: `websearch.sh` wraps SearXNG at localhost:8888 for non-Claude models (Codex, Qwen, Gemini)
-- [ ] **EXEC-09**: `fetchdocs.js` calls Context7 HTTP endpoint directly for non-Claude models
+- [x] **EXEC-08**: `websearch.sh` wraps SearXNG at localhost:8888 for non-Claude models (Codex, Qwen, Gemini)
+- [x] **EXEC-09**: `fetchdocs.js` calls Context7 HTTP endpoint directly for non-Claude models
 
 ### Six Phase Pipeline
 
@@ -152,8 +152,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXEC-05 | Phase 2 | Pending |
 | EXEC-06 | Phase 2 | Pending |
 | EXEC-07 | Phase 2 | Pending |
-| EXEC-08 | Phase 2 | Pending |
-| EXEC-09 | Phase 2 | Pending |
+| EXEC-08 | Phase 2 | Complete |
+| EXEC-09 | Phase 2 | Complete |
 | COST-01 | Phase 2 | Pending |
 | COST-02 | Phase 2 | Pending |
 | COST-06 | Phase 2 | Pending |

@@ -58,7 +58,7 @@ Plans:
 - [ ] 02-02-PLAN.md — Fork codex-exec.js and minimax-exec.js to unified interface
 - [ ] 02-03-PLAN.md — Gemini executor with search grounding and thinking mode
 - [ ] 02-04-PLAN.md — Qwen local executor and Perplexity dual-path executor
-- [ ] 02-05-PLAN.md — Helper scripts: websearch.sh and fetchdocs.js
+- [x] 02-05-PLAN.md — Helper scripts: websearch.sh and fetchdocs.js
 
 ### Phase 3: Six Phase Pipeline and Profile Management
 **Goal**: A full six-phase pipeline run completes end-to-end on Performance profile; all profile switching and override commands work correctly
