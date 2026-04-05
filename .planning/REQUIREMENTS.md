@@ -9,13 +9,13 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 
 ### Plugin Infrastructure
 
-- [ ] **PLUG-01**: Plugin loads in Claude Code with `/seraphim:` namespace via plugin manifest
+- [x] **PLUG-01**: Plugin loads in Claude Code with `/seraphim:` namespace via plugin manifest
 - [ ] **PLUG-02**: `dispatch.js` routes any phase to the correct model executor based on profile, overrides, and opus_enabled flag
-- [ ] **PLUG-03**: `profiles.json` defines all five profiles (Performance, Balanced, Moderate, Budget, Frugal) with ten sub-phase slots each
+- [x] **PLUG-03**: `profiles.json` defines all five profiles (Performance, Balanced, Moderate, Budget, Frugal) with ten sub-phase slots each
 - [ ] **PLUG-04**: Per-project config at `.seraphim/config.json` stores profile, opus_enabled, overrides, and max_loops
 - [ ] **PLUG-05**: `config.js` reads/writes `.seraphim/config.json` with validation and defaults
 - [ ] **PLUG-06**: `phase-state.js` persists loop counters, retry counts, and phase completion to `.seraphim/phases/{N}/state.json` (survives session restarts)
-- [ ] **PLUG-07**: `models.json` defines all nine models with mechanism, pricing tier, and capability flags
+- [x] **PLUG-07**: `models.json` defines all nine models with mechanism, pricing tier, and capability flags
 
 ### Model Executors
 
@@ -50,8 +50,8 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 - [ ] **PROF-03**: `/seraphim:override [phase] [model]` sets a per-phase model override without changing the full profile
 - [ ] **PROF-04**: `opus_enabled: false` shifts all Opus-assigned phases to profile-specific fallback models
 - [ ] **PROF-05**: Balanced and Budget profiles fail gracefully with clear error when Qwen/ollama is unavailable
-- [ ] **PROF-06**: Users can create named custom profiles with fully custom model wiring, stored per-project in `.seraphim/profiles/`
-- [ ] **PROF-07**: A "naked" empty profile template is available where every model slot is unassigned and the user fills in each one
+- [x] **PROF-06**: Users can create named custom profiles with fully custom model wiring, stored per-project in `.seraphim/profiles/`
+- [x] **PROF-07**: A "naked" empty profile template is available where every model slot is unassigned and the user fills in each one
 - [ ] **PROF-08**: `/seraphim:set-profile` lists both built-in (5 presets) and user-created named profiles for selection
 
 ### Quality Gates
@@ -138,13 +138,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PLUG-01 | Phase 1 | Pending |
+| PLUG-01 | Phase 1 | Complete |
 | PLUG-02 | Phase 1 | Pending |
-| PLUG-03 | Phase 1 | Pending |
+| PLUG-03 | Phase 1 | Complete |
 | PLUG-04 | Phase 1 | Pending |
 | PLUG-05 | Phase 1 | Pending |
 | PLUG-06 | Phase 1 | Pending |
-| PLUG-07 | Phase 1 | Pending |
+| PLUG-07 | Phase 1 | Complete |
 | EXEC-01 | Phase 2 | Pending |
 | EXEC-02 | Phase 2 | Pending |
 | EXEC-03 | Phase 2 | Pending |
@@ -173,8 +173,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROF-03 | Phase 3 | Pending |
 | PROF-04 | Phase 3 | Pending |
 | PROF-05 | Phase 3 | Pending |
-| PROF-06 | Phase 1 | Pending |
-| PROF-07 | Phase 1 | Pending |
+| PROF-06 | Phase 1 | Complete |
+| PROF-07 | Phase 1 | Complete |
 | PROF-08 | Phase 3 | Pending |
 | QUAL-01 | Phase 4 | Pending |
 | QUAL-02 | Phase 4 | Pending |

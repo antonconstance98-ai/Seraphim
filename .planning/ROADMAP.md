@@ -38,7 +38,7 @@
   5. `models.json` contains all nine models with mechanism, pricing tier, and capability flags — verifiable by reading the file and confirming all nine entries
 **Plans:** 3 plans
 Plans:
-- [ ] 01-01-PLAN.md — Plugin directory scaffold, manifest, models.json, profiles.json
+- [x] 01-01-PLAN.md — Plugin directory scaffold, manifest, models.json, profiles.json
 - [ ] 01-02-PLAN.md — Core modules: config.js, dispatch.js, phase-state.js
 - [ ] 01-03-PLAN.md — new-project command, session-start hook, plugin validation
 
@@ -123,7 +123,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Plugin Scaffold and Infrastructure | v3.0 | 0/3 | Planning complete | - |
+| 1. Plugin Scaffold and Infrastructure | v3.0 | 1/3 | In Progress|  |
 | 2. Model Executors and Pricing | v3.0 | 0/? | Not started | - |
 | 3. Six Phase Pipeline and Profile Management | v3.0 | 0/? | Not started | - |
 | 4. Quality Gates and Decision Logging | v3.0 | 0/? | Not started | - |
