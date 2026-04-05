@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
 status: executing
-stopped_at: Completed 02-model-executors-and-pricing/02-05-PLAN.md
-last_updated: "2026-04-05T03:28:08.285Z"
+stopped_at: Completed 02-model-executors-and-pricing/02-01-PLAN.md
+last_updated: "2026-04-05T03:28:56.832Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 8
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 02 (model-executors-and-pricing) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-04-05
 
@@ -70,6 +70,8 @@ Key decisions relevant to Phase 1:
 - [Phase 01]: session-start.js uses setTimeout.unref() so the 10s guard timer does not block normal process exit
 - [Phase 01]: new-project.md references ${CLAUDE_PLUGIN_ROOT}/config/profiles.json and models.json for runtime profile data
 - [Phase 02-model-executors-and-pricing]: fetchdocs.js uses claude CLI subprocess as MCP bridge — no confirmed public Context7 REST API; websearch.sh fallback ensures Codex/Qwen retain research capability
+- [Phase 02-model-executors-and-pricing]: cache_read tokens are a positive charge at reduced rate (not a credit) — mishandling causes negative cost delta (COST-01)
+- [Phase 02-model-executors-and-pricing]: token-logger.js writes to .seraphim/token-log.jsonl (not .planning/) per Seraphim per-project state convention
 
 ### Pending Todos
 
@@ -85,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-05T03:28:08.282Z
-Stopped at: Completed 02-model-executors-and-pricing/02-05-PLAN.md
+Last session: 2026-04-05T03:28:56.829Z
+Stopped at: Completed 02-model-executors-and-pricing/02-01-PLAN.md
 Resume file: None

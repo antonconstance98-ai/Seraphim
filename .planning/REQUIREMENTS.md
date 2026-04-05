@@ -73,12 +73,12 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 
 ### Token Logging & Cost Tracking
 
-- [ ] **COST-01**: `lib/pricing.js` exposes per-provider cost functions for all nine models — no shared formula (prevents negative/zero costs from incompatible token schemas)
-- [ ] **COST-02**: `hooks/token-logger.js` handles four incompatible token count schemas: Anthropic (`input_tokens`/`output_tokens`/`cache_read_input_tokens`), Gemini (`promptTokenCount`/`candidatesTokenCount`), MiniMax/OpenAI (`prompt_tokens`/`completion_tokens`), ollama (`prompt_eval_count`/`eval_count`)
+- [x] **COST-01**: `lib/pricing.js` exposes per-provider cost functions for all nine models — no shared formula (prevents negative/zero costs from incompatible token schemas)
+- [x] **COST-02**: `hooks/token-logger.js` handles four incompatible token count schemas: Anthropic (`input_tokens`/`output_tokens`/`cache_read_input_tokens`), Gemini (`promptTokenCount`/`candidatesTokenCount`), MiniMax/OpenAI (`prompt_tokens`/`completion_tokens`), ollama (`prompt_eval_count`/`eval_count`)
 - [ ] **COST-03**: `decisions.jsonl` logs every phase execution with: phase, model, profile, tokens_in, tokens_out, cost_usd, latency_ms, outcome, retry_count, loop_count
 - [ ] **COST-04**: Quality signals captured in decisions.jsonl: crucible_pass_rate, judge_kill_rate, checkpoint_catch_rate, loop_trigger_reason
 - [ ] **COST-05**: Data integrity validator checks decisions.jsonl for schema violations, missing fields, and anomalous values (negative costs, impossible token counts) on session start
-- [ ] **COST-06**: `raw_usage` field preserved in token-logger records for debugging per-provider field mapping issues
+- [x] **COST-06**: `raw_usage` field preserved in token-logger records for debugging per-provider field mapping issues
 
 ### Adaptive Intelligence
 
@@ -154,9 +154,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXEC-07 | Phase 2 | Pending |
 | EXEC-08 | Phase 2 | Complete |
 | EXEC-09 | Phase 2 | Complete |
-| COST-01 | Phase 2 | Pending |
-| COST-02 | Phase 2 | Pending |
-| COST-06 | Phase 2 | Pending |
+| COST-01 | Phase 2 | Complete |
+| COST-02 | Phase 2 | Complete |
+| COST-06 | Phase 2 | Complete |
 | PIPE-01 | Phase 3 | Pending |
 | PIPE-02 | Phase 3 | Pending |
 | PIPE-03 | Phase 3 | Pending |

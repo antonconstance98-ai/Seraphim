@@ -54,7 +54,7 @@ Plans:
   5. `websearch.sh` queries SearXNG at localhost:8888 and returns results; `fetchdocs.js` calls the Context7 endpoint and returns documentation
 **Plans:** 5 plans
 Plans:
-- [ ] 02-01-PLAN.md — Per-provider pricing module and token logger with four-schema normalization
+- [x] 02-01-PLAN.md — Per-provider pricing module and token logger with four-schema normalization
 - [ ] 02-02-PLAN.md — Fork codex-exec.js and minimax-exec.js to unified interface
 - [ ] 02-03-PLAN.md — Gemini executor with search grounding and thinking mode
 - [ ] 02-04-PLAN.md — Qwen local executor and Perplexity dual-path executor
