@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
-status: executing
-stopped_at: Completed 01-plugin-scaffold-and-infrastructure/01-02-PLAN.md
-last_updated: "2026-04-05T02:40:29.969Z"
+status: verifying
+stopped_at: Completed 01-plugin-scaffold-and-infrastructure/01-03-PLAN.md
+last_updated: "2026-04-05T02:44:56.839Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 7
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 Phase: 01 (plugin-scaffold-and-infrastructure) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-05
 
 Progress: [░░░░░░░░░░] 0%
@@ -66,6 +66,9 @@ Key decisions relevant to Phase 1:
 - [Phase 01]: dispatch.js resolution order locked: override > opus_enabled > profile preset
 - [Phase 01]: All dispatch error cases return {error: string} objects — callers check typeof result === 'string'
 - [Phase 01]: phase-state.js writes synchronously on every mutation for crash safety over performance
+- [Phase 01]: hooks.json auto-discovery prevents double-registration silent failure — never declare hooks in plugin.json
+- [Phase 01]: session-start.js uses setTimeout.unref() so the 10s guard timer does not block normal process exit
+- [Phase 01]: new-project.md references ${CLAUDE_PLUGIN_ROOT}/config/profiles.json and models.json for runtime profile data
 
 ### Pending Todos
 
@@ -81,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-05T02:40:29.966Z
-Stopped at: Completed 01-plugin-scaffold-and-infrastructure/01-02-PLAN.md
+Last session: 2026-04-05T02:44:56.836Z
+Stopped at: Completed 01-plugin-scaffold-and-infrastructure/01-03-PLAN.md
 Resume file: None

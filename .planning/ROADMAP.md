@@ -40,7 +40,7 @@
 Plans:
 - [x] 01-01-PLAN.md — Plugin directory scaffold, manifest, models.json, profiles.json
 - [x] 01-02-PLAN.md — Core modules: config.js, dispatch.js, phase-state.js
-- [ ] 01-03-PLAN.md — new-project command, session-start hook, plugin validation
+- [x] 01-03-PLAN.md — new-project command, session-start hook, plugin validation
 
 ### Phase 2: Model Executors and Pricing
 **Goal**: All nine models are callable through a uniform interface; token costs are validated against the pricing table per provider with no shared formula
@@ -123,7 +123,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Plugin Scaffold and Infrastructure | v3.0 | 1/3 | In Progress|  |
+| 1. Plugin Scaffold and Infrastructure | v3.0 | 3/3 | Complete   | 2026-04-05 |
 | 2. Model Executors and Pricing | v3.0 | 0/? | Not started | - |
 | 3. Six Phase Pipeline and Profile Management | v3.0 | 0/? | Not started | - |
 | 4. Quality Gates and Decision Logging | v3.0 | 0/? | Not started | - |
