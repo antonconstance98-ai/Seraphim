@@ -21,10 +21,10 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 
 - [ ] **EXEC-01**: `codex-exec.js` forked from v2.0, adapted to unified interface (`execute`, `stream`, `available`), fallback chain removed (dispatch owns it)
 - [ ] **EXEC-02**: `minimax-exec.js` forked from v2.0, adapted to unified interface, `runWithFallback` removed, temperature 0.01 preserved
-- [ ] **EXEC-03**: `gemini-exec.js` integrates Gemini 3.1 Pro and Gemini 3 Flash via `@google/genai` SDK with search grounding, thinking mode, and 429 exponential backoff
+- [x] **EXEC-03**: `gemini-exec.js` integrates Gemini 3.1 Pro and Gemini 3 Flash via `@google/genai` SDK with search grounding, thinking mode, and 429 exponential backoff
 - [ ] **EXEC-04**: `qwen-exec.js` runs Qwen locally via ollama HTTP at localhost:11434 with 180s timeout, warm-up probe, `num_ctx: 32768`, and JSON structured output for Forge mode
 - [ ] **EXEC-05**: `perplexity-exec.js` integrates Perplexity Sonar via OpenAI SDK baseURL swap (`https://api.perplexity.ai`), extracts citations from `response.citations`
-- [ ] **EXEC-06**: Every executor implements `execute(prompt, opts)`, `stream(prompt, opts)`, and `available()` returning consistent `{success, output, tokens, cost, error}` shape
+- [x] **EXEC-06**: Every executor implements `execute(prompt, opts)`, `stream(prompt, opts)`, and `available()` returning consistent `{success, output, tokens, cost, error}` shape
 - [ ] **EXEC-07**: `qwen-exec.js` `available()` sends a minimal inference probe (not just `/api/tags` check) and returns false gracefully when GPU/ollama is absent
 - [x] **EXEC-08**: `websearch.sh` wraps SearXNG at localhost:8888 for non-Claude models (Codex, Qwen, Gemini)
 - [x] **EXEC-09**: `fetchdocs.js` calls Context7 HTTP endpoint directly for non-Claude models
@@ -147,10 +147,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PLUG-07 | Phase 1 | Complete |
 | EXEC-01 | Phase 2 | Pending |
 | EXEC-02 | Phase 2 | Pending |
-| EXEC-03 | Phase 2 | Pending |
+| EXEC-03 | Phase 2 | Complete |
 | EXEC-04 | Phase 2 | Pending |
 | EXEC-05 | Phase 2 | Pending |
-| EXEC-06 | Phase 2 | Pending |
+| EXEC-06 | Phase 2 | Complete |
 | EXEC-07 | Phase 2 | Pending |
 | EXEC-08 | Phase 2 | Complete |
 | EXEC-09 | Phase 2 | Complete |

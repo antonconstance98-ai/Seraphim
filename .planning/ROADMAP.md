@@ -55,9 +55,9 @@ Plans:
 **Plans:** 5 plans
 Plans:
 - [x] 02-01-PLAN.md — Per-provider pricing module and token logger with four-schema normalization
-- [ ] 02-02-PLAN.md — Fork codex-exec.js and minimax-exec.js to unified interface
-- [ ] 02-03-PLAN.md — Gemini executor with search grounding and thinking mode
-- [ ] 02-04-PLAN.md — Qwen local executor and Perplexity dual-path executor
+- [x] 02-02-PLAN.md — Fork codex-exec.js and minimax-exec.js to unified interface
+- [x] 02-03-PLAN.md — Gemini executor with search grounding and thinking mode
+- [x] 02-04-PLAN.md — Qwen local executor and Perplexity dual-path executor
 - [x] 02-05-PLAN.md — Helper scripts: websearch.sh and fetchdocs.js
 
 ### Phase 3: Six Phase Pipeline and Profile Management
@@ -129,7 +129,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Plugin Scaffold and Infrastructure | v3.0 | 3/3 | Complete   | 2026-04-05 |
-| 2. Model Executors and Pricing | v3.0 | 0/5 | Not started | - |
+| 2. Model Executors and Pricing | v3.0 | 5/5 | Complete   | 2026-04-05 |
 | 3. Six Phase Pipeline and Profile Management | v3.0 | 0/? | Not started | - |
 | 4. Quality Gates and Decision Logging | v3.0 | 0/? | Not started | - |
 | 5. Session Commands and Hook Consolidation | v3.0 | 0/? | Not started | - |
