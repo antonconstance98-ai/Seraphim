@@ -92,6 +92,16 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 - [ ] **HOOK-02**: Plugin hooks (`session-start.js`, `token-logger.js`) registered in same settings.json edit that removes old hooks — never both active simultaneously
 - [ ] **HOOK-03**: Archive copies of retired hooks preserved for rollback
 
+### Multi-Project Dashboard
+
+- [ ] **DASH-01**: Multi-project scanner discovers all `.seraphim/` directories across `~/projects/` and other configured paths
+- [ ] **DASH-02**: Progress extractor parses phase-state.json, blueprint.md, and forge-log.md to surface per-project completion status (phases done, tasks remaining, current phase)
+- [ ] **DASH-03**: Workflow data aggregator merges token-log.jsonl and decisions.jsonl across all projects into unified metrics
+- [ ] **DASH-04**: Localhost web dashboard at `127.0.0.1:PORT` serves a self-contained HTML interface (Node.js HTTP server, no frameworks)
+- [ ] **DASH-05**: Dashboard shows multi-project overview — each project's name, profile, current phase, progress bar, total cost, last activity
+- [ ] **DASH-06**: Per-project drill-down shows phase roadmap, completed vs remaining tasks, model assignments, and pipeline run history
+- [ ] **DASH-07**: Workflow metrics panel shows cross-project model performance, cost trends, and savings vs Opus-only baseline (extends existing Chart.js dashboard patterns)
+
 ## Future Requirements
 
 Deferred to v4+. Tracked but not in current roadmap.
@@ -125,13 +135,77 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated by roadmapper) | | |
+| PLUG-01 | Phase 1 | Pending |
+| PLUG-02 | Phase 1 | Pending |
+| PLUG-03 | Phase 1 | Pending |
+| PLUG-04 | Phase 1 | Pending |
+| PLUG-05 | Phase 1 | Pending |
+| PLUG-06 | Phase 1 | Pending |
+| PLUG-07 | Phase 1 | Pending |
+| EXEC-01 | Phase 2 | Pending |
+| EXEC-02 | Phase 2 | Pending |
+| EXEC-03 | Phase 2 | Pending |
+| EXEC-04 | Phase 2 | Pending |
+| EXEC-05 | Phase 2 | Pending |
+| EXEC-06 | Phase 2 | Pending |
+| EXEC-07 | Phase 2 | Pending |
+| EXEC-08 | Phase 2 | Pending |
+| EXEC-09 | Phase 2 | Pending |
+| COST-01 | Phase 2 | Pending |
+| COST-02 | Phase 2 | Pending |
+| COST-06 | Phase 2 | Pending |
+| PIPE-01 | Phase 3 | Pending |
+| PIPE-02 | Phase 3 | Pending |
+| PIPE-03 | Phase 3 | Pending |
+| PIPE-04 | Phase 3 | Pending |
+| PIPE-05 | Phase 3 | Pending |
+| PIPE-06 | Phase 3 | Pending |
+| PIPE-07 | Phase 3 | Pending |
+| PIPE-08 | Phase 3 | Pending |
+| PIPE-09 | Phase 3 | Pending |
+| PIPE-10 | Phase 3 | Pending |
+| PIPE-11 | Phase 3 | Pending |
+| PROF-01 | Phase 3 | Pending |
+| PROF-02 | Phase 3 | Pending |
+| PROF-03 | Phase 3 | Pending |
+| PROF-04 | Phase 3 | Pending |
+| PROF-05 | Phase 3 | Pending |
+| QUAL-01 | Phase 4 | Pending |
+| QUAL-02 | Phase 4 | Pending |
+| QUAL-03 | Phase 4 | Pending |
+| QUAL-04 | Phase 4 | Pending |
+| QUAL-05 | Phase 4 | Pending |
+| QUAL-06 | Phase 4 | Pending |
+| COST-03 | Phase 4 | Pending |
+| COST-04 | Phase 4 | Pending |
+| COST-05 | Phase 4 | Pending |
+| SESS-01 | Phase 5 | Pending |
+| SESS-02 | Phase 5 | Pending |
+| SESS-03 | Phase 5 | Pending |
+| SESS-04 | Phase 5 | Pending |
+| SESS-05 | Phase 5 | Pending |
+| HOOK-01 | Phase 5 | Pending |
+| HOOK-02 | Phase 5 | Pending |
+| HOOK-03 | Phase 5 | Pending |
+| ADPT-01 | Phase 6 | Pending |
+| ADPT-02 | Phase 6 | Pending |
+| ADPT-03 | Phase 6 | Pending |
+| ADPT-04 | Phase 6 | Pending |
+| ADPT-05 | Phase 6 | Pending |
+| ADPT-06 | Phase 6 | Pending |
+| DASH-01 | Phase 7 | Pending |
+| DASH-02 | Phase 7 | Pending |
+| DASH-03 | Phase 7 | Pending |
+| DASH-04 | Phase 7 | Pending |
+| DASH-05 | Phase 7 | Pending |
+| DASH-06 | Phase 7 | Pending |
+| DASH-07 | Phase 7 | Pending |
 
 **Coverage:**
-- v3.0 requirements: 52 total
-- Mapped to phases: 0
-- Unmapped: 52
+- v3.0 requirements: 65 total (58 original + 7 DASH)
+- Mapped to phases: 65
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-04*
-*Last updated: 2026-04-04 after initial definition*
+*Last updated: 2026-04-04 — Phase 7 multi-project dashboard added*

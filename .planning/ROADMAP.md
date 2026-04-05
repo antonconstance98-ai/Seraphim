@@ -1,13 +1,135 @@
-# Roadmap: Claude X Codex
+# Roadmap: Seraphim
 
 ## Milestones
 
 - ✅ **v1.0 Claude X Codex** — Phases 1-4 (shipped 2026-04-02) — [archive](milestones/v1.0-ROADMAP.md)
 - ✅ **v1.1 Global Metrics Dashboard** — Phases 5-7 (shipped 2026-04-03) — [archive](milestones/v1.1-ROADMAP.md)
 - ✅ **v2.0 Three-Model Intelligence** — Phases 8-14 (shipped 2026-04-03)
-- 🔄 **v3.0 Adaptive Intelligence** — Phases 15-18 (in progress)
+- ✅ **v2.0 Adaptive Intelligence** — Phase 15 (shipped 2026-04-04)
+- 🔄 **v3.0 Seraphim** — Phases 1-7 (in progress) — clean break, phase numbering reset
+
+---
+
+## v3.0 Seraphim
+
+**Milestone goal:** Replace the hook-based multi-model system with a standalone Claude Code plugin delivering a six-phase creative pipeline across nine models and five cost profiles. Adaptive intelligence learns from accumulated run data.
 
 ## Phases
+
+- [ ] **Phase 1: Plugin Scaffold and Infrastructure** — Plugin loads, dispatch routes, config persists, phase state survives restarts
+- [ ] **Phase 2: Model Executors and Pricing** — All nine models callable through uniform interface; token costs validated per provider
+- [ ] **Phase 3: Six Phase Pipeline and Profile Management** — End-to-end pipeline runs; all profile and override commands work
+- [ ] **Phase 4: Quality Gates and Decision Logging** — Checkpoints catch failures; feedback loops run with hard caps; decisions are logged
+- [ ] **Phase 5: Session Commands and Hook Consolidation** — Full-auto run with resume; all session commands work; seven legacy hooks retired
+- [ ] **Phase 6: Adaptive Intelligence** — Pattern analysis produces recommendations; dashboard panels show per-phase performance
+- [ ] **Phase 7: Multi-Project Dashboard** — Localhost web interface aggregates progress, metrics, and workflow data across all Seraphim-managed projects
+
+## Phase Details
+
+### Phase 1: Plugin Scaffold and Infrastructure
+**Goal**: The plugin loads in Claude Code, dispatch routes to the correct executor, per-project config persists, and phase state survives session restarts
+**Depends on**: Nothing (first phase)
+**Requirements**: PLUG-01, PLUG-02, PLUG-03, PLUG-04, PLUG-05, PLUG-06, PLUG-07
+**Success Criteria** (what must be TRUE):
+  1. Running `claude plugin validate` on the plugin directory passes with no errors, and all `/seraphim:` commands appear in Claude Code's command list
+  2. `dispatch.js` resolves a model assignment correctly at all three levels — override wins over opus_enabled toggle which wins over profile preset — verifiable by setting each level and observing the resolved model
+  3. Creating a new project with `/seraphim:new-project` produces a `.seraphim/config.json` file with correct defaults, readable and writable by `config.js` without error
+  4. After simulating a session restart (killing the process mid-phase), `phase-state.js` restores loop counters and completion flags from `.seraphim/phases/{N}/state.json` with no data loss
+  5. `models.json` contains all nine models with mechanism, pricing tier, and capability flags — verifiable by reading the file and confirming all nine entries
+**Plans**: TBD
+
+### Phase 2: Model Executors and Pricing
+**Goal**: All nine models are callable through a uniform interface; token costs are validated against the pricing table per provider with no shared formula
+**Depends on**: Phase 1
+**Requirements**: EXEC-01, EXEC-02, EXEC-03, EXEC-04, EXEC-05, EXEC-06, EXEC-07, EXEC-08, EXEC-09, COST-01, COST-02, COST-06
+**Success Criteria** (what must be TRUE):
+  1. Each executor returns `{success, output, tokens, cost, error}` from `execute()` — calling any executor directly and inspecting the return shape confirms the contract
+  2. `available()` for the Qwen executor sends a real inference probe (not just an `/api/tags` check) and returns `false` gracefully when ollama is absent, without throwing or hanging
+  3. All nine models produce non-negative, non-zero cost calculations matching the pricing table; Anthropic cache-read produces a positive credit adjustment; `raw_usage` is preserved in every record — verifiable by running a test call through each executor
+  4. Running the path audit on forked codex-exec.js and minimax-exec.js shows no old absolute path references — all `require()` calls resolve relative to `__dirname`
+  5. `websearch.sh` queries SearXNG at localhost:8888 and returns results; `fetchdocs.js` calls the Context7 endpoint and returns documentation
+**Plans**: TBD
+**Research flag**: Gemini SDK search grounding + thinking mode APIs and Perplexity MCP bridge pattern need research before planning this phase
+
+### Phase 3: Six Phase Pipeline and Profile Management
+**Goal**: A full six-phase pipeline run completes end-to-end on Performance profile; all profile switching and override commands work correctly
+**Depends on**: Phase 2
+**Requirements**: PIPE-01, PIPE-02, PIPE-03, PIPE-04, PIPE-05, PIPE-06, PIPE-07, PIPE-08, PIPE-09, PIPE-10, PIPE-11, PROF-01, PROF-02, PROF-03, PROF-04, PROF-05
+**Success Criteria** (what must be TRUE):
+  1. Running `/seraphim:run {N}` on Performance profile executes all six phases in sequence and writes all six output files (`external.md`, `internal.md`, `vision.md`, `judgment.md`, `blueprint.md`, `forge-log.md`, `crucible.md`) to `.seraphim/phases/{N}/`
+  2. `judgment.md` contains machine-readable markers (`SURVIVES`, `FATAL_FLAW`, or `CONDITIONAL`) that a script can parse without reading prose — verifiable by grepping the output file
+  3. Running `/seraphim:set-profile balanced` prints the phase-to-model assignment table, and running `/seraphim:override judge gemini-flash` changes only the Judge assignment without altering other phases
+  4. Setting `opus_enabled: false` in config causes all Opus-assigned phases to use profile-specific fallback models — verifiable by checking which executor is called for Envision and Architect
+  5. Running `/seraphim:run {N} --from judge` skips Discover and Envision and resumes from Judge without re-running completed phases
+  6. Running on a non-code project (blueprint declares `project_type: research`) causes Forge and Crucible to use prose-appropriate behavior instead of test+lint
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 4: Quality Gates and Decision Logging
+**Goal**: Forge checkpoints catch task failures and trigger retry-with-feedback; feedback loops run with persisted hard caps; every phase execution is logged to decisions.jsonl with outcome signals
+**Depends on**: Phase 3
+**Requirements**: QUAL-01, QUAL-02, QUAL-03, QUAL-04, QUAL-05, QUAL-06, COST-03, COST-04, COST-05
+**Success Criteria** (what must be TRUE):
+  1. After a Forge task fails its checkpoint, Forge re-runs the task with the checkpoint findings appended — the retry is visible in `forge-log.md` with the failure reason — and the task does not retry more than twice
+  2. When all Envision approaches receive `FATAL_FLAW`, the Judge->Envision loop triggers, Envision re-runs with Judge's findings, and the loop counter in `.seraphim/phases/{N}/state.json` increments — verifiable by killing the session mid-loop and restarting: the counter is preserved
+  3. When any loop cap is exceeded, the pipeline stops and prints the full findings with suggested manual resolution steps to terminal — it does not silently proceed or retry
+  4. `checkpoint.js` branches correctly on `project_type`: a code project triggers tests+lint; a prose project triggers structure+citation check; a science project triggers methodology+replication check — verifiable by running each type
+  5. After a complete pipeline run, `decisions.jsonl` contains one record per phase with phase, model, profile, tokens_in, tokens_out, cost_usd, latency_ms, outcome, retry_count, loop_count, and at least one quality signal field — verifiable by reading the file and checking schema
+  6. The data integrity validator detects a manually injected negative-cost record in decisions.jsonl on the next session start and reports the violation
+**Plans**: TBD
+
+### Phase 5: Session Commands and Hook Consolidation
+**Goal**: Full-auto pipeline runs with resume capability; all session commands work; seven legacy hooks are retired atomically after pipeline is verified
+**Depends on**: Phase 4
+**Requirements**: SESS-01, SESS-02, SESS-03, SESS-04, SESS-05, HOOK-01, HOOK-02, HOOK-03
+**Success Criteria** (what must be TRUE):
+  1. Running `/seraphim:pause` during an active pipeline writes current state to `.seraphim/phases/{N}/state.json`; running `/seraphim:resume {N}` in a new session restores state and continues from where it stopped
+  2. Running `/seraphim:history` displays all past pipeline runs with per-phase costs, models used, outcomes, loop counts, and total spend — verifiable by running two pipelines and confirming both appear with correct data
+  3. Running `/seraphim:status` shows the active profile, current phase progress, any active overrides, and model availability for all nine models
+  4. Running `/seraphim:help` displays all commands, profiles, phase descriptions, and configuration options without requiring any active pipeline
+  5. After the retirement edit to `~/.claude/settings.json`, the token log contains no entries from any of the seven retired hook names during a new pipeline session; archive copies exist at a known path for rollback
+**Plans**: TBD
+
+### Phase 6: Adaptive Intelligence
+**Goal**: Pattern analysis produces model performance recommendations based on accumulated decisions.jsonl data; dashboard shows per-phase heatmap and profile comparison panels
+**Depends on**: Phase 5
+**Requirements**: ADPT-01, ADPT-02, ADPT-03, ADPT-04, ADPT-05, ADPT-06
+**Success Criteria** (what must be TRUE):
+  1. After enough pipeline runs accumulate, the pattern analysis engine produces a recommendation such as "Qwen Envision rejected by Judge 4/5 runs — consider Gemini 3.1 Pro" — verifiable by reading the recommendations output
+  2. No recommendation is ever auto-applied — the system presents recommendations for human approval; rejected recommendations appear in the rejection log with the rejection timestamp — verifiable by rejecting a recommendation and reading the log
+  3. The dashboard shows a per-phase model performance heatmap panel with success rates by (model, phase) combination — verifiable by opening dashboard.html and seeing the panel populated with data
+  4. The dashboard shows a profile cost/quality comparison panel with average cost per run versus Crucible pass rate per profile — verifiable by opening dashboard.html with data from multiple profiles
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 7: Multi-Project Dashboard
+**Goal**: A localhost web interface aggregates progress, metrics, and workflow data across all Seraphim-managed projects into a unified command center
+**Depends on**: Phase 6
+**Requirements**: DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06, DASH-07
+**Success Criteria** (what must be TRUE):
+  1. The multi-project scanner discovers `.seraphim/` directories across `~/projects/` and any additional configured paths — verifiable by having two or more projects with `.seraphim/` and confirming both appear
+  2. The dashboard at `127.0.0.1:PORT` displays a multi-project overview showing each project's name, active profile, current phase, progress bar, total cost, and last activity date
+  3. Clicking a project drills down to show its phase roadmap, completed vs remaining tasks, model assignments per phase, and pipeline run history
+  4. The workflow metrics panel shows cross-project model performance aggregated from all projects' decisions.jsonl, cost trends over time, and savings vs Opus-only baseline
+  5. The dashboard serves from a Node.js HTTP server with no external framework dependencies — self-contained with inlined CSS/JS following the existing Chart.js dashboard pattern
+**Plans**: TBD
+**UI hint**: yes
+
+## Progress
+
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Plugin Scaffold and Infrastructure | v3.0 | 0/? | Not started | - |
+| 2. Model Executors and Pricing | v3.0 | 0/? | Not started | - |
+| 3. Six Phase Pipeline and Profile Management | v3.0 | 0/? | Not started | - |
+| 4. Quality Gates and Decision Logging | v3.0 | 0/? | Not started | - |
+| 5. Session Commands and Hook Consolidation | v3.0 | 0/? | Not started | - |
+| 6. Adaptive Intelligence | v3.0 | 0/? | Not started | - |
+| 7. Multi-Project Dashboard | v3.0 | 0/? | Not started | - |
+
+---
+
+## Previous Milestones
 
 <details>
 <summary>✅ v1.0 Claude X Codex (Phases 1-4) — SHIPPED 2026-04-02</summary>
@@ -41,135 +163,9 @@
 
 </details>
 
-### v3.0 Adaptive Intelligence (Phases 15-18)
+<details>
+<summary>✅ v2.0 Adaptive Intelligence — Phase 15 — SHIPPED 2026-04-04</summary>
 
-- [x] **Phase 15: Decision Capture Infrastructure** — Structured logging of every routing decision; task-type taxonomy; dismiss command; freeze flag (completed 2026-04-04)
-- [ ] **Phase 16: Analysis Engine** — Read-only statistical analysis; noise profiles; per-project weights; SessionStart analyzer
-- [ ] **Phase 17: Auto-Tuning + Confidence Gate** — Atomic config writer; safety bounds; confidence gate; routing audit log
-- [ ] **Phase 18: Cross-Project Intelligence + Observability** — Global hypothesis engine; experiment design; adaptive dashboard panels
+- [x] Phase 15: Decision Capture Infrastructure (3/3 plans) — completed 2026-04-04
 
-**Phase dependencies:**
-- Phase 15 (data capture) must complete first — all downstream phases depend on structured decision logs
-- Phase 16 depends on Phase 15 (needs data to analyze; read-only validation before Phase 17 can write)
-- Phase 17 depends on Phase 16 (analyzer must produce validated recommendations before config writer is wired)
-- Phase 18 depends on Phase 16 (hypotheses require cross-project data; dashboard panels require Phase 15-16 signals)
-
-## Phase Details
-
-### Phase 8: MiniMax Foundation
-
-Add MiniMax M-2.7 as a model provider in the hook infrastructure. Create `minimax-exec.js` shared module (OpenAI SDK wrapper with `baseURL: https://api.minimax.io/v1`). Add MiniMax pricing to `codex-pricing.js` ($0.30/$1.20 input/output, $0.06 cache read). Fix Opus 4.6 pricing (currently $15/$75 which is Opus 4.1 — should be $5/$25). Set up `MINIMAX_API_KEY` environment variable. Update project settings with MiniMax config block. Verify connectivity with a test call.
-
-### Phase 9: Dual Review Gate
-
-Modify `codex-review-gate.js` (Stop hook) to run Codex and MiniMax reviews in parallel via `Promise.all`. Both produce independent verdicts. Merge: BLOCK if either flags an issue. Token logging tracks both models separately. Advisory output shows which model(s) flagged what. If Codex is rate-limited, MiniMax review still runs independently (graceful degradation).
-
-### Phase 10: Adversarial Plan Review
-
-Modify `codex-multi-round-reviewer.js` to accept model-per-round configuration. Round 1 stays Codex (constructive review). Round 2 switches to MiniMax (adversarial/devil's advocate — poke holes, find flaws, challenge assumptions). MiniMax's different reasoning patterns (self-evolution trained) make it a genuinely different adversary vs Codex doing both rounds. Must handle `<think>` tag preservation when passing Round 1 findings to MiniMax in Round 2. Applies to both GSD and Superpowers plan reviewers.
-
-### Phase 11: PostToolUse Bug Scanner
-
-Create `minimax-post-scan.js` — lightweight MiniMax bug/security scan after every Write/Edit via PostToolUse hook. Advisory only (additionalContext), never blocking. Cost: $0.01-0.03 per scan. Max_tokens capped at 1000 to control verbosity. Integrated with existing `codex-token-logger.js` for tracking.
-
-### Phase 12: Context Compression
-
-Create `minimax-compress.js` — a general-purpose MiniMax compression utility for anything with large token counts. Use cases: large git diffs before review, long conversation context when approaching limits (integrate with gsd-context-monitor), big API/tool output before injection as additionalContext, large file reads before Opus reasoning, plan review input compression. Hook integration via `UserPromptSubmit` and `PostToolUse`. Also usable as a require() utility from any hook script.
-
-### Phase 13: Codex Execution Pipeline
-
-Modify gsd-executor agent from a code-writing Opus subagent into a thin orchestrator. For each plan task: generate a handoff spec → invoke Codex CLI (`codex exec --full-auto --json`) → validate output → commit atomically. Fallback chain: Codex CLI (free via subscription) → MiniMax API ($0.30/$1.20, orchestrator writes files since MiniMax has no filesystem access) → prompt user (fail-closed). Detects Codex rate limits via exit codes, stderr messages, HTTP 429 in JSONL, and rate_limit_pct >= 95. The orchestrator can run on Sonnet (cheaper than Opus) since it only generates handoff specs, not code.
-
-### Phase 14: Three-Model Reporting
-
-Update `codex-token-logger.js` to recognize MiniMax model entries. Update `codex-cost-reporter.js` for three-model savings reports (Codex + MiniMax vs Opus-only baseline). Update `codex-global-aggregator.js` to aggregate MiniMax data from token logs. Update `codex-dashboard-generator.js` with three-model charts, per-model breakdowns, and fallback event tracking.
-
-### Phase 15: Decision Capture Infrastructure
-
-**Goal**: The system records every routing and review decision in a structured, queryable format that unblocks all downstream analysis.
-**Depends on**: Phase 14 (extends existing token-log.jsonl schema)
-**Requirements**: DCAP-01, DCAP-02, DCAP-03, DCAP-04, DCAP-05
-**Success Criteria** (what must be TRUE):
-  1. After any model call, token-log.jsonl contains outcome (accepted/dismissed/committed), latency_ms, and task-type fields alongside existing data — verifiable by reading the file
-  2. User can run `/gsd:dismiss-last` after a false-positive review block and a negative training signal record appears in decision-log.jsonl
-  3. Task types are categorized into 12 distinct categories (not 4) — verifiable by checking the task_type field across a session's log entries
-  4. Setting `"adaptive": false` in settings.json causes the system to skip all adaptive behavior and operate on static rules — verifiable by adding the flag and running a session
-**Plans**: 2 plans
-
-Plans:
-- [x] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
-- [x] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
-
-### Phase 16: Analysis Engine
-
-**Goal**: The system reads accumulated decision data and produces statistical recommendations about routing and review thresholds, without touching any config file.
-**Depends on**: Phase 15 (requires structured decision data to analyze)
-**Requirements**: ANLZ-01, ANLZ-02, ANLZ-03, ANLZ-04
-**Success Criteria** (what must be TRUE):
-  1. After a SessionStart, `recommendations.json` exists and contains weighted statistics per tunable parameter — verifiable by reading the file
-  2. A review rule that has been dismissed 3 times in 30 days for a project is suppressed in that project's noise profile — verifiable by triggering the condition and checking that subsequent sessions skip the rule
-  3. When a git commit follows a session without edits to Claude's output, the matching decision-log.jsonl record has `committed: true` — verifiable by checking the log after a clean commit
-  4. Per-project routing weights (keyed by project path prefix) are read by the analyzer and reflected in its recommendations — verifiable by setting a project weight and observing a recommendation change
-**Plans**: 2 plans
-
-Plans:
-- [x] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
-- [x] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
-
-### Phase 17: Auto-Tuning + Confidence Gate
-
-**Goal**: The system applies validated recommendations to live config files atomically, with safety bounds enforced, and only when statistical confidence is sufficient.
-**Depends on**: Phase 16 (config writer is called only by the analyzer; analyzer must be validated read-only first)
-**Requirements**: TUNE-01, TUNE-02, TUNE-03, TUNE-04
-**Success Criteria** (what must be TRUE):
-  1. A config change applied by the system appears atomically — no partial write is ever visible during the rename — and the previous value is preserved in adjustment-log.jsonl with before/after values and confidence score
-  2. A parameter value the analyzer recommends setting outside its hard bounds (e.g., scan threshold below 1 or above 100) is clamped at the boundary, never written as an out-of-range value
-  3. With fewer than 30 events per parameter or confidence below 0.8, the system logs the recommendation as advisory only and makes no config change — verifiable by inspecting adjustment-log.jsonl
-  4. The routing audit log records the reason each call was routed to a specific model — verifiable by opening the log and reading why a recent decision was made
-**Plans**: 2 plans
-
-Plans:
-- [x] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
-- [ ] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
-**UI hint**: yes
-
-### Phase 18: Cross-Project Intelligence + Observability
-
-**Goal**: The system learns from patterns across all projects on this machine and surfaces those insights — including active hypotheses and experiment proposals — in the dashboard.
-**Depends on**: Phase 16 (needs cross-project decision data flowing; dashboard panels need Phase 15-16 signals)
-**Requirements**: XPRJ-01, XPRJ-02, XPRJ-03, XPRJ-04, OBSV-01, OBSV-02
-**Success Criteria** (what must be TRUE):
-  1. The global aggregator collects decision logs from every project with the three-model router installed — verifiable by checking that `global-decision-log.jsonl` contains entries from multiple projects
-  2. After enough cross-project data accumulates, the system generates at least one hypothesis (e.g., "MiniMax outperforms Codex on security reviews in this codebase") and writes it to a hypotheses file — verifiable by reading the file
-  3. A proposed experiment to test a hypothesis is presented to the user for approval before any code or config is changed — verifiable by running the experiment proposal flow and confirming no changes occur without approval
-  4. The dashboard shows a panel with dismiss rate, false-positive trend, and routing efficiency over time — verifiable by opening dashboard.html and seeing the panel with real data
-  5. The dashboard shows active hypotheses, experiment status, and cross-project insights — verifiable by opening dashboard.html and seeing the panel populated
-**Plans**: 2 plans
-
-Plans:
-- [ ] 15-01-PLAN.md — Core decision capture infrastructure (hook-signal.js, decision-logger.js, upstream hook mods, 12-category taxonomy)
-- [ ] 15-02-PLAN.md — User commands (/gsd:dismiss-last, /gsd:freeze, /gsd:unfreeze)
-**UI hint**: yes
-
-## Progress
-
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 1. Foundation | v1.0 | 3/3 | Complete | 2026-04-02 |
-| 2. Review Gate & GSD Integration | v1.0 | 2/2 | Complete | 2026-04-02 |
-| 3. Plan Review Loop & Superpowers | v1.0 | 2/2 | Complete | 2026-04-02 |
-| 4. Cost Reporting | v1.0 | 1/1 | Complete | 2026-04-02 |
-| 5. Data Pipeline | v1.1 | 3/3 | Complete | 2026-04-03 |
-| 6. Dashboard Generator | v1.1 | 2/2 | Complete | 2026-04-03 |
-| 7. Charts & Hook Integration | v1.1 | 2/2 | Complete | 2026-04-03 |
-| 8. MiniMax Foundation | v2.0 | 3/3 | Complete | 2026-04-03 |
-| 9. Dual Review Gate | v2.0 | 1/1 | Complete | 2026-04-03 |
-| 10. Adversarial Plan Review | v2.0 | 2/2 | Complete | 2026-04-03 |
-| 11. PostToolUse Bug Scanner | v2.0 | 1/1 | Complete | 2026-04-03 |
-| 12. Context Compression | v2.0 | 2/2 | Complete | 2026-04-03 |
-| 13. Codex Execution Pipeline | v2.0 | 1/1 | Complete | 2026-04-03 |
-| 14. Three-Model Reporting | v2.0 | 2/2 | Complete | 2026-04-03 |
-| 15. Decision Capture Infrastructure | v3.0 | 3/3 | Complete    | 2026-04-04 |
-| 16. Analysis Engine | v3.0 | 0/? | Not started | - |
-| 17. Auto-Tuning + Confidence Gate | v3.0 | 0/? | Not started | - |
-| 18. Cross-Project Intelligence + Observability | v3.0 | 0/? | Not started | - |
+</details>
