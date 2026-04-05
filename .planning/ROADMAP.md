@@ -52,8 +52,13 @@ Plans:
   3. All nine models produce non-negative, non-zero cost calculations matching the pricing table; Anthropic cache-read produces a positive credit adjustment; `raw_usage` is preserved in every record — verifiable by running a test call through each executor
   4. Running the path audit on forked codex-exec.js and minimax-exec.js shows no old absolute path references — all `require()` calls resolve relative to `__dirname`
   5. `websearch.sh` queries SearXNG at localhost:8888 and returns results; `fetchdocs.js` calls the Context7 endpoint and returns documentation
-**Plans**: TBD
-**Research flag**: Gemini SDK search grounding + thinking mode APIs and Perplexity MCP bridge pattern need research before planning this phase
+**Plans:** 5 plans
+Plans:
+- [ ] 02-01-PLAN.md — Per-provider pricing module and token logger with four-schema normalization
+- [ ] 02-02-PLAN.md — Fork codex-exec.js and minimax-exec.js to unified interface
+- [ ] 02-03-PLAN.md — Gemini executor with search grounding and thinking mode
+- [ ] 02-04-PLAN.md — Qwen local executor and Perplexity dual-path executor
+- [ ] 02-05-PLAN.md — Helper scripts: websearch.sh and fetchdocs.js
 
 ### Phase 3: Six Phase Pipeline and Profile Management
 **Goal**: A full six-phase pipeline run completes end-to-end on Performance profile; all profile switching and override commands work correctly
@@ -124,7 +129,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Plugin Scaffold and Infrastructure | v3.0 | 3/3 | Complete   | 2026-04-05 |
-| 2. Model Executors and Pricing | v3.0 | 0/? | Not started | - |
+| 2. Model Executors and Pricing | v3.0 | 0/5 | Not started | - |
 | 3. Six Phase Pipeline and Profile Management | v3.0 | 0/? | Not started | - |
 | 4. Quality Gates and Decision Logging | v3.0 | 0/? | Not started | - |
 | 5. Session Commands and Hook Consolidation | v3.0 | 0/? | Not started | - |
