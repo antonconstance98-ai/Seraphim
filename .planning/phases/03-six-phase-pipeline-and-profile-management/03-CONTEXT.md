@@ -22,9 +22,14 @@ Deliver six phase commands (`/seraphim:discover` through `/seraphim:crucible`), 
 - **D-04:** Profile changes are allowed mid-pipeline run. The change takes effect on the NEXT phase — already-completed phases keep their original model assignments. No lock, no error.
 - **D-05:** Phase-state.json records which profile was active when each phase executed, for audit and adaptive intelligence purposes.
 
+### Terminal Output Style
+- **D-06:** Phase completion output should be "in between" — not a minimal one-liner, not a full verbose dump. Show phase name, model used, key result (e.g., "3 approaches generated", "2 survived", "all tasks passed"), cost. Skip raw token counts and latency unless verbose mode.
+- **D-07:** Headers and banners use the six-winged seraph concept. Seraphim has its own visual identity — not GSD banners. Design phase headers around the six wings theme (each phase = one wing).
+
 ### Claude's Discretion
 - Command invocation pattern: Claude decides how phase commands call dispatch.js (Bash from .md, direct Node.js, etc.)
 - Structured output format: Claude decides between JSON blocks, HTML comment markers, or YAML frontmatter — whatever enables reliable feedback loop parsing
+- Banner/header exact ASCII art and formatting — Claude designs within the six-wing theme
 
 </decisions>
 
