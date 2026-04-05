@@ -1,654 +1,645 @@
 # Architecture Research
 
-**Domain:** ML-driven self-optimization layer for a hook-based multi-model CLI orchestration system
-**Researched:** 2026-04-03
-**Confidence:** HIGH — based on live codebase inspection of all 18 hooks and settings.json
+**Domain:** Standalone Claude Code plugin — six-phase multi-model orchestration pipeline
+**Researched:** 2026-04-04
+**Confidence:** HIGH (based on direct inspection of existing codebase, all 18 hooks, settings.json, plugin marketplace examples, and approved design spec)
 
 ---
 
 ## System Overview
 
-The existing system is a synchronous hook pipeline where each hook receives JSON on stdin, does
-its work, and writes JSON to stdout. The ML self-optimization layer adds three new concerns
-without modifying the existing pipeline: decision capture, offline analysis, and config propagation.
-
 ```
-┌────────────────────────────────────────────────────────────────────────────────┐
-│                            Claude Code Session                                  │
-│                                                                                 │
-│  PreToolUse chain              PostToolUse chain          Stop / SubagentStop   │
-│  ┌──────────────────┐          ┌──────────────────┐       ┌──────────────────┐  │
-│  │ settings-guard   │          │ gsd-context-mon  │       │ codex-review-    │  │
-│  │ gsd-prompt-guard │          │ codex-token-     │       │ gate  (Stop)     │  │
-│  │ codex-router     │          │   logger         │       │ codex-plan-      │  │
-│  └────────┬─────────┘          │ codex-wave-      │       │   reviewer (Sub) │  │
-│           │                    │   validator      │       │ codex-superpow-  │  │
-│   reads   │                    │ minimax-post-    │       │   ers-reviewer   │  │
-│  config   │                    │   scan           │       └────────┬─────────┘  │
-│           │                    │ minimax-compress │                │             │
-│           │                    ├──────────────────┤                │             │
-│           │                    │ decision-logger  │◀───────────────┘             │
-│           │                    │  (NEW — last)    │  also runs as Stop advisory  │
-│           │                    └────────┬─────────┘                              │
-└───────────┼──────────────────────────── │ ───────────────────────────────────────┘
-            │                             │
-            │                             ▼
-            │              ┌──────────────────────────────┐
-            │              │  decision-log.jsonl           │
-            │              │  (per-project + global)       │
-            │              └──────────────┬───────────────┘
-            │                             │
-            │                    [SessionStart]
-            │                             │
-            │                             ▼
-            │              ┌──────────────────────────────┐
-            │              │  ml-analyzer.js  (NEW)        │
-            │              │  reads decision-log.jsonl     │
-            │              │  runs weighted statistics     │
-            │              │  writes recommendations.json  │
-            │              │  calls config-writer.js if    │
-            │              │  confidence >= threshold      │
-            │              └──────────────┬───────────────┘
-            │                             │
-            │                             ▼
-            │              ┌──────────────────────────────┐
-            │              │  config-writer.js  (NEW)      │
-            │              │  atomic write-then-rename     │
-            │◀─────────────│  updates .claude/settings.    │
-            │              │  json or .planning/config.    │
-     behavior              │  json                        │
-     changes               │  appends adjustment-log.jsonl │
-     next call             └──────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      CLAUDE CODE SESSION (Opus host)                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  │
+│  │/seraphim:    │  │/seraphim:    │  │/seraphim:    │  │/seraphim:        │  │
+│  │  discover    │  │  envision    │  │    judge     │  │  architect       │  │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └──────┬───────────┘  │
+│         │                 │                 │                  │              │
+│  ┌──────┴─────────────────┴─────────────────┴──────────────────┴───────────┐  │
+│  │                           dispatch.js                                    │  │
+│  │     reads .seraphim/config.json → profile + overrides → executor        │  │
+│  └──────────────────────────────────┬────────────────────────────────────────┘  │
+├─────────────────────────────────────┼──────────────────────────────────────────┤
+│                     EXECUTOR LAYER  │                                           │
+│  ┌─────────────┐  ┌─────────────┐   │  ┌─────────────┐  ┌──────────────────┐   │
+│  │codex-exec   │  │minimax-exec │   │  │ gemini-exec │  │   qwen-exec      │   │
+│  │(fork+adapt) │  │(fork+adapt) │   │  │   (new)     │  │   (new)          │   │
+│  └─────────────┘  └─────────────┘   │  └─────────────┘  └──────────────────┘   │
+│  ┌─────────────┐                    │                                           │
+│  │perplexity-  │                    │                                           │
+│  │  exec (new) │                    │                                           │
+│  └─────────────┘                    │                                           │
+├─────────────────────────────────────┼──────────────────────────────────────────┤
+│                      SUPPORT LAYER  │                                           │
+│  ┌─────────────┐  ┌─────────────┐   │  ┌─────────────┐  ┌──────────────────┐   │
+│  │ pricing.js  │  │  config.js  │   │  │phase-state  │  │  token-logger    │   │
+│  │(fork extend)│  │   (new)     │   │  │   (new)     │  │  (fork+adapt)    │   │
+│  └─────────────┘  └─────────────┘   │  └─────────────┘  └──────────────────┘   │
+├─────────────────────────────────────┼──────────────────────────────────────────┤
+│                    EXTERNAL TARGETS │                                           │
+│  ┌──────────┐  ┌──────────┐  ┌──────┴──────┐  ┌──────────┐  ┌──────────────┐  │
+│  │Codex CLI │  │MiniMax   │  │   Gemini    │  │  Ollama  │  │ Perplexity   │  │
+│  │full-auto │  │  API     │  │    API      │  │localhost │  │  MCP / API   │  │
+│  └──────────┘  └──────────┘  └─────────────┘  └──────────┘  └──────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Component Responsibilities
 
-| Component | Responsibility | Type | Modifies existing? |
-|-----------|----------------|------|--------------------|
-| `decision-logger.js` | Appends one structured record per hook event to `decision-log.jsonl` | New PostToolUse + Stop hook | No |
-| `ml-analyzer.js` | Reads decision log, runs statistical model, writes `recommendations.json` | New offline SessionStart script | No |
-| `config-writer.js` | Applies validated recommendations to config files atomically | New module (called by analyzer) | No |
-| `decision-log.jsonl` | Per-project + global structured log of every hook decision + outcome | New data store | n/a |
-| `adjustment-log.jsonl` | Append-only audit trail of every config change applied | New data store | n/a |
-| `recommendations.json` | Latest analyzer output — overwritten each run, not a log | New data store | n/a |
-| `defaults.json` | Cold-start priors with confidence scores | New data store | n/a |
-| Existing 18 hooks | Unchanged — read config as before; behavior changes only when config changes | Existing | No |
+| Component | Responsibility | Communicates With |
+|-----------|---------------|-------------------|
+| `plugin.json` | Plugin manifest — name, version, author. Loaded by Claude Code plugin system. | Claude Code plugin loader |
+| `commands/*.md` | Slash command definitions with frontmatter (description, argument-hint, allowed-tools). Markdown prompt files Opus reads and acts on. | Opus session (user invokes) |
+| `agents/*.md` | Subagent definitions for phases that Opus spawns. Agents needing non-Claude models call dispatch.js via Bash. | Opus (spawns via Task tool) |
+| `dispatch.js` | Reads config, resolves profile + overrides, determines executor, checks availability, calls executor, logs decision. | All executors, lib/config.js, lib/pricing.js |
+| `codex-exec.js` | Spawns `codex exec --full-auto --json`, parses JSONL token output. 300s timeout with SIGTERM+SIGKILL. | dispatch.js |
+| `minimax-exec.js` | OpenAI SDK with baseURL swap to MiniMax. Temperature 0.01. Exponential backoff retry. | dispatch.js |
+| `gemini-exec.js` | `@google/generative-ai` SDK. Search grounding for Discover, thinking mode for Judge, function calling for internal discovery. | dispatch.js |
+| `qwen-exec.js` | HTTP to `localhost:11434` ollama. JSON action wrapper executes structured outputs for Forge. 120s timeout. | dispatch.js |
+| `perplexity-exec.js` | MCP bridge (preferred) or direct Perplexity API. Returns citations with findings. | dispatch.js |
+| `pricing.js` | All nine model pricing tables. `computeCost()` and `computeCostStrict()` functions. | token-logger.js, all executors |
+| `config.js` | Reads and writes `.seraphim/config.json`. Provides `resolve(phase)` returning executor ID. | dispatch.js, phase commands |
+| `phase-state.js` | Tracks per-project phase completion. Enforces prerequisites. Manages loop counters with hard caps. | commands, dispatch.js |
+| `checkpoint.js` | Runs tests + lint (runtime check). Triggers static review via dispatch.js for the checkpoint_static phase. | Forge executor (between tasks) |
+| `websearch.sh` | curl wrapper for SearXNG at localhost:8888. Returns JSON. For Codex and Qwen that lack MCP access. | Codex, Qwen tool access |
+| `fetchdocs.js` | Context7 HTTP endpoint wrapper. Returns documentation text. | Codex, Qwen tool access |
+| `token-logger.js` | Appends JSONL record to `.seraphim/token-log.jsonl` after each model call. Nine model schemas. | Plugin PostToolUse hook |
+| `session-start.js` | Loads active profile, reports Seraphim pipeline status at session open. | Plugin SessionStart hook |
+| `profiles.json` | Five preset profile definitions (Performance through Frugal). Phase-to-model maps. | dispatch.js, config.js |
+| `models.json` | Model registry: access mechanism, pricing keys, capabilities, isOpus flag. | dispatch.js, config.js |
 
 ---
 
-## Recommended File Structure
+## Recommended Plugin Structure
 
 ```
-~/.claude/hooks/
-├── decision-logger.js          # NEW Phase 1: PostToolUse + Stop decision capture
-├── ml-analyzer.js              # NEW Phase 2: offline analysis + recommendation writer
-├── config-writer.js            # NEW Phase 3: atomic config update module
-│
-├── codex-router.js             # EXISTING — reads .claude/settings.json, unchanged
-├── codex-review-gate.js        # EXISTING — reads config, unchanged
-├── codex-plan-reviewer.js      # EXISTING — reads config, unchanged
-├── codex-superpowers-plan-     # EXISTING — reads config, unchanged
-│   reviewer.js
-├── minimax-post-scan.js        # EXISTING — reads config, unchanged
-├── minimax-compress.js         # EXISTING — reads config, unchanged
-├── codex-token-logger.js       # EXISTING — token log source
-├── codex-wave-validator.js     # EXISTING — wave boundary check
-├── codex-wave-validator-       # EXISTING — background worker
-│   worker.js
-├── gsd-context-monitor.js      # EXISTING
-├── gsd-workflow-guard.js       # EXISTING
-├── gsd-prompt-guard.js         # EXISTING
-├── gsd-check-update.js         # EXISTING
-├── gsd-statusline.js           # EXISTING
-├── claude-settings-guard.js    # EXISTING
-├── codex-cost-reporter.js      # EXISTING
-├── codex-global-aggregator.js  # EXISTING
-├── codex-dashboard-generator.js# EXISTING
-├── codex-handoff.js            # EXISTING
-├── codex-multi-round-reviewer.js# EXISTING
-└── ... (other existing)
-
-~/.claude/dashboard/
-├── global.jsonl                # EXISTING — token log aggregate
-├── decision-log.jsonl          # NEW: global ML training signal (mirrors per-project)
-├── adjustment-log.jsonl        # NEW: audit trail of every config change
-├── recommendations.json        # NEW: latest analyzer output
-└── defaults.json               # NEW: cold-start priors
-
-~/<project>/.planning/
-├── token-log.jsonl             # EXISTING — per-project token log
-└── decision-log.jsonl          # NEW: per-project decision log
+~/.claude/plugins/seraphim/
+├── plugin.json                    # manifest: name, version, description, author
+├── config/
+│   ├── profiles.json              # five preset profile definitions
+│   └── models.json                # model registry (mechanism, pricing, capabilities)
+├── commands/
+│   ├── discover.md                # /seraphim:discover [phase-id]
+│   ├── envision.md                # /seraphim:envision [phase-id]
+│   ├── judge.md                   # /seraphim:judge [phase-id]
+│   ├── architect.md               # /seraphim:architect [phase-id]
+│   ├── forge.md                   # /seraphim:forge [phase-id]
+│   ├── crucible.md                # /seraphim:crucible [phase-id]
+│   ├── run.md                     # /seraphim:run [phase-id] [--from phase]
+│   ├── set-profile.md             # /seraphim:set-profile [profile-name]
+│   ├── show-profile.md            # /seraphim:show-profile
+│   ├── override.md                # /seraphim:override [phase] [model]
+│   ├── status.md                  # /seraphim:status
+│   └── new-project.md             # /seraphim:new-project [name]
+├── agents/
+│   ├── seraphim-envision.md       # model: opus or profile fallback
+│   ├── seraphim-judge.md          # orchestrates external model (Gemini) via Bash
+│   ├── seraphim-architect.md      # model: opus or profile fallback
+│   ├── seraphim-crucible.md       # model: opus or profile fallback
+│   └── seraphim-checkpoint.md     # model: sonnet (Forge runtime check)
+├── executors/
+│   ├── codex-exec.js              # FORK from ~/.claude/hooks/codex-exec.js
+│   ├── minimax-exec.js            # FORK from ~/.claude/hooks/minimax-exec.js
+│   ├── gemini-exec.js             # NEW — @google/generative-ai SDK
+│   ├── qwen-exec.js               # NEW — ollama HTTP + JSON action wrapper
+│   ├── perplexity-exec.js         # NEW — MCP bridge or direct API
+│   └── dispatch.js                # NEW — central router
+├── tools/
+│   ├── websearch.sh               # NEW — SearXNG curl wrapper
+│   ├── fetchdocs.js               # NEW — Context7 HTTP wrapper
+│   └── checkpoint.js              # NEW — test runner + lint + static review trigger
+├── hooks/
+│   ├── session-start.js           # NEW (based on existing codex-cost-reporter pattern)
+│   └── token-logger.js            # FORK from ~/.claude/hooks/codex-token-logger.js
+└── lib/
+    ├── pricing.js                 # FORK from ~/.claude/hooks/codex-pricing.js + extend
+    ├── config.js                  # NEW — read/write .seraphim/config.json
+    └── phase-state.js             # NEW — per-project phase progress tracker
 ```
 
 ### Structure Rationale
 
-- **Global `~/.claude/dashboard/decision-log.jsonl`**: Spans all projects. Enables cross-project
-  patterns (e.g., `.sh` files trigger scan issues at 40% rate regardless of project).
-- **Per-project `.planning/decision-log.jsonl`**: Enables per-project tuning. A project that is
-  all markdown should have `routing_disabled: true` in its own `.claude/settings.json`, not globally.
-- **`recommendations.json` is not a log**: It is overwritten each analyzer run. It represents the
-  current best guess. The audit trail is `adjustment-log.jsonl`.
-- **`defaults.json` is read-only at runtime**: Written at install time, never overwritten by the
-  analyzer. The analyzer reads it for cold-start priors only.
+- **`plugin.json` at root:** Claude Code plugin loader requires the manifest at the plugin root inside a `.claude-plugin/` subdirectory based on marketplace patterns, or at root for direct installs. Minimal fields suffice. Hooks are NOT declared in plugin.json — they are registered in `~/.claude/settings.json` during plugin setup.
+- **`config/`:** Separates static configuration (profiles, model registry) from runtime code. Profiles and models change infrequently and are easier to read/edit as JSON.
+- **`commands/`:** One `.md` file per slash command. Frontmatter declares `description`, `argument-hint`, and `allowed-tools`. These are Markdown prompt files — Opus reads them and acts on the instructions. Not scripts.
+- **`agents/`:** Subagent `.md` files that Opus spawns via the Task tool. Phases where the primary model is Opus (Envision, Architect) use agents directly. Phases where the primary model is external (Judge with Gemini Flash) use an orchestrating agent that calls dispatch.js via Bash.
+- **`executors/`:** All model-specific code isolated here. dispatch.js is the only file that knows which executor to load. Adding a new model = one file + one models.json entry.
+- **`tools/`:** Helper scripts for non-MCP-capable models (Codex CLI, Qwen via ollama). These bridge the tool-access gap without requiring those models to have MCP integration.
+- **`hooks/`:** Plugin-owned hooks that replace the seven retiring global hooks. Registered in `~/.claude/settings.json` during plugin setup (atomic edit alongside retiring the old hooks).
+- **`lib/`:** Shared utilities with no external model dependencies. No network calls. Pure Node.js.
 
 ---
 
-## Data Flow: Full Self-Optimization Loop
+## Architectural Patterns
 
-```
-Claude Code session opens
-         │
-         ▼
-SessionStart hooks (sequential, registered in settings.json)
-  1. gsd-check-update.js       (existing)
-  2. codex-cost-reporter.js    (existing)
-  3. codex-global-aggregator.js (existing)
-  4. ml-analyzer.js             (NEW — reads decision-log from previous sessions)
-         │
-         ├── Reads ~/.claude/dashboard/decision-log.jsonl
-         ├── Runs weighted statistics per tunable parameter
-         ├── Writes ~/.claude/dashboard/recommendations.json
-         └── If confidence >= 0.8: calls config-writer.js
-                  │
-                  ├── Reads current .claude/settings.json or .planning/config.json
-                  ├── Merges recommendation
-                  ├── Validates merged config (schema + safety bounds)
-                  ├── Writes to .tmp.{pid} then fs.renameSync (atomic)
-                  └── Appends record to adjustment-log.jsonl (audit)
-         │
-         ▼
-User submits prompt → Claude calls Write / Edit / Bash
-         │
-         ▼
-PreToolUse chain fires (existing, unchanged)
-  codex-router.js reads .claude/settings.json
-  → routing decision based on current config (which may have been updated at SessionStart)
-         │
-         ▼
-Tool executes
-         │
-         ▼
-PostToolUse chain fires (existing + new)
-  gsd-context-monitor.js     → context warning if near limit
-  codex-token-logger.js      → appends to token-log.jsonl
-  codex-wave-validator.js    → wave boundary check
-  minimax-post-scan.js       → bug scan, emits advisory text to tool_result
-  minimax-compress.js        → compress large outputs, emits advisory text
-  decision-logger.js  (NEW)  → reads tool_result advisory text from above hooks
-         │                      infers routing/scan/compress decisions made
-         │                      appends one record to .planning/decision-log.jsonl
-         │                      appends one record to ~/.claude/dashboard/decision-log.jsonl
-         │
-         ▼
-Stop hook fires (existing + new)
-  codex-review-gate.js  → BLOCK or ALLOW, emits verdict text to tool_result
-  decision-logger.js    → reads Stop tool_result, records review_verdict field
-         │
-         ▼ (if BLOCK: Claude gets another turn; decision-logger fires again next turn)
-         │
-         ▼
-Session closes → next SessionStart processes accumulated decision-log.jsonl
-```
+### Pattern 1: Unified Executor Interface
 
----
+**What:** Every model executor exports exactly three functions: `execute(prompt, opts)`, `stream(prompt, opts)`, and `available()`. dispatch.js never calls executor-specific methods.
 
-## Decision Log Schema
+**When to use:** Every time a phase command needs to invoke a model.
 
-Every record answers: "Under what conditions did this hook behave this way, and was the outcome good?"
-
-```jsonc
-{
-  // Identity
-  "timestamp":          "2026-04-03T10:00:00.000Z",
-  "session_id":         "30092b41-eaa3-45bf-95b4-64463d5a2dbd",  // null if unknown
-  "project":            "Claude_X_Codex",
-  "cwd":                "/home/alucard/projects/Claude_X_Codex",
-
-  // Tool context (what triggered the hooks)
-  "tool_name":          "Write",             // Write | Edit | MultiEdit | Bash
-  "file_ext":           ".js",              // extension of modified file, "" for Bash
-  "file_path_hash":     "a3f9c2",           // first 6 chars of SHA-256(file_path)
-  "diff_lines_changed": 42,                 // from git diff --stat; null if no git
-
-  // codex-router.js signal
-  "routing_advice_given": true,             // did router advise Codex delegation?
-  "routing_disabled":     false,            // was routing disabled in config?
-
-  // minimax-post-scan.js signal
-  "scan_triggered":    true,               // did scan run (not skipped by threshold)?
-  "scan_verdict":      "ISSUES_FOUND",     // "ISSUES_FOUND" | "CLEAN" | "SKIPPED" | "ERROR"
-  "scan_severity":     "medium",           // "high" | "medium" | "low" | null
-  "scan_issues_count": 2,                  // 0 if CLEAN
-
-  // minimax-compress.js signal
-  "compress_triggered": false,             // did compressor run?
-  "compress_ratio":     null,              // original_chars / compressed_chars, or null
-
-  // codex-review-gate.js signal (Stop hook — null if this is a PostToolUse record)
-  "review_verdict":        null,           // "ALLOW" | "BLOCK" | null
-  "review_block_category": null,           // "correctness" | "security" | "logic" | null
-
-  // Cost signal (read from last token-log.jsonl record for this turn)
-  "total_tokens_this_turn": 1240,
-  "cost_usd_this_turn":     0.012,
-
-  // Config snapshot at time of decision (for drift detection)
-  "config_snapshot": {
-    "routing_disabled":              false,
-    "scan_skip_threshold":           5,
-    "compress_tool_output_tokens":   2000,
-    "compress_context_pct":          80
-  }
-}
-```
-
-**Field selection rationale:**
-
-- `file_ext` + `diff_lines_changed`: the two strongest predictors of whether scan/review adds value.
-  A 2-line `.md` change and a 200-line `.js` change should be treated differently.
-- `config_snapshot`: without this, it is impossible to correlate a behavioral pattern to the config
-  that was active when the pattern occurred. Essential for detecting if a prior adjustment worked.
-- `file_path_hash`: avoids logging sensitive file names to a shared file while still enabling
-  file-level duplicate detection.
-- `review_block_category`: the most important outcome signal. A BLOCK on "security" when scan_verdict
-  was "CLEAN" means the scan is missing something the review gate catches — actionable signal.
-- All fields null-safe: the logger never blocks on missing data. Missing fields are simply null.
-
----
-
-## ML Model: Weighted Running Statistics (Not Neural Network)
-
-**Recommendation: use weighted running statistics with a confidence gate, not a neural network or
-gradient-boosted model.**
-
-Rationale:
-- **Data volume is low**: a typical power user generates 50-200 hook events per day. Neural networks
-  require thousands of labeled examples to generalize. Statistical rules on 50 examples are more
-  reliable than a 10-parameter model trained on 50 examples.
-- **Interpretability is critical**: when the system changes a config, the user must be able to
-  understand why. "`.py` and `.sh` files have scan ISSUES_FOUND rate 40% vs `.md` at 2% →
-  recommend lowering `scan_skip_threshold` for those extensions" is auditable. Neural network
-  weights are not.
-- **The decision space is small**: tunable config parameters are a handful of numeric thresholds
-  and boolean flags — discrete optimization, not representation learning.
-- **Cold start is handled by priors**: sensible defaults in `defaults.json` are easy to understand,
-  easy to override, and require zero training data.
-
-**What the statistical model computes (per tunable parameter P):**
-
-```
-signal_rate(P)  = count(events where P's hook fired)      / total_events
-value_rate(P)   = count(events where P's hook found value) / count(events P's hook fired)
-cost_rate(P)    = mean(cost_usd_this_turn where P's hook fired)
-
-Recommendation logic:
-  if value_rate < 0.05 AND cost_rate > HIGH_COST_THRESHOLD:
-    → suggest disabling or raising threshold
-    → reason: "fires often (N times), finds nothing (value_rate M%)"
-
-  if value_rate > 0.30 AND signal_rate < 0.10:
-    → suggest enabling or lowering threshold
-    → reason: "rarely fires, but finds issues when it does (value_rate M%)"
-
-confidence = min(event_count_for_P / 30, 1.0)
-  → < 0.8: surface as advisory suggestion only, no auto-apply
-  → >= 0.8: auto-apply if AUTO_APPLY_THRESHOLD set in analyzer config
-```
-
----
-
-## Cold Start Problem
-
-**The problem:** On a fresh project, `decision-log.jsonl` is empty. The ML model has no signal.
-Applying random defaults is dangerous — a bad routing config on day one poisons every session.
-
-**Solution: curated defaults with explicit confidence scores (never auto-applied).**
-
-`~/.claude/dashboard/defaults.json` (written at install time, never overwritten):
-
-```json
-{
-  "_version": 1,
-  "routing_disabled": {
-    "value": false,
-    "confidence": 0.5,
-    "rationale": "Routing on by default. codex-router.js already exits silently if no project config."
-  },
-  "scan_skip_threshold": {
-    "value": 5,
-    "confidence": 0.5,
-    "rationale": "Existing default from minimax-post-scan.js. No change until data accumulates."
-  },
-  "compress_tool_output_tokens": {
-    "value": 2000,
-    "confidence": 0.5,
-    "rationale": "Existing default. Do not lower until project tool output size is known."
-  },
-  "compress_context_pct": {
-    "value": 80,
-    "confidence": 0.5,
-    "rationale": "Existing default. Aggressive compression risks losing context."
-  }
-}
-```
-
-Cold-start behavior in `ml-analyzer.js`:
-
-1. Count records in `decision-log.jsonl`.
-2. If count < 30: read `defaults.json`, emit all values as recommendations with confidence 0.5.
-   No auto-apply (0.5 < 0.8 threshold). Advisory context only: "ML optimizer: N/30 events collected.
-   Using defaults. Tuning activates at 30 events."
-3. 30-100 records: mixed mode — use defaults for parameters with fewer than 30 supporting events,
-   use computed statistics for parameters with sufficient events.
-4. >100 records: full statistics mode. Confidence gate still applies per-parameter.
-
-This means the system starts conservatively and earns the right to adjust configs by accumulating
-evidence. The user sees the count and knows when tuning will activate.
-
----
-
-## Integration Points with All 18 Existing Hooks
-
-### Hooks That Produce Signal for the ML Model
-
-| Hook | Event | Signal captured | How captured |
-|------|-------|-----------------|--------------|
-| `codex-router.js` | PreToolUse | `routing_advice_given` | advisory text "delegate to Codex" in tool_result |
-| `minimax-post-scan.js` | PostToolUse | `scan_triggered`, `scan_verdict`, `scan_severity`, `scan_issues_count` | advisory text markers in tool_result |
-| `minimax-compress.js` | PostToolUse | `compress_triggered`, `compress_ratio` | "[Compressed from ~NK tokens]" header in tool_result |
-| `codex-review-gate.js` | Stop | `review_verdict`, `review_block_category` | advisory text in Stop tool_result |
-| `codex-token-logger.js` | PostToolUse | `total_tokens_this_turn`, `cost_usd_this_turn` | reads last record from token-log.jsonl |
-| `gsd-context-monitor.js` | PostToolUse | `context_warning_fired` | advisory text in tool_result |
-| `codex-wave-validator.js` | PostToolUse | `wave_validation_result` | advisory text in tool_result |
-| `codex-plan-reviewer.js` | SubagentStop | `plan_review_block` | block decision in tool_result |
-| `codex-superpowers-plan-reviewer.js` | SubagentStop | `superpowers_plan_block` | block decision in tool_result |
-| `gsd-workflow-guard.js` | PreToolUse | `workflow_guard_fired` | advisory text in tool_result |
-| `claude-settings-guard.js` | PreToolUse | `settings_guard_fired` | block decision in tool_result |
-| `gsd-prompt-guard.js` | PreToolUse | `prompt_guard_fired` | advisory text in tool_result |
-
-Hooks producing no direct signal (captured only as cost context via token-log.jsonl):
-- `codex-cost-reporter.js` (SessionStart — produces reports, not per-turn decisions)
-- `codex-global-aggregator.js` (SessionStart — aggregation, not decisions)
-- `codex-dashboard-generator.js` (called via require, not a hook)
-- `codex-handoff.js` (handoff utility)
-- `gsd-check-update.js` (update check)
-- `gsd-statusline.js` (status display)
-
-### Hooks Whose Behavior the ML Model Can Tune
-
-| Hook | Tunable Config Key | Config File | Effect of tuning |
-|------|--------------------|-------------|------------------|
-| `codex-router.js` | `codex.routing_disabled` | `.claude/settings.json` | Disable routing for a project |
-| `minimax-post-scan.js` | `minimax.scan_skip_threshold` | `.claude/settings.json` | Lines-changed threshold below which scan is skipped |
-| `minimax-compress.js` | `minimax.compress_tool_output_tokens` | `.claude/settings.json` | Token count threshold for compression |
-| `minimax-compress.js` | `minimax.compress_context_pct` | `.claude/settings.json` | Context fill % threshold for compression |
-| `gsd-workflow-guard.js` | `hooks.workflow_guard` | `.planning/config.json` | Enable/disable workflow guard |
-
-### New Hook Registrations Required in settings.json
-
-```json
-"PostToolUse": [
-  {
-    "matcher": "Bash|Edit|Write|MultiEdit|Agent|Task",
-    "hooks": [
-      // ... existing 5 hooks unchanged (gsd-context-monitor, codex-token-logger,
-      //      codex-wave-validator, minimax-post-scan, minimax-compress) ...
-      {
-        "type": "command",
-        "command": "node \"/home/alucard/.claude/hooks/decision-logger.js\"",
-        "timeout": 5
-      }
-    ]
-  }
-],
-"Stop": [
-  {
-    "hooks": [
-      {
-        "type": "command",
-        "command": "node \"/home/alucard/.claude/hooks/codex-review-gate.js\"",
-        "timeout": 300
-      },
-      {
-        "type": "command",
-        "command": "node \"/home/alucard/.claude/hooks/decision-logger.js\"",
-        "timeout": 5
-      }
-    ]
-  }
-],
-"SessionStart": [
-  {
-    "hooks": [
-      // ... existing gsd-check-update, codex-cost-reporter, codex-global-aggregator ...
-      {
-        "type": "command",
-        "command": "node \"/home/alucard/.claude/hooks/ml-analyzer.js\"",
-        "timeout": 10
-      }
-    ]
-  }
-]
-```
-
----
-
-## Separation of Concerns
-
-```
-Logging               Analysis              Adjustment
-(decision-logger)     (ml-analyzer)         (config-writer)
-
-Runs every turn       Runs once/session     Called by analyzer only
-Advisory only         Advisory output       Write-only
-Fail-silent always    Read-only input       Atomic + validated
-No external calls     No hook I/O           No analysis
-5s timeout            10s timeout           Sync, fast (< 100ms)
-Append-only output    Overwrites recs.json  Append-only audit log
-```
-
-**Invariants:**
-- `decision-logger.js` never modifies any config file.
-- `ml-analyzer.js` never writes to hook inputs — only to `recommendations.json` and advisory stdout.
-- `config-writer.js` never reads decision logs or computes statistics.
-- None of the existing 18 hooks are modified or aware that an ML layer exists.
-- If any new component crashes: existing 18 hooks continue working exactly as before.
-
----
-
-## Atomic Config Update Pattern
-
-Config files are read by multiple hooks on every invocation. Writing without atomic rename produces
-torn reads.
+**Trade-offs:** Forces adapter work for models with incompatible output formats (Codex JSONL vs. Gemini streaming). Worth it — adding a new model is one file with no changes to dispatch.js or any command.
 
 ```javascript
-// config-writer.js — apply one recommendation atomically
-function applyRecommendation(configPath, key, newValue, reason, confidence) {
-  const current = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  const previous = current[key];
-  const updated = deepSet(current, key, newValue);  // handles nested keys like "codex.routing_disabled"
+// Standard executor contract — every executor must implement exactly this
+module.exports = {
+  // Returns: { success, output, tokens, cost, error }
+  // tokens: { input_tokens, cached_input_tokens, output_tokens }
+  // cost: USD float (0 for Codex CLI and Qwen local)
+  execute(prompt, opts) {},
 
-  // Validate before writing — schema check + safety bounds
-  if (!isValidConfig(updated)) {
-    throw new Error(`Config validation failed for key ${key}=${newValue}`);
+  // Returns ReadableStream where supported; falls back to execute() otherwise
+  stream(prompt, opts) {},
+
+  // Returns boolean — is this model reachable right now?
+  // codex-exec:      checks `which codex` and OPENAI_API_KEY presence
+  // minimax-exec:    checks MINIMAX_API_KEY presence
+  // gemini-exec:     checks GEMINI_API_KEY presence
+  // qwen-exec:       HTTP GET localhost:11434/api/tags (ollama running check)
+  // perplexity-exec: checks MCP availability or PERPLEXITY_API_KEY
+  available() {}
+};
+```
+
+### Pattern 2: Config Resolution Chain
+
+**What:** dispatch.js resolves model assignments through a three-level priority chain: per-phase override > opus_enabled flag > profile preset. Returns an executor ID string.
+
+**When to use:** Every dispatch.js invocation begins here.
+
+**Trade-offs:** Slightly more complex than a flat config. Enables "presets not locks" — the core design invariant.
+
+```javascript
+// dispatch.js resolution (pseudo-code)
+function resolveExecutorId(phase, config) {
+  const profiles = require('../config/profiles.json');
+  const models   = require('../config/models.json');
+
+  // Level 1: per-phase override in .seraphim/config.json
+  if (config.overrides && config.overrides[phase]) {
+    return config.overrides[phase];
   }
 
-  // Atomic write: tmp file then rename (POSIX rename(2) is atomic on same filesystem)
-  const tmp = configPath + '.tmp.' + process.pid;
-  fs.writeFileSync(tmp, JSON.stringify(updated, null, 2) + '\n', 'utf8');
-  fs.renameSync(tmp, configPath);  // atomic
+  // Level 2: profile preset
+  const profileDef = profiles[config.profile];
+  let modelId = profileDef.phases[phase];
 
-  // Audit trail — append BEFORE applying so a crash mid-apply is detectable
-  appendJsonl(ADJUSTMENT_LOG_PATH, {
-    timestamp: new Date().toISOString(),
-    config_file: configPath,
-    key,
-    previous_value: previous,
-    new_value: newValue,
-    reason,
-    confidence,
-    auto_applied: true,
-  });
+  // Level 3: opus_enabled:false → use profile's opus fallback
+  if (!config.opus_enabled && models[modelId] && models[modelId].isOpus) {
+    modelId = profileDef.opusFallback;
+  }
+
+  return modelId;
 }
 ```
 
-Safety bounds enforced in `isValidConfig()`:
-- `scan_skip_threshold`: integer, 1–100 (never 0 — would scan every whitespace change)
-- `compress_tool_output_tokens`: integer, 500–10000 (never below 500 — would compress tiny outputs)
-- `compress_context_pct`: integer, 50–95 (never below 50 — compression at 50% context is already aggressive)
-- `routing_disabled`: boolean only
-- `workflow_guard`: boolean only
+### Pattern 3: Per-Profile Fallback Chain (owned by dispatch.js)
+
+**What:** When an executor's `available()` returns false, dispatch.js consults the profile's `fallbackChain` array and tries executors in order.
+
+**When to use:** Any time a model is unreachable (API key missing, ollama not running, Codex rate-limited).
+
+**Trade-offs:** Fallback logic is now in dispatch.js, not inside individual executors. The existing `runWithFallback()` in minimax-exec.js is NOT forked into the plugin — its logic moves to dispatch.js.
+
+```javascript
+// dispatch.js fallback chain
+async function dispatchWithFallback(phase, prompt, opts, config) {
+  const profile = profiles[config.profile];
+  const chain = profile.fallbackChain[phase] || [resolveExecutorId(phase, config)];
+
+  for (const executorId of chain) {
+    const executor = require(`../executors/${executorId}`);
+    if (!executor.available()) continue;
+    const result = await executor.execute(prompt, opts);
+    if (result.success) return { ...result, executorUsed: executorId };
+  }
+
+  return { success: false, error: 'All executors in fallback chain unavailable' };
+}
+```
+
+### Pattern 4: Feedback Loop with Hard Cap
+
+**What:** Judge can send Envision back for re-run. Crucible can send Forge back. Both loops have a counter in phase-state.js, checked and incremented before re-invoking.
+
+**When to use:** Phase outputs that must pass a quality gate before proceeding.
+
+**Trade-offs:** Without hard caps, a stuck loop burns money. The cap must be checked before spawning, not after.
+
+```javascript
+// lib/phase-state.js
+function canLoop(phaseStateFile, loopType, maxLoops) {
+  const max = maxLoops || 2;
+  const state = readState(phaseStateFile);
+  const count = (state.loops && state.loops[loopType]) || 0;
+  if (count >= max) return false;
+  writeState(phaseStateFile, {
+    ...state,
+    loops: { ...(state.loops || {}), [loopType]: count + 1 }
+  });
+  return true;
+}
+```
+
+### Pattern 5: Decision Logging for Adaptive Intelligence
+
+**What:** Every dispatch.js call appends a JSONL record to `.seraphim/decisions.jsonl` after the executor resolves. Captures model, phase, profile, tokens, cost, latency, outcome, and quality signals.
+
+**When to use:** After every executor.execute() call, success or failure.
+
+**Trade-offs:** Small I/O overhead per call. Essential — without accumulated decisions, recommendations are guesswork rather than evidence.
+
+```javascript
+// decisions.jsonl record shape
+{
+  "timestamp": "2026-04-04T10:00:00.000Z",
+  "phase": "judge",
+  "model": "gemini-3-flash",
+  "profile": "performance",
+  "tokens": { "input": 4200, "output": 800 },
+  "cost_usd": 0.00374,
+  "latency_ms": 3200,
+  "outcome": "success",         // "success" | "failure" | "retry"
+  "retry_count": 0,
+  "loop_count": 0,              // feedback loops triggered before this call
+  "quality_signal": {
+    "approaches_surviving": 3,  // Judge: how many approaches survived
+    "crucible_issues_found": 0  // Crucible: adversarial issues found
+  }
+}
+```
+
+---
+
+## Data Flow
+
+### Full Six-Phase Pipeline (Performance profile)
+
+```
+User: /seraphim:run 01-my-feature
+  |
+  +--> commands/run.md (Opus reads, orchestrates sequence)
+        |
+        +--> DISCOVER
+        |     +--> dispatch.js("discover_external") → perplexity-exec.js → Perplexity MCP
+        |     +--> dispatch.js("discover_internal") → gemini-exec.js → Gemini 3.1 Pro API
+        |     +--> Writes: .seraphim/phases/01-my-feature/discovery/{external,internal}.md
+        |
+        +--> ENVISION
+        |     +--> seraphim-envision agent (native Opus session)
+        |     +--> Reads:  .seraphim/phases/01-my-feature/discovery/*.md
+        |     +--> Writes: .seraphim/phases/01-my-feature/vision.md
+        |
+        +--> JUDGE [feedback loop: max 2 → Envision]
+        |     +--> dispatch.js("judge") → gemini-exec.js → Gemini 3 Flash API
+        |     +--> Reads:  .seraphim/phases/01-my-feature/vision.md
+        |     +--> Writes: .seraphim/phases/01-my-feature/judgment.md
+        |     +--> All FATAL? → phase-state.canLoop("judge-envision")? → re-run ENVISION
+        |
+        +--> ARCHITECT
+        |     +--> seraphim-architect agent (native Opus session)
+        |     +--> Reads:  .seraphim/phases/01-my-feature/judgment.md (top survivor)
+        |     +--> Writes: .seraphim/phases/01-my-feature/blueprint.md
+        |
+        +--> FORGE [per-task checkpoint; max 2 retries per task]
+        |     +--> dispatch.js("forge") → codex-exec.js → codex exec --full-auto
+        |     +--> Reads:  .seraphim/phases/01-my-feature/blueprint.md (task list)
+        |     +--> After each task:
+        |     |     +--> checkpoint.js runtime check (tests + lint)
+        |     |     +--> dispatch.js("forge_checkpoint_static") → minimax-exec.js
+        |     |     +--> Both pass? → next task
+        |     |     +--> Either fails? → phase-state retry counter → retry with feedback
+        |     +--> Writes: forge-log.md + git commits
+        |
+        +--> CRUCIBLE [outer loop: max 2 → Forge]
+              +--> dispatch.js("crucible_verify") → Opus session (native)
+              +--> dispatch.js("crucible_adversarial") → minimax-exec.js
+              +--> Reads:  blueprint.md + forge output
+              +--> Writes: .seraphim/phases/01-my-feature/crucible.md
+              +--> FAIL? → phase-state.canLoop("crucible-forge")? → re-run FORGE
+```
+
+### dispatch.js Internal Flow
+
+```
+dispatch.js(phase, prompt, opts)
+  |
+  +--> lib/config.js.read(cwd)       → { profile, opus_enabled, overrides }
+  +--> resolveExecutorId(phase, cfg) → executorId (e.g., "gemini-exec")
+  +--> executor = require(`../executors/${executorId}`)
+  +--> executor.available()?
+  |     No → try profile.fallbackChain[phase] in order
+  +--> result = await executor.execute(prompt, opts)
+  +--> appendDecision(decisions.jsonl, { phase, executorId, result, latency })
+  +--> return result
+```
+
+### Hook Signal Flow After Migration
+
+```
+Claude writes/edits a file (PostToolUse fires):
+  |
+  +--> ~/.claude/settings.json PostToolUse chain (post-migration):
+        +--> gsd-context-monitor.js     (KEPT — global hook, unchanged)
+        +--> seraphim/hooks/token-logger.js  (PLUGIN — replaces codex-token-logger.js)
+        +--> decision-logger.js         (KEPT — global hook, unchanged)
+        [REMOVED: codex-wave-validator.js]
+        [REMOVED: minimax-post-scan.js]
+        [REMOVED: minimax-compress.js]
+
+Claude session ends (Stop fires):
+  |
+  +--> ~/.claude/settings.json Stop chain (post-migration):
+        [REMOVED: codex-review-gate.js]
+        [REMOVED: codex-plan-reviewer.js]
+        [REMOVED: codex-multi-round-reviewer.js]
+        [REMOVED: codex-superpowers-plan-reviewer.js]
+        (review now happens inside Crucible phase, not on every Stop)
+```
+
+---
+
+## Integration Points
+
+### New Plugin vs. Existing Hooks
+
+| Existing Hook | Chain | Action | Seraphim Replacement |
+|--------------|-------|--------|---------------------|
+| `codex-review-gate.js` | Stop | RETIRE | Crucible adversarial pass |
+| `codex-plan-reviewer.js` | Stop/SubagentStop | RETIRE | Judge phase |
+| `codex-multi-round-reviewer.js` | Stop/SubagentStop | RETIRE | Judge phase (multi-loop) |
+| `codex-superpowers-plan-reviewer.js` | Stop/SubagentStop | RETIRE | Judge phase |
+| `minimax-post-scan.js` | PostToolUse | RETIRE | Crucible adversarial pass |
+| `minimax-compress.js` | PostToolUse | RETIRE | Each executor manages its own context |
+| `codex-router.js` | PreToolUse | RETIRE | dispatch.js |
+| `codex-wave-validator.js` | PostToolUse | RETIRE | Forge checkpoint.js |
+| `codex-token-logger.js` | PostToolUse | REPLACE with plugin fork | `hooks/token-logger.js` (nine models) |
+| `codex-cost-reporter.js` | SessionStart | KEEP (global) | Seraphim adds its own session-start.js |
+| `codex-global-aggregator.js` | SessionStart | KEEP + extend | New Seraphim metrics panel added |
+| `decision-logger.js` | PostToolUse+Stop | KEEP (global) | Separate from decisions.jsonl |
+| `gsd-context-monitor.js` | PostToolUse | KEEP | No change |
+| `gsd-check-update.js` | SessionStart | KEEP | No change |
+| `gsd-prompt-guard.js` | PreToolUse | KEEP | No change |
+| `gsd-statusline.js` | StatusLine | KEEP | No change |
+| `gsd-workflow-guard.js` | PreToolUse | KEEP | No change |
+| `claude-settings-guard.js` | PreToolUse | KEEP | No change |
+| `hook-signal.js` | Shared utility | KEEP | No change |
+
+### Forks: What Changes From the Source
+
+| Component | Source | Key Changes in Fork |
+|-----------|--------|---------------------|
+| `executors/codex-exec.js` | `~/.claude/hooks/codex-exec.js` | (1) Replace absolute `./codex-pricing` require with `../lib/pricing`; (2) Remove `runWithFallback` — dispatch.js owns fallback; (3) Wrap `runCodexExec` as `execute(prompt, opts)` interface; (4) Add `available()` function |
+| `executors/minimax-exec.js` | `~/.claude/hooks/minimax-exec.js` | (1) Replace absolute paths with relative requires; (2) Remove `runWithFallback` — dispatch.js owns fallback; (3) Replace absolute OPENAI_GLOBAL_PATH with lazy require pattern; (4) Wrap `runMinimax` as `execute(prompt, opts)` interface; (5) Add `available()` function |
+| `lib/pricing.js` | `~/.claude/hooks/codex-pricing.js` | (1) Add six new model entries: gemini-3.1-pro, gemini-3-flash, sonnet-4.6, haiku-4.5, qwen-3.5-27b (free), perplexity-sonar; (2) Rename `CODEX_PRICING` to `MODEL_PRICING` |
+| `hooks/token-logger.js` | `~/.claude/hooks/codex-token-logger.js` | (1) Change log path from `.planning/token-log.jsonl` to `.seraphim/token-log.jsonl`; (2) Expand record schema to handle all nine model names; (3) Update advisory context label |
+
+### External Service Integration
+
+| Service | Integration Pattern | Env Var | Notes |
+|---------|--------------------|---------|----|
+| Codex CLI | `spawn('codex', ['exec', '--full-auto', '--json', ...])` | `OPENAI_API_KEY` | 300s timeout; SIGTERM+SIGKILL pattern from existing codex-exec.js. Proven. |
+| MiniMax API | OpenAI SDK `new OpenAI({ baseURL: 'https://api.minimax.io/v1', apiKey })` | `MINIMAX_API_KEY` | 90s timeout; temperature 0.01 (rejects 0); 3-retry exponential backoff. Proven. |
+| Gemini API | `@google/generative-ai` npm package | `GEMINI_API_KEY` | Search grounding for Discover; thinking mode for Judge; function calling for internal discovery. Package not yet installed. |
+| Qwen (ollama) | HTTP `POST localhost:11434/api/generate` | None (local) | 120s timeout; 32K context cap; JSON action wrapper for Forge; availability check via `/api/tags`. RTX 3090 in transit. |
+| Perplexity | MCP (already configured, preferred) or `PERPLEXITY_API_KEY` HTTP | `PERPLEXITY_API_KEY` | MCP preferred — zero new deps. Paid account configured. |
+| SearXNG | `curl 'http://localhost:8888/search?q=...&format=json'` in websearch.sh | None | For Codex/Qwen web access. Already running at localhost:8888. |
+| Context7 | HTTP endpoint in fetchdocs.js | None | For Codex/Qwen documentation access. MCP already configured for Opus. |
+
+### Internal Module Boundaries
+
+| Boundary | Communication | Rule |
+|----------|---------------|------|
+| `commands/*.md` ↔ `dispatch.js` | Opus reads command, calls `node executors/dispatch.js phase prompt` via Bash | Commands are Markdown prompts — they instruct Opus what to do; Opus makes the Bash call |
+| `dispatch.js` ↔ `executors/` | `require('./executor-id')` + standard interface calls only | dispatch.js never calls executor-specific methods; only `execute()`, `available()` |
+| `executors/` ↔ `lib/pricing.js` | `require('../lib/pricing.js')` | No inline pricing anywhere in executors |
+| `dispatch.js` ↔ `lib/config.js` | `require('../lib/config.js')` | dispatch.js never reads `.seraphim/config.json` directly |
+| `commands/*.md` ↔ `lib/phase-state.js` | Opus calls `node lib/phase-state.js check phase-id` via Bash | Commands verify prerequisites before invoking dispatch |
+| `tools/checkpoint.js` ↔ `dispatch.js` | `node executors/dispatch.js forge_checkpoint_static ...` subprocess | checkpoint.js triggers static review as a dispatch call; it does not call minimax-exec directly |
+| `agents/*.md` ↔ `executors/` | Bash subprocess: `node executors/dispatch.js phase ...` inside agent | Agents that need non-Claude model output use dispatch.js via Bash, not direct executor require |
+
+---
+
+## Build Order and Dependencies
+
+The mandated build order maps cleanly to dependency constraints:
+
+```
+GROUP A — No dependencies. Build immediately. All parallel.
+  plugin.json
+  config/profiles.json
+  config/models.json
+  lib/pricing.js         (fork + extend — no runtime deps)
+  lib/config.js          (new — no executor deps)
+  lib/phase-state.js     (new — no executor deps)
+  tools/websearch.sh     (pure curl — no Node deps)
+  tools/fetchdocs.js     (no executor deps)
+
+GROUP B — Depends on lib/ only. Build after Group A. All parallel.
+  executors/codex-exec.js      (fork + adapt; requires lib/pricing.js)
+  executors/minimax-exec.js    (fork + adapt; requires lib/pricing.js)
+  executors/gemini-exec.js     (new; requires lib/pricing.js)
+  executors/qwen-exec.js       (new; requires lib/pricing.js)
+  executors/perplexity-exec.js (new; no pricing needed — cost is flat)
+  hooks/token-logger.js        (fork + adapt; requires lib/pricing.js)
+
+GROUP C — Depends on all five executors + lib/config.js. Single file.
+  executors/dispatch.js        (new; requires all executors + config.js + pricing.js)
+
+GROUP D — Depends on dispatch.js. Build after Group C. Mostly parallel.
+  tools/checkpoint.js          (depends on dispatch.js for static review phase)
+  hooks/session-start.js       (depends on lib/config.js + lib/phase-state.js)
+  commands/discover.md         (depends on dispatch.js being callable)
+  commands/envision.md         (depends on dispatch.js)
+  commands/judge.md            (depends on dispatch.js)
+  commands/architect.md        (depends on dispatch.js)
+  commands/forge.md            (depends on dispatch.js + checkpoint.js)
+  commands/crucible.md         (depends on dispatch.js)
+  commands/set-profile.md      (depends on lib/config.js)
+  commands/show-profile.md     (depends on lib/config.js)
+  commands/override.md         (depends on lib/config.js)
+  commands/status.md           (depends on lib/phase-state.js)
+  commands/new-project.md      (depends on lib/config.js)
+  commands/run.md              (depends on all six phase commands)
+
+GROUP E — Depends on corresponding commands. All parallel.
+  agents/seraphim-envision.md
+  agents/seraphim-judge.md
+  agents/seraphim-architect.md
+  agents/seraphim-crucible.md
+  agents/seraphim-checkpoint.md
+
+GROUP F — Forge checkpoint system integration
+  Forge between-task loop logic (wired into forge.md command + checkpoint.js)
+  Depends on: forge.md, checkpoint.js, dispatch.js, lib/phase-state.js
+  This is the most complex integration; build and test in isolation.
+
+GROUP G — Adaptive intelligence (build last)
+  Decision logging in dispatch.js (extend Group C)
+  decisions.jsonl schema documentation
+  Analysis script for reading decisions.jsonl
+  Dashboard extension (per-phase performance heatmap, profile cost comparison)
+  Depends on: complete pipeline from Groups A–F; needs real decision data to test
+```
+
+### Dependency Graph (critical path)
+
+```
+lib/ (A) → executors/ (B) → dispatch.js (C) → commands/ (D) → agents/ (E)
+                                              ↘ checkpoint.js (D)
+                                              ↘ Forge loop (F)
+                                              ↘ Adaptive intel (G)
+```
+
+### What Can Be Built in Parallel
+
+Within each group, all components are independent and can be built simultaneously:
+- All five executors in Group B share no state with each other
+- All twelve commands in Group D share no state with each other
+- All five agents in Group E share no state with each other
+
+The only strict sequencing is: A before B, B before C, C before D, D before E, E+C before F, F before G.
 
 ---
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: Modifying Existing Hooks to Emit Decision Signal
+### Anti-Pattern 1: Absolute Paths to ~/.claude/hooks/ in Plugin Executors
 
-**What people do:** Add `appendJsonl(decisionLog, {...})` lines inside `codex-router.js`,
-`minimax-post-scan.js`, etc.
+**What people do:** Copy the existing hooks verbatim, leaving absolute paths like `/home/alucard/.claude/hooks/codex-pricing` and `/home/alucard/.npm-global/lib/node_modules/openai` in the forked files.
 
-**Why it's wrong:** Every hook has two responsibilities. When the decision schema changes, you
-edit 7 hooks. When a hook fails, it is unclear if the failure was in the original job or in logging.
-The fail-silent pattern becomes ambiguous.
+**Why it's wrong:** Breaks on any machine that is not the original developer's workstation. The plugin must work from `~/.claude/plugins/seraphim/` regardless of username or global npm path.
 
-**Do this instead:** Run `decision-logger.js` last in the PostToolUse chain. Parse the advisory
-text that preceding hooks already emit. Each hook stays single-responsibility.
+**Do this instead:** Use `path.join(__dirname, '../lib/pricing.js')` for intra-plugin requires. For the OpenAI SDK, use the lazy-require pattern already present in minimax-exec.js: `try { require('openai') } catch { require(GLOBAL_PATH) }` — but replace the hardcoded GLOBAL_PATH with a resolved path using `require.resolve`.
 
-### Anti-Pattern 2: Auto-Applying Changes Without a Confidence Gate
+### Anti-Pattern 2: Fallback Chain Logic Inside Individual Executors
 
-**What people do:** Apply every ML recommendation immediately, regardless of sample size.
+**What people do:** The existing `runWithFallback()` in minimax-exec.js embeds the Codex → MiniMax → user escalation logic inside the executor. Fork it into the plugin unchanged.
 
-**Why it's wrong:** With 10 events, a 70% "scan finds nothing" rate may reflect a quiet week, not
-a real pattern. On day 3, the system turns off your security scanner because you wrote markdown.
+**Why it's wrong:** In Seraphim, fallback chains are profile-specific. The Budget profile's forge fallback is Qwen, not MiniMax. Embedding fallback in an executor hardcodes assumptions that belong in dispatch.js.
 
-**Do this instead:** Hold all changes behind `confidence >= 0.8`. Below that, surface as advisory
-context only. Let data accumulate to earn the right to auto-apply.
+**Do this instead:** Remove `runWithFallback()` from the forked minimax-exec.js. dispatch.js reads `profile.fallbackChain[phase]` and tries each executor in order via `available()` + `execute()`.
 
-### Anti-Pattern 3: Putting the Analyzer in the PostToolUse Chain
+### Anti-Pattern 3: Phase Commands That Do Their Own Config Resolution
 
-**What people do:** Run the ML analyzer on every Write/Edit event to tune configs in real time.
+**What people do:** Each command reads `.seraphim/config.json` directly and resolves which model to call inline.
 
-**Why it's wrong:** PostToolUse hooks run inside the tool call latency budget. An analyzer
-reading JSONL and computing statistics adds 100-500ms to every edit. Worse, config changes
-in PostToolUse would not affect other hooks that already read config at chain start.
+**Why it's wrong:** Config resolution logic duplicated across twelve command files. Adding a new profile or changing fallback behavior requires updating every command.
 
-**Do this instead:** Analyze at SessionStart. Config changes apply at the next session open,
-which is the correct granularity.
+**Do this instead:** Commands invoke `node executors/dispatch.js [phase] [prompt]` via Bash. dispatch.js owns all config resolution. Commands never touch config directly.
 
-### Anti-Pattern 4: Writing Config Changes Without an Audit Trail
+### Anti-Pattern 4: Running Forge Without Phase-State Guard
 
-**What people do:** Overwrite `.claude/settings.json` with new values, no record of what changed.
+**What people do:** Allow `/seraphim:forge [id]` to run even if Architect has not produced `blueprint.md`.
 
-**Why it's wrong:** When the ML model makes a bad recommendation that slips through validation,
-there is no way to know what was changed or why. The user sees unexpected behavior with no
-traceable cause.
+**Why it's wrong:** Forge reads the blueprint. Without it, Codex gets an empty or missing prompt and burns subscription quota producing nothing useful.
 
-**Do this instead:** Append one record to `adjustment-log.jsonl` before applying every change.
-Record includes previous value, new value, reason, and confidence score. Rollback is two steps:
-read the log, write the old value back with config-writer.
+**Do this instead:** Every phase command checks `phase-state.js` for the predecessor's completion before invoking dispatch.js. `forge.md` verifies `blueprint.md` exists and is non-empty. `/seraphim:run` enforces the full sequence automatically.
 
-### Anti-Pattern 5: A Neural Network on Low-Volume Data
+### Anti-Pattern 5: Leaving Seven Retiring Hooks Active During and After Migration
 
-**What people do:** Install TensorFlow/PyTorch, train a model on session data, predict optimal
-config values.
+**What people do:** Register the new plugin hooks in settings.json while leaving the seven retiring hooks (codex-plan-reviewer, minimax-post-scan, codex-review-gate, etc.) also registered.
 
-**Why it's wrong:** 50-200 events per day is statistical noise for a neural network. A model
-with 10 parameters trained on 50 examples will overfit trivially and make worse predictions
-than a simple threshold rule. The infrastructure overhead (Python runtime, dependencies, training
-pipeline) is disproportionate.
+**Why it's wrong:** The Stop hook chain becomes four expensive model calls on every session end — double-reviewing work that the pipeline already reviewed. MiniMax adversarial review fires on every Write/Edit in addition to the Crucible phase.
 
-**Do this instead:** Weighted running statistics with explicit confidence scores. Interpretable,
-auditable, and calibrated to the data volume this system actually generates.
+**Do this instead:** Migration is an atomic settings.json edit: register plugin hooks AND remove retiring hooks in the same operation. Do not leave both active simultaneously even for testing.
+
+### Anti-Pattern 6: Storing Two Separate Token Logs and Not Updating the Global Aggregator
+
+**What people do:** Fork token-logger.js to write to `.seraphim/token-log.jsonl` and leave `codex-global-aggregator.js` unchanged — it continues scanning for `.planning/token-log.jsonl` only.
+
+**Why it's wrong:** The global dashboard stops including Seraphim sessions. Decision Intelligence panel only sees GSD data. The dashboard becomes misleading.
+
+**Do this instead:** Extend `codex-global-aggregator.js` (or its Seraphim-aware replacement) to also scan for `.seraphim/token-log.jsonl` files. The global aggregation step happens in Group G (adaptive intelligence phase).
+
+---
+
+## Migration Path from Hooks to Plugin
+
+### Step 1: Plugin scaffold (no behavior change)
+
+Create `~/.claude/plugins/seraphim/` with `plugin.json`. Claude Code picks up the plugin — the `/seraphim:` command namespace appears. No hooks are modified. Existing v2.0 behavior continues unchanged.
+
+### Step 2: Fork and adapt executors + lib/
+
+Build all of Group A and Group B. Executors exist in the plugin but nothing invokes them yet. Old hooks still run unchanged.
+
+### Step 3: Build dispatch.js + commands + agents
+
+Build Group C, D, and E. Phase commands become invokable. The six-phase pipeline is functional but the old hooks still also run.
+
+### Step 4: Atomic hook migration (single settings.json edit)
+
+In one edit to `~/.claude/settings.json`:
+
+**Remove from Stop chain:**
+- `codex-review-gate.js`
+- `codex-plan-reviewer.js`
+- `codex-multi-round-reviewer.js`
+- `codex-superpowers-plan-reviewer.js`
+
+**Remove from PostToolUse chain:**
+- `minimax-post-scan.js`
+- `minimax-compress.js`
+- `codex-wave-validator.js`
+- `codex-token-logger.js` (replaced by plugin fork)
+
+**Remove from PreToolUse chain:**
+- `codex-router.js`
+
+**Add to SessionStart chain:**
+- `~/.claude/plugins/seraphim/hooks/session-start.js`
+
+**Add to PostToolUse chain:**
+- `~/.claude/plugins/seraphim/hooks/token-logger.js`
+
+**Keep unchanged:** gsd-*, decision-logger.js, codex-cost-reporter.js, codex-global-aggregator.js, claude-settings-guard.js, hook-signal.js
+
+### Step 5: Forge checkpoint system (Group F)
+
+Build checkpoint.js and wire the between-task loop into forge.md. Test in isolation with a simple blueprint before end-to-end testing.
+
+### Step 6: Adaptive intelligence (Group G)
+
+Add decision logging to dispatch.js. Build the analysis script. Extend the dashboard with the per-phase performance heatmap.
 
 ---
 
 ## Scaling Considerations
 
-This is a single-user local CLI tool. The relevant scaling axis is data volume over time.
+Seraphim is a local single-developer tool. Scaling concerns are about session cost, model availability, and decisions.jsonl growth — not server load.
 
-| Records in decision-log.jsonl | Analyzer behavior | SessionStart overhead |
-|-------------------------------|-------------------|-----------------------|
-| 0–29 | Cold start: defaults, no changes | < 1ms |
-| 30–500 | Mixed mode, low-confidence suggestions | 5–20ms |
-| 500–10,000 | Full statistics, auto-apply enabled | 20–100ms |
-| 10,000–100,000 | Full statistics | 100ms–1s: add mtime-gated incremental read (same pattern as codex-global-aggregator.js) |
-| 100,000+ | Same incremental read pattern | < 50ms with byte-offset seek |
-
-The 10,000-record threshold takes approximately 3-6 months at typical usage. Implement the
-mtime-gated incremental read in Phase 2 to avoid a retrofit.
-
----
-
-## Build Order (dependency-first)
-
-Dependencies drive the order. Each phase can be tested in isolation before the next begins.
-
-```
-Phase 1: Decision Capture
-  No dependencies on later phases.
-  → decision-logger.js (PostToolUse + Stop advisory hook)
-  → decision-log.jsonl schema
-  → defaults.json (cold-start priors)
-  Validation: run a session, confirm records appear in
-              .planning/decision-log.jsonl and
-              ~/.claude/dashboard/decision-log.jsonl
-
-Phase 2: Analysis Engine (depends on Phase 1 data)
-  → ml-analyzer.js (statistics only, no config writes yet)
-  → recommendations.json schema
-  → mtime-gated incremental read (prevents 10k-record slowdown later)
-  Validation: node ml-analyzer.js --dry-run
-              confirm sensible recommendations from real Phase 1 data
-              confirm advisory context output format
-
-Phase 3: Config Writer + Audit Trail (depends on Phase 2 recommendations)
-  → config-writer.js (atomic write-then-rename + safety validation)
-  → adjustment-log.jsonl
-  Validation: apply a known recommendation manually
-              confirm atomic write (no torn file on concurrent read)
-              confirm audit record appears in adjustment-log.jsonl
-              confirm bad value rejected by isValidConfig()
-
-Phase 4: SessionStart Integration (depends on all above)
-  → register ml-analyzer.js in settings.json SessionStart chain (timeout: 10)
-  → wire analyzer → config-writer with confidence gate (threshold: 0.8)
-  Validation: open a session, confirm config changes apply for
-              high-confidence recommendations;
-              confirm no changes for low-confidence recommendations;
-              confirm session opens in under 3 seconds total
-```
-
-**Why this order:**
-- Phase 1 has no dependencies. It captures data regardless of whether analysis is built.
-- Phase 2 requires real data from Phase 1 to be meaningful. Statistical models on synthetic data
-  have hidden calibration bugs.
-- Phase 3 is the highest-risk component (writes to files other hooks read). Test standalone before
-  wiring to automatic triggers.
-- Phase 4 wires everything together only after each component is verified standalone. A broken
-  SessionStart hook delays every session open — it must be robust before registration.
+| Concern | At current usage | If heavy usage (50+ cycles/day) |
+|---------|-----------------|--------------------------------|
+| Codex rate limit (Plus weekly cap) | dispatch.js detects via `isCodexRateLimited()` pattern from codex-exec.js; falls back per profile | Same detection; consider Moderate profile as default if Codex cap hits frequently |
+| MiniMax pre-answer latency (~55s) | 90s timeout proven in minimax-exec.js; fire-and-forget for adversarial passes | Acceptable; MiniMax used only for Judge/Crucible, not every call |
+| Qwen local inference (120s) | RTX 3090 not yet available; Balanced/Budget profiles blocked until GPU arrives | Once available, ollama context limit (32K) is the practical constraint |
+| decisions.jsonl growth | ~10-30 records per pipeline cycle; 1MB/day at heavy usage | After ~10K records add mtime-gated incremental read (same pattern as codex-global-aggregator.js) |
+| Runaway feedback loops | Hard caps in phase-state.js (max 2 per loop type) enforced before re-invoking | Hard caps are non-negotiable; raising them requires explicit config change |
+| Cost overrun | decisions.jsonl tracks per-call cost; session-start.js reports running total | $15/day budget enforced by human review of session-start report; no auto-spend guard needed |
 
 ---
 
 ## Sources
 
-- Live source: `/home/alucard/.claude/hooks/` — all 18 hook scripts inspected; stdin/stdout
-  patterns, advisory text formats, config key names, timeout budgets confirmed from source
-- Live source: `/home/alucard/.claude/settings.json` — all hook registrations, event types,
-  timeout values confirmed
-- Live data: `/home/alucard/projects/Claude_X_Codex/.planning/token-log.jsonl` — JSONL schema
-  confirmed; null session_id pattern confirmed (25% of records)
-- Live source: `/home/alucard/.claude/hooks/codex-global-aggregator.js` — mtime-gated incremental
-  read pattern reused for decision-log scaling
-- Prior research: `.planning/research/SUMMARY.md` — write-then-rename and mtime guard already
-  proven in this codebase
-- Linux `rename(2)` POSIX specification — atomic same-filesystem rename on Linux confirmed
-- WebSearch: Gemini CLI hooks (2026) — confirms hook-as-advisory-observer is established pattern
-  across CLI AI tools; hook-based config feedback loops are an emerging standard
+- Direct inspection: `/home/alucard/.claude/hooks/codex-exec.js` (v1.1.0) — executor pattern, JSONL parsing, SIGTERM+SIGKILL timeout
+- Direct inspection: `/home/alucard/.claude/hooks/minimax-exec.js` (v1.1.0) — OpenAI SDK baseURL swap, retry backoff, runWithFallback pattern to retire
+- Direct inspection: `/home/alucard/.claude/hooks/codex-pricing.js` (v1.0.0) — pricing table structure to fork and extend
+- Direct inspection: `/home/alucard/.claude/hooks/codex-token-logger.js` (v1.0.0) — JSONL append pattern, [CODEX_RESULT] marker approach
+- Direct inspection: `/home/alucard/.claude/hooks/codex-router.js` (v2.0.0) — PreToolUse advisory pattern, config resolution
+- Direct inspection: `/home/alucard/.claude/hooks/codex-wave-validator.js` (v2.0.0) — PostToolUse checkpoint pattern
+- Direct inspection: `/home/alucard/.claude/settings.json` — all hook registrations, event types, timeout values, enabled plugins
+- Direct inspection: `/home/alucard/.claude/plugins/marketplaces/claude-plugins-official/plugins/example-plugin/` — plugin file structure (commands/, agents/ layout)
+- Direct inspection: `/home/alucard/.claude/plugins/marketplaces/claude-plugins-official/plugins/code-simplifier/agents/code-simplifier.md` — agent frontmatter format (name, description, model)
+- Direct inspection: `/home/alucard/.claude/plugins/marketplaces/claude-plugins-official/plugins/claude-code-setup/skills/claude-automation-recommender/references/plugins-reference.md` — plugin registration pattern
+- Direct inspection: `docs/specs/2026-04-04-seraphim-v3-design.md` — approved design spec (primary source)
+- Direct inspection: `.planning/PROJECT.md` — project constraints, key decisions, requirements
 
 ---
 
-*Architecture research for: ML-driven self-optimization layer on Claude X Codex hook pipeline*
-*Researched: 2026-04-03*
+*Architecture research for: Seraphim v3.0 — six-phase multi-model Claude Code plugin*
+*Researched: 2026-04-04*

@@ -399,3 +399,616 @@ All three are runtime dependencies (used inside hook scripts), not devDependenci
 ---
 *Stack research additions for: ML-Driven Self-Optimization Milestone (Claude X Codex)*
 *Researched: 2026-04-03*
+
+---
+---
+
+# Stack Additions: Seraphim v3.0 — New Model Integrations and Plugin System
+
+**Researched:** 2026-04-04
+**Confidence:** HIGH for packages/versions (npm registry verified); HIGH for plugin manifest (official Claude Code docs); MEDIUM for Qwen model tag (ollama library confirmed, 27B does not exist — 30B is the correct target); HIGH for Perplexity/Gemini API patterns (official docs verified)
+
+This section covers **new additions only** for Seraphim v3.0. The existing stack (Node.js v22.22.0, openai@6.33.0, codex CLI, MiniMax executor pattern) is carried forward unchanged.
+
+---
+
+## Scope: What This Section Covers
+
+Five specific questions for v3.0:
+
+1. Gemini 3.1 Pro and Gemini 3 Flash API integration
+2. Qwen 3.5-27B local execution via ollama
+3. Perplexity Sonar as a direct API executor (not just MCP)
+4. Claude Code plugin.json manifest format
+5. dispatch.js central routing pattern
+
+---
+
+## 1. Gemini API Integration
+
+### SDK Decision: Use `@google/genai`, NOT `@google/generative-ai`
+
+The older `@google/generative-ai` package (0.24.1) is **deprecated as of November 30, 2025**. It does not receive new features and does not support the Live API, Veo, or current model generations. The actively maintained replacement is `@google/genai`.
+
+| Package | Version | Status | Decision |
+|---------|---------|--------|----------|
+| `@google/genai` | 1.48.0 | Active, current | USE THIS |
+| `@google/generative-ai` | 0.24.1 | Deprecated Nov 2025 | DO NOT USE |
+
+**Version verified:** npm registry live check 2026-04-04 → `@google/genai@1.48.0`
+
+### Client Initialization
+
+```javascript
+const { GoogleGenAI } = require('@google/genai');
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+```
+
+Auth: `GEMINI_API_KEY` environment variable. Key must be configured before using gemini-exec.js. Currently not set on this machine — needs to be added.
+
+### Text Generation (gemini-exec.js pattern)
+
+```javascript
+const response = await ai.models.generateContent({
+  model: 'gemini-3.1-pro-preview',   // or 'gemini-3-flash-preview'
+  contents: prompt
+});
+const text = response.text;
+```
+
+### Search Grounding (Discover phase — External track)
+
+Enable Google Search as a tool for grounded web-aware responses with citations:
+
+```javascript
+const response = await ai.models.generateContent({
+  model: 'gemini-3.1-pro-preview',
+  contents: prompt,
+  config: {
+    tools: [{ googleSearch: {} }]
+  }
+});
+```
+
+Both `gemini-3.1-pro-preview` and `gemini-3-flash-preview` support the `googleSearch` tool. Older models used `google_search_retrieval` — do not use that form for current models.
+
+### Function Calling (Internal discovery — tool simulation)
+
+```javascript
+const { FunctionCallingConfigMode } = require('@google/genai');
+
+const response = await ai.models.generateContent({
+  model: 'gemini-3.1-pro-preview',
+  contents: prompt,
+  config: {
+    tools: [{ functionDeclarations: [yourFunctionDeclaration] }],
+    toolConfig: {
+      functionCallingConfig: {
+        mode: FunctionCallingConfigMode.ANY
+      }
+    }
+  }
+});
+```
+
+### Streaming
+
+```javascript
+const stream = await ai.models.generateContentStream({
+  model: 'gemini-3-flash-preview',
+  contents: prompt
+});
+for await (const chunk of stream) {
+  process.stdout.write(chunk.text);
+}
+```
+
+### Model Names (confirmed from Gemini grounding docs, 2026-04-04)
+
+| Model ID | Use In Seraphim | Why |
+|----------|-----------------|-----|
+| `gemini-3.1-pro-preview` | DISCOVER internal (Performance), ENVISION (Moderate), Opus fallback (Performance/Moderate) | 1M context, agentic multi-step planning, function calling |
+| `gemini-3-flash-preview` | JUDGE (Performance), DISCOVER external (Budget/Frugal), CRUCIBLE verify (Moderate), Opus fallback (Frugal) | Fast, 90.4% GPQA Diamond, search grounding, low cost |
+
+### Installation
+
+```bash
+npm install @google/genai@1.48.0
+```
+
+Install at `~/.claude/plugins/seraphim/` or wherever the plugin's `package.json` lives. The package is ~2MB, pure JS, no native bindings.
+
+---
+
+## 2. Qwen Local Execution via Ollama
+
+### Model Tag Correction: 27B Does Not Exist
+
+The design spec references "Qwen 3.5-27B" but this model size does not exist. The Qwen3 family on ollama has: 0.6B, 1.7B, 4B, 8B, 14B, 30B, 32B, 235B. The nearest equivalent to the intended 27B is the **30B** model.
+
+**Recommended tag:** `qwen3:30b-a3b-q4_K_M`
+- Size: 19GB (fits comfortably on RTX 3090 24GB VRAM)
+- Quantization: Q4_K_M (good quality/size tradeoff, community standard for 4-bit)
+- Context window: 256K tokens (more than enough; cap at 32K for consumer hardware as spec'd)
+- Pull command: `ollama pull qwen3:30b-a3b-q4_K_M`
+
+**Alternative for coding tasks:** `qwen3-coder:30b-a3b-q4_K_M` — same size, purpose-built for code generation. Consider for FORGE phase in Balanced/Budget profiles.
+
+### Ollama HTTP API
+
+Ollama exposes an OpenAI-compatible chat completions endpoint. This means `qwen-exec.js` can reuse the existing `openai` package (already installed at v6.33.0) with a baseURL swap — the same pattern used for MiniMax.
+
+```javascript
+const OpenAI = require('openai');
+
+const client = new OpenAI({
+  apiKey: 'ollama',            // any non-empty string; ollama ignores it
+  baseURL: 'http://localhost:11434/v1'
+});
+
+const response = await client.chat.completions.create({
+  model: 'qwen3:30b-a3b-q4_K_M',
+  messages: [{ role: 'user', content: prompt }],
+  temperature: 0.7,
+  stream: false
+});
+
+const text = response.choices[0].message.content;
+```
+
+**Key parameters:**
+- `baseURL`: `http://localhost:11434/v1` (bind to localhost per security rules)
+- `model`: exact ollama model tag (e.g. `qwen3:30b-a3b-q4_K_M`)
+- `stream`: set to `true` for streaming; ollama supports SSE
+- No API key required; use any non-empty string
+
+### Availability Check
+
+```javascript
+async function available() {
+  try {
+    const res = await fetch('http://localhost:11434/api/version', { signal: AbortSignal.timeout(2000) });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+```
+
+### Tool Simulation (Forge mode)
+
+Qwen running via ollama cannot use MCP or Claude Code tools directly. The spec's approach — structured JSON output interpreted by the wrapper — is correct:
+
+Prompt Qwen to output actions in this schema:
+```json
+{"action": "write", "path": "src/foo.js", "content": "..."}
+{"action": "run", "command": "npm test"}
+{"action": "read", "path": "package.json"}
+```
+
+The `qwen-exec.js` wrapper parses this output and executes the actions. This is a well-established pattern for local models without native tool support.
+
+### Timeout
+
+Use 120s as specified. Qwen 30B Q4 on RTX 3090 generates approximately 15-25 tokens/second. A 2,000 token response takes ~80-130 seconds — 120s is appropriate.
+
+### No New npm Dependencies
+
+`qwen-exec.js` reuses the existing `openai@6.33.0` package via baseURL swap. Zero new installs needed for Qwen support.
+
+---
+
+## 3. Perplexity Sonar as Direct API Executor
+
+### API Pattern: OpenAI SDK baseURL Swap (same as MiniMax)
+
+Perplexity's Sonar API is OpenAI-compatible. `perplexity-exec.js` reuses the existing `openai@6.33.0` package exactly as `minimax-exec.js` does.
+
+```javascript
+const OpenAI = require('openai');
+
+const client = new OpenAI({
+  apiKey: process.env.PERPLEXITY_API_KEY,
+  baseURL: 'https://api.perplexity.ai'
+});
+
+const response = await client.chat.completions.create({
+  model: 'sonar-pro',
+  messages: [
+    { role: 'system', content: 'Be precise and cite sources.' },
+    { role: 'user', content: prompt }
+  ],
+  stream: false
+});
+
+const text = response.choices[0].message.content;
+// Citations are in response.citations (Perplexity-specific extension)
+const citations = response.citations || [];
+```
+
+### Model IDs (confirmed from official Perplexity docs, 2026-04-04)
+
+| Model ID | Use In Seraphim | Why |
+|----------|-----------------|-----|
+| `sonar-pro` | DISCOVER external (Performance, Balanced, Moderate) | Web-grounded, complex multi-step queries, 2x citations vs sonar |
+| `sonar` | DISCOVER external (lightweight fallback) | Cheaper, still grounded, fast |
+| `sonar-reasoning-pro` | When reasoning + search needed | DeepSeek R1 backbone + CoT + web search; expensive |
+| `sonar-deep-research` | Deep research tasks only | Long-form exhaustive reports; async; use sparingly |
+
+**Recommended default:** `sonar-pro` for DISCOVER external. It provides more citations than `sonar` and handles follow-up queries better.
+
+### Base URL
+
+`https://api.perplexity.ai` — no `/v1` suffix (unlike OpenAI and MiniMax which use `/v1`).
+
+### Citations in Response
+
+Perplexity returns citations as a `citations` array on the response object (outside the standard OpenAI schema). Capture them separately from the message content:
+
+```javascript
+const result = {
+  text: response.choices[0].message.content,
+  citations: response.citations || [],
+  model: response.model
+};
+```
+
+Write citations to the phase output file alongside the research text for traceability.
+
+### Environment Variable
+
+`PERPLEXITY_API_KEY` — not currently set as an env var on this machine (only available via MCP). Needs to be added to the environment for the direct API executor to work.
+
+### No New npm Dependencies
+
+Zero additional packages needed. The existing `openai@6.33.0` handles the baseURL swap.
+
+---
+
+## 4. Claude Code Plugin Manifest
+
+### Directory Structure
+
+The plugin manifest lives at `.claude-plugin/plugin.json` inside the plugin directory. All other components (commands, agents, hooks, executors, tools) live at the **plugin root**, not inside `.claude-plugin/`.
+
+**Correct layout for Seraphim:**
+
+```
+~/.claude/plugins/seraphim/
+├── .claude-plugin/
+│   └── plugin.json          # Manifest — ONLY file in this directory
+├── commands/                # /seraphim:discover, etc. (.md files)
+├── agents/                  # seraphim-envision.md, etc.
+├── hooks/
+│   └── hooks.json           # SessionStart, PostToolUse config
+├── executors/               # gemini-exec.js, qwen-exec.js, etc.
+├── tools/                   # websearch.sh, checkpoint.js, etc.
+├── lib/                     # pricing.js, config.js, phase-state.js
+└── config/                  # profiles.json, models.json
+```
+
+The manifest is **optional** — Claude Code auto-discovers components without it. Include it to get namespacing, userConfig prompts, and precise path declarations.
+
+### plugin.json Schema
+
+```json
+{
+  "name": "seraphim",
+  "version": "3.0.0",
+  "description": "Six-phase multi-model creative pipeline. Nine models, five profiles.",
+  "author": {
+    "name": "Dragos"
+  },
+  "commands": "./commands/",
+  "agents": "./agents/",
+  "hooks": "./hooks/hooks.json",
+  "userConfig": {
+    "gemini_api_key": {
+      "description": "Google AI Studio API key for Gemini models",
+      "sensitive": true
+    },
+    "perplexity_api_key": {
+      "description": "Perplexity API key for Sonar web search",
+      "sensitive": true
+    }
+  }
+}
+```
+
+**Key decisions:**
+- `name: "seraphim"` — commands become `/seraphim:discover`, agents become `seraphim:seraphim-envision`, etc.
+- Sensitive `userConfig` values go to system keychain, not `settings.json`
+- `hooks` points to a JSON file rather than inlining — keeps the manifest readable
+- Executors, tools, and lib are NOT declared in the manifest — they're Node.js modules required by the hooks and commands, not Claude Code components
+
+### hooks.json Pattern
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-start.js"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/token-logger.js"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Use `${CLAUDE_PLUGIN_ROOT}` for all paths inside hook commands — this variable resolves to the plugin's installation directory regardless of where it is installed.
+
+### Persistent Data Directory
+
+Use `${CLAUDE_PLUGIN_DATA}` for state that must survive plugin updates (token logs, decisions.jsonl, per-project configs). This resolves to `~/.claude/plugins/data/seraphim/`.
+
+The per-project `.seraphim/` directory is separate from this — it lives in each project directory and is managed by `lib/config.js`.
+
+### Plugin Installation
+
+```bash
+# Install from local directory for development
+claude --plugin-dir ~/.claude/plugins/seraphim
+
+# Or install as user-scope plugin (persists across sessions)
+# (requires marketplace entry for permanent install)
+```
+
+For development, use `--plugin-dir` flag. For production deployment, the plugin will need a marketplace entry or manual `settings.json` registration.
+
+### Validation
+
+```bash
+claude plugin validate
+# or from within a session:
+# /plugin validate
+```
+
+Run this after creating/modifying `plugin.json` to catch schema errors before they cause silent failures.
+
+---
+
+## 5. dispatch.js Central Routing Pattern
+
+### Design Principle
+
+`dispatch.js` is the single indirection point between phase logic and model executors. It reads config, resolves the phase-to-model mapping, loads the correct executor module, and calls it. No phase command should `require()` a specific executor directly.
+
+### Recommended Implementation Pattern
+
+```javascript
+// executors/dispatch.js
+'use strict';
+
+const path = require('path');
+const configLib = require('../lib/config');
+const profilesData = require('../config/profiles.json');
+
+const EXECUTOR_MAP = {
+  'claude-opus-4.6':       null,          // native session — Opus calls itself
+  'claude-sonnet-4.6':     null,          // subagent — handled by agent runner
+  'claude-haiku-4.5':      null,          // subagent — handled by agent runner
+  'codex-gpt-5.4':         './codex-exec',
+  'minimax-m2.7':          './minimax-exec',
+  'gemini-3.1-pro':        './gemini-exec',
+  'gemini-3-flash':        './gemini-exec',  // same executor, different model param
+  'qwen-3.5-27b':          './qwen-exec',    // actually 30b — legacy name kept in config
+  'perplexity-sonar':      './perplexity-exec'
+};
+
+/**
+ * Resolve which model handles a given phase, applying profile + overrides.
+ * @param {string} phase - e.g. 'discover_external', 'judge', 'forge'
+ * @param {object} projectConfig - loaded from .seraphim/config.json
+ * @returns {string} - model key from EXECUTOR_MAP
+ */
+function resolveModel(phase, projectConfig) {
+  // 1. Check per-phase override
+  if (projectConfig.overrides && projectConfig.overrides[phase]) {
+    return projectConfig.overrides[phase];
+  }
+
+  // 2. Apply profile defaults
+  const profile = profilesData[projectConfig.profile || 'moderate'];
+  const model = profile.phases[phase];
+
+  // 3. Apply opus_enabled toggle
+  if (!projectConfig.opus_enabled && model && model.startsWith('claude-opus')) {
+    return profile.opus_fallback;
+  }
+
+  return model;
+}
+
+/**
+ * Dispatch a prompt to the correct executor for a given phase.
+ * @param {string} phase - phase key
+ * @param {string} prompt - the prompt to send
+ * @param {object} opts - { timeout, temperature, stream, ... }
+ * @returns {Promise<{success, output, tokens, cost, error}>}
+ */
+async function dispatch(phase, prompt, opts = {}) {
+  const projectConfig = configLib.load();
+  const modelKey = resolveModel(phase, projectConfig);
+
+  const executorPath = EXECUTOR_MAP[modelKey];
+  if (!executorPath) {
+    // Claude subagents or native session — caller handles directly
+    return { success: false, error: `Model ${modelKey} requires native session or subagent, not dispatch` };
+  }
+
+  const executor = require(path.join(__dirname, executorPath));
+
+  // Check availability before attempting
+  if (executor.available && !(await executor.available())) {
+    return { success: false, error: `Executor for ${modelKey} is not available` };
+  }
+
+  return executor.execute(prompt, { model: modelKey, ...opts });
+}
+
+module.exports = { dispatch, resolveModel };
+```
+
+### Executor Interface Contract
+
+Every executor module must export this interface:
+
+```javascript
+module.exports = {
+  // Run a prompt, return structured result
+  async execute(prompt, opts) {
+    // opts: { model, temperature, timeout, maxTokens, ... }
+    return {
+      success: Boolean,
+      output: String,          // the model's response text
+      tokens: { input: Number, output: Number },
+      cost: Number,            // USD
+      error: String | null     // null on success
+    };
+  },
+
+  // Streaming variant (optional — implement only where supported)
+  async stream(prompt, opts) {
+    // returns AsyncIterable of string chunks
+  },
+
+  // Can this executor run right now?
+  async available() {
+    return Boolean;
+  }
+};
+```
+
+All three existing executors (codex-exec.js, minimax-exec.js) and all three new executors (gemini-exec.js, qwen-exec.js, perplexity-exec.js) implement this interface.
+
+### Gemini Executor Model Parameter
+
+`gemini-exec.js` handles both `gemini-3.1-pro` and `gemini-3-flash` since the SDK is the same. The `model` key from opts maps to the actual model ID:
+
+```javascript
+const MODEL_IDS = {
+  'gemini-3.1-pro':  'gemini-3.1-pro-preview',
+  'gemini-3-flash':  'gemini-3-flash-preview'
+};
+```
+
+---
+
+## Installation Summary
+
+All new packages for v3.0:
+
+```bash
+# Install in the plugin directory
+cd ~/.claude/plugins/seraphim
+
+# The only new npm package needed for v3.0
+npm install @google/genai@1.48.0
+
+# No additional packages needed for:
+# - Qwen (reuses openai@6.33.0 via baseURL swap)
+# - Perplexity (reuses openai@6.33.0 via baseURL swap)
+# - dispatch.js (pure Node.js, no deps)
+# - plugin.json (Claude Code reads it natively)
+```
+
+Ollama installation (when RTX 3090 arrives):
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull qwen3:30b-a3b-q4_K_M
+```
+
+---
+
+## Alternatives Considered
+
+| Category | Recommended | Alternative | Why Not |
+|----------|-------------|-------------|---------|
+| Gemini SDK | `@google/genai@1.48.0` | `@google/generative-ai@0.24.1` | Deprecated Nov 2025; no new features; no current model support |
+| Qwen access | ollama HTTP (OpenAI compat) | ollama native `/api/generate` endpoint | OpenAI-compat endpoint enables reusing existing `openai` package; `/api/generate` requires a custom HTTP client |
+| Qwen access | ollama HTTP (OpenAI compat) | `ollama` npm package (unofficial) | No official npm package; the HTTP API is the official interface |
+| Perplexity access | OpenAI SDK baseURL swap | `perplexity-sdk` npm (unofficial) | Unofficial, minimal maintenance; OpenAI SDK is already installed and the baseURL pattern is proven |
+| Perplexity access | Direct `sonar-pro` | Perplexity MCP only | MCP is unavailable to subagents and non-Claude executors; direct API is necessary for consistent access across all dispatch paths |
+| dispatch.js | Lazy `require()` per call | Pre-load all executors at startup | Pre-loading causes ollama connectivity check failures on startup when GPU is absent; lazy loading means only the requested executor is checked |
+
+---
+
+## What NOT to Use
+
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| `@google/generative-ai` | Deprecated Nov 30, 2025; missing current model support and Live API features | `@google/genai@1.48.0` |
+| Vertex AI SDK | Requires GCP project, service account, and project-scoped auth; this is a personal tool using Google AI Studio | `@google/genai` with `GEMINI_API_KEY` (AI Studio key) |
+| `ollama` npm package (unofficial, e.g. `npm:ollama`) | Not the official client; the Ollama project's official interface is the HTTP API | Direct HTTP via `openai` SDK with `baseURL: 'http://localhost:11434/v1'` |
+| Perplexity MCP as the only access path | MCP tools are only available to Claude in the native session; executors, subagents, and hooks cannot use MCP tools | `perplexity-exec.js` using direct API |
+| `sonar-reasoning-pro` as default | 3-5x more expensive than `sonar-pro`; CoT reasoning is not needed for web research | `sonar-pro` as default; `sonar-reasoning-pro` as optional override |
+| Global npm install for plugin packages | Plugin dependencies installed globally conflict across projects and survive plugin uninstall | Install in `~/.claude/plugins/seraphim/node_modules/` using `${CLAUDE_PLUGIN_DATA}` pattern from hooks.json |
+
+---
+
+## Stack Patterns by Variant
+
+**If RTX 3090 is not yet installed (current state):**
+- Balanced and Budget profiles are unavailable; dispatch.js should return `{ success: false, error: 'Qwen requires GPU — use Moderate or Frugal profile' }` from `available()`
+- Performance, Moderate, and Frugal profiles work fully with cloud APIs
+
+**If GEMINI_API_KEY is not set:**
+- `gemini-exec.js` `available()` returns false
+- dispatch.js falls back per profile config (e.g., Performance falls back to Opus for both Gemini phases)
+
+**If PERPLEXITY_API_KEY is not set:**
+- `perplexity-exec.js` `available()` returns false
+- Discover external falls back to Gemini 3 Flash (which has Google Search grounding)
+
+**If running Frugal profile with no Qwen:**
+- All Frugal phases use cloud models — no GPU dependency
+
+---
+
+## Version Compatibility — v3.0 Additions
+
+| Package | Version | Node.js Requirement | Notes |
+|---------|---------|---------------------|-------|
+| `@google/genai` | 1.48.0 | Node.js v18+ (ESM + CJS) | CJS require() works; pure JS, no native bindings |
+| `openai` (Qwen baseURL) | 6.33.0 (existing) | Node.js v18+ | Reused; no version conflict |
+| `openai` (Perplexity baseURL) | 6.33.0 (existing) | Node.js v18+ | Reused; no version conflict |
+| ollama HTTP API | server v0.x | Any HTTP client | Not an npm package; version depends on installed ollama binary |
+
+---
+
+## Sources (v3.0 Section)
+
+- `@google/genai` version: npm registry live check 2026-04-04 → `1.48.0` — HIGH confidence
+- `@google/generative-ai` version: npm registry live check 2026-04-04 → `0.24.1` (deprecated) — HIGH confidence
+- Gemini SDK deprecation: https://ai.google.dev/gemini-api/docs/sdks — "legacy libraries deprecated November 30, 2025" — HIGH confidence
+- Gemini search grounding API: https://ai.google.dev/gemini-api/docs/grounding — `tools: [{ googleSearch: {} }]` pattern — HIGH confidence
+- Gemini `@google/genai` README: https://github.com/googleapis/js-genai — `ai.models.generateContent()` pattern — HIGH confidence
+- Ollama OpenAI compatibility: https://ollama.com/blog/openai-compatibility — `http://localhost:11434/v1` endpoint — HIGH confidence
+- Qwen3 30B Q4 tag: https://ollama.com/library/qwen3/tags — `qwen3:30b-a3b-q4_K_M`, 19GB — HIGH confidence
+- Qwen3 27B non-existence: https://ollama.com/library/qwen3 — only 0.6B, 1.7B, 4B, 8B, 14B, 30B, 32B, 235B listed — HIGH confidence
+- Perplexity API base URL: https://docs.perplexity.ai/docs/sonar/quickstart — `https://api.perplexity.ai` — HIGH confidence
+- Perplexity model IDs: WebSearch + https://docs.perplexity.ai/models/model-cards — `sonar`, `sonar-pro`, `sonar-reasoning-pro`, `sonar-deep-research` — HIGH confidence
+- Perplexity OpenAI compat: https://docs.perplexity.ai/docs/agent-api/openai-compatibility — confirmed — HIGH confidence
+- Claude Code plugin schema: https://code.claude.com/docs/en/plugins-reference — complete manifest schema, `.claude-plugin/plugin.json` location, `${CLAUDE_PLUGIN_ROOT}` variable — HIGH confidence
+- `openai@6.33.0` installed version: `node -e "require('/home/alucard/.npm-global/lib/node_modules/openai/package.json').version"` → `6.33.0` — CONFIRMED live
+
+---
+*Stack research additions for: Seraphim v3.0 Six-Phase Multi-Model Pipeline*
+*Researched: 2026-04-04*
