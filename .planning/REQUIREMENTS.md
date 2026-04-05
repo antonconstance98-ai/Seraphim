@@ -50,6 +50,9 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 - [ ] **PROF-03**: `/seraphim:override [phase] [model]` sets a per-phase model override without changing the full profile
 - [ ] **PROF-04**: `opus_enabled: false` shifts all Opus-assigned phases to profile-specific fallback models
 - [ ] **PROF-05**: Balanced and Budget profiles fail gracefully with clear error when Qwen/ollama is unavailable
+- [ ] **PROF-06**: Users can create named custom profiles with fully custom model wiring, stored per-project in `.seraphim/profiles/`
+- [ ] **PROF-07**: A "naked" empty profile template is available where every model slot is unassigned and the user fills in each one
+- [ ] **PROF-08**: `/seraphim:set-profile` lists both built-in (5 presets) and user-created named profiles for selection
 
 ### Quality Gates
 
@@ -170,6 +173,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROF-03 | Phase 3 | Pending |
 | PROF-04 | Phase 3 | Pending |
 | PROF-05 | Phase 3 | Pending |
+| PROF-06 | Phase 1 | Pending |
+| PROF-07 | Phase 1 | Pending |
+| PROF-08 | Phase 3 | Pending |
 | QUAL-01 | Phase 4 | Pending |
 | QUAL-02 | Phase 4 | Pending |
 | QUAL-03 | Phase 4 | Pending |
@@ -202,8 +208,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-07 | Phase 7 | Pending |
 
 **Coverage:**
-- v3.0 requirements: 65 total (58 original + 7 DASH)
-- Mapped to phases: 65
+- v3.0 requirements: 68 total (58 original + 7 DASH + 3 PROF-06..08)
+- Mapped to phases: 68
 - Unmapped: 0
 
 ---
