@@ -36,7 +36,11 @@
   3. Creating a new project with `/seraphim:new-project` produces a `.seraphim/config.json` file with correct defaults, readable and writable by `config.js` without error
   4. After simulating a session restart (killing the process mid-phase), `phase-state.js` restores loop counters and completion flags from `.seraphim/phases/{N}/state.json` with no data loss
   5. `models.json` contains all nine models with mechanism, pricing tier, and capability flags — verifiable by reading the file and confirming all nine entries
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 01-01-PLAN.md — Plugin directory scaffold, manifest, models.json, profiles.json
+- [ ] 01-02-PLAN.md — Core modules: config.js, dispatch.js, phase-state.js
+- [ ] 01-03-PLAN.md — new-project command, session-start hook, plugin validation
 
 ### Phase 2: Model Executors and Pricing
 **Goal**: All nine models are callable through a uniform interface; token costs are validated against the pricing table per provider with no shared formula
@@ -119,7 +123,7 @@
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Plugin Scaffold and Infrastructure | v3.0 | 0/? | Not started | - |
+| 1. Plugin Scaffold and Infrastructure | v3.0 | 0/3 | Planning complete | - |
 | 2. Model Executors and Pricing | v3.0 | 0/? | Not started | - |
 | 3. Six Phase Pipeline and Profile Management | v3.0 | 0/? | Not started | - |
 | 4. Quality Gates and Decision Logging | v3.0 | 0/? | Not started | - |
