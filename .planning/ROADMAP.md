@@ -39,7 +39,7 @@
 **Plans:** 3 plans
 Plans:
 - [x] 01-01-PLAN.md — Plugin directory scaffold, manifest, models.json, profiles.json
-- [ ] 01-02-PLAN.md — Core modules: config.js, dispatch.js, phase-state.js
+- [x] 01-02-PLAN.md — Core modules: config.js, dispatch.js, phase-state.js
 - [ ] 01-03-PLAN.md — new-project command, session-start hook, plugin validation
 
 ### Phase 2: Model Executors and Pricing

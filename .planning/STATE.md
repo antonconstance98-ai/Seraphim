@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
 status: executing
-stopped_at: Completed 01-plugin-scaffold-and-infrastructure/01-01-PLAN.md
-last_updated: "2026-04-05T02:36:18.192Z"
+stopped_at: Completed 01-plugin-scaffold-and-infrastructure/01-02-PLAN.md
+last_updated: "2026-04-05T02:40:29.969Z"
 last_activity: 2026-04-05
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 01 (plugin-scaffold-and-infrastructure) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-05
 
@@ -63,6 +63,9 @@ Key decisions relevant to Phase 1:
 - [Phase 01-plugin-scaffold-and-infrastructure]: plugin.json at .claude-plugin/plugin.json (not root) — wrong path causes silent failure where /seraphim: commands never register
 - [Phase 01-plugin-scaffold-and-infrastructure]: No hooks key in plugin.json — hooks auto-discovered from hooks/hooks.json; declaring in both causes conflicting manifests error
 - [Phase 01-plugin-scaffold-and-infrastructure]: Plugin git repo initialized at ~/.claude/plugins/seraphim/ (separate from project repo) to track plugin source files
+- [Phase 01]: dispatch.js resolution order locked: override > opus_enabled > profile preset
+- [Phase 01]: All dispatch error cases return {error: string} objects — callers check typeof result === 'string'
+- [Phase 01]: phase-state.js writes synchronously on every mutation for crash safety over performance
 
 ### Pending Todos
 
@@ -78,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-05T02:36:18.189Z
-Stopped at: Completed 01-plugin-scaffold-and-infrastructure/01-01-PLAN.md
+Last session: 2026-04-05T02:40:29.966Z
+Stopped at: Completed 01-plugin-scaffold-and-infrastructure/01-02-PLAN.md
 Resume file: None

@@ -10,11 +10,11 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 ### Plugin Infrastructure
 
 - [x] **PLUG-01**: Plugin loads in Claude Code with `/seraphim:` namespace via plugin manifest
-- [ ] **PLUG-02**: `dispatch.js` routes any phase to the correct model executor based on profile, overrides, and opus_enabled flag
+- [x] **PLUG-02**: `dispatch.js` routes any phase to the correct model executor based on profile, overrides, and opus_enabled flag
 - [x] **PLUG-03**: `profiles.json` defines all five profiles (Performance, Balanced, Moderate, Budget, Frugal) with ten sub-phase slots each
-- [ ] **PLUG-04**: Per-project config at `.seraphim/config.json` stores profile, opus_enabled, overrides, and max_loops
-- [ ] **PLUG-05**: `config.js` reads/writes `.seraphim/config.json` with validation and defaults
-- [ ] **PLUG-06**: `phase-state.js` persists loop counters, retry counts, and phase completion to `.seraphim/phases/{N}/state.json` (survives session restarts)
+- [x] **PLUG-04**: Per-project config at `.seraphim/config.json` stores profile, opus_enabled, overrides, and max_loops
+- [x] **PLUG-05**: `config.js` reads/writes `.seraphim/config.json` with validation and defaults
+- [x] **PLUG-06**: `phase-state.js` persists loop counters, retry counts, and phase completion to `.seraphim/phases/{N}/state.json` (survives session restarts)
 - [x] **PLUG-07**: `models.json` defines all nine models with mechanism, pricing tier, and capability flags
 
 ### Model Executors
@@ -139,11 +139,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | PLUG-01 | Phase 1 | Complete |
-| PLUG-02 | Phase 1 | Pending |
+| PLUG-02 | Phase 1 | Complete |
 | PLUG-03 | Phase 1 | Complete |
-| PLUG-04 | Phase 1 | Pending |
-| PLUG-05 | Phase 1 | Pending |
-| PLUG-06 | Phase 1 | Pending |
+| PLUG-04 | Phase 1 | Complete |
+| PLUG-05 | Phase 1 | Complete |
+| PLUG-06 | Phase 1 | Complete |
 | PLUG-07 | Phase 1 | Complete |
 | EXEC-01 | Phase 2 | Pending |
 | EXEC-02 | Phase 2 | Pending |
