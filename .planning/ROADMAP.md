@@ -71,7 +71,14 @@ Plans:
   4. Setting `opus_enabled: false` in config causes all Opus-assigned phases to use profile-specific fallback models — verifiable by checking which executor is called for Envision and Architect
   5. Running `/seraphim:run {N} --from judge` skips Discover and Envision and resumes from Judge without re-running completed phases
   6. Running on a non-code project (blueprint declares `project_type: research`) causes Forge and Crucible to use prose-appropriate behavior instead of test+lint
-**Plans**: TBD
+**Plans:** 6 plans
+Plans:
+- [ ] 03-01-PLAN.md — Shared infrastructure: dispatch CLI entry point, marker parser, wing banners
+- [ ] 03-02-PLAN.md — Discover and Envision commands (Wings I-II)
+- [ ] 03-03-PLAN.md — Judge and Architect commands (Wings III-IV)
+- [ ] 03-04-PLAN.md — Forge and Crucible commands (Wings V-VI)
+- [ ] 03-05-PLAN.md — Profile management: set-profile, show-profile, override
+- [ ] 03-06-PLAN.md — Run orchestrator with --from resume support
 **UI hint**: yes
 
 ### Phase 4: Quality Gates and Decision Logging
@@ -130,7 +137,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1. Plugin Scaffold and Infrastructure | v3.0 | 3/3 | Complete   | 2026-04-05 |
 | 2. Model Executors and Pricing | v3.0 | 5/5 | Complete   | 2026-04-05 |
-| 3. Six Phase Pipeline and Profile Management | v3.0 | 0/? | Not started | - |
+| 3. Six Phase Pipeline and Profile Management | v3.0 | 0/6 | In Progress | - |
 | 4. Quality Gates and Decision Logging | v3.0 | 0/? | Not started | - |
 | 5. Session Commands and Hook Consolidation | v3.0 | 0/? | Not started | - |
 | 6. Adaptive Intelligence | v3.0 | 0/? | Not started | - |
