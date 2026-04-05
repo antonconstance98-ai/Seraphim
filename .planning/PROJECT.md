@@ -1,53 +1,54 @@
-# Claude X Codex
+# Seraphim
 
 ## What This Is
 
-A three-model integration wiring OpenAI Codex (GPT-5.4) and MiniMax M-2.7 into an existing Claude Code + GSD + Superpowers workflow. Claude Opus 4.6 orchestrates and architects, Codex handles code execution (with MiniMax as fallback when Codex is rate-limited), and MiniMax provides adversarial review, bug scanning, and context compression — all coordinated through a cross-model plan review loop before any code is written. The system includes 12+ hook scripts, a Superpowers skill override, automated cost reporting, and a self-contained HTML dashboard showing global metrics across all projects on this machine.
+A standalone Claude Code plugin that implements a six-phase creative pipeline (Discover, Envision, Judge, Architect, Forge, Crucible) where each phase is owned by the optimal AI model for that cognitive task. Nine models are available across five cost profiles (Performance, Balanced, Moderate, Budget, Frugal). Built-in adaptive intelligence tracks every routing decision and learns which models perform best for which tasks over time.
+
+Seraphim is a hard fork from GSD (Get Shit Done), evolved from the Claude X Codex multi-model integration project (v1.0-v2.0). It replaces hook-based model routing with a unified phase pipeline, and replaces the four-phase workflow with six phases designed from first principles.
 
 ## Core Value
 
-Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for code execution, MiniMax for analysis and adversarial review — with cross-model review catching what any single model misses alone.
+Six wings, six phases, six cognitive tasks — each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
+
+## Shipped: v1.0 Codex Integration (2026-03-31)
+
+Hook-based integration of Codex GPT-5.4 into Claude Code. Advisory routing, plan review loops, token tracking, cost reporting.
+
+## Shipped: v1.1 Global Dashboard (2026-04-01)
+
+Global JSONL aggregation, per-project metrics, Chart.js dashboard, session history.
 
 ## Shipped: v2.0 Three-Model Intelligence (2026-04-03)
 
-All v2.0 features delivered across 7 phases, 12 plans. MiniMax M-2.7 fully integrated as third model.
+MiniMax M-2.7 integrated as third model. Dual review gate, adversarial plan review, PostToolUse bug scanning, context compression, execution pipeline with fallback chain, three-model cost reporting.
 
-## Current Milestone: v3.0 Adaptive Intelligence
+## Current Milestone: v3.0 Seraphim
 
-**Goal:** Make the multi-model system learn from its own performance and automatically optimize routing, review thresholds, and model selection — turning static rules into self-improving intelligence.
+**Goal:** Replace the hook-based multi-model system with a unified six-phase pipeline plugin. Each phase gets the optimal model for its cognitive task. Five profiles enable cost control from maximum quality to maximum savings. Adaptive intelligence learns from accumulated data to recommend better model assignments.
 
 **Target features:**
-- Data collection pipeline — structured logging of every decision (routing choices, review outcomes, false positives, cost, latency, quality signals) into a queryable format
-- ML model that learns patterns from collected data — which model performs best for which task types, which reviews are noise vs signal, which thresholds are too aggressive or too lenient
-- Auto-adjustment engine — system tunes its own config (routing weights, review depth, thresholds) based on learned patterns, with safety guardrails
-- Feedback loop — when auto-adjustments produce better or worse outcomes, that feeds back into the learning cycle
-- Insights dashboard — surfaces what the system learned, what it changed, and why
+- Standalone Claude Code plugin at `~/.claude/plugins/seraphim/`
+- Six phases: Discover, Envision, Judge, Architect, Forge, Crucible
+- Nine model integrations: Opus 4.6, Sonnet 4.6, Haiku 4.5, Codex GPT-5.4, MiniMax M-2.7, Gemini 3.1 Pro, Gemini 3 Flash, Qwen 3.5-27B (local), Perplexity Sonar
+- Five profiles: Performance, Balanced, Moderate, Budget, Frugal
+- Per-phase model overrides and opus_enabled toggle
+- Unified executor interface (dispatch.js routes to model-specific executors)
+- Helper scripts for non-Claude models (websearch.sh, fetchdocs.js)
+- Between-task checkpoints in Forge phase (runtime + static review)
+- Feedback loops with hard caps (Judge->Envision, Crucible->Forge)
+- Adaptive intelligence: decision logging, pattern learning, auto-recommendations
+- Consolidated hooks (remove 7 redundant hooks, keep token logger + session start)
+- Works for code, research, writing, science, and mixed projects
 
 ## Current State
 
-**v2.0 shipped 2026-04-03.** 14 phases total across 3 milestones, 27 plans, 43 tasks.
+**v2.0 shipped 2026-04-03.** 15 phases total across 3 milestones, 27 plans, 43 tasks.
 
-Hook scripts installed at `~/.claude/hooks/` (18 total):
-- `codex-exec.js` — Codex CLI wrapper with timeout, token parsing, GPT-5.4-mini API
-- `codex-router.js` — PreToolUse advisory routing (opt-out, v2.0)
-- `codex-token-logger.js` — PostToolUse token logging to JSONL (v2.0 field pass-through)
-- `codex-review-gate.js` v3.0 — Stop hook parallel Codex+MiniMax dual review
-- `codex-wave-validator.js` + `codex-wave-validator-worker.js` — Non-blocking GSD wave validation
-- `codex-plan-reviewer.js` v3.1 — SubagentStop cross-model plan review
-- `codex-multi-round-reviewer.js` v4.0 — Round 1 Codex constructive + Round 2 MiniMax adversarial
-- `codex-superpowers-plan-reviewer.js` v3.1 — Superpowers SubagentStop cross-model review
-- `codex-cost-reporter.js` — SessionStart three-model cost savings report
-- `codex-pricing.js` — Centralized pricing (GPT-5.4 + Opus 4.6 + MiniMax M-2.7)
-- `codex-global-aggregator.js` — SessionStart global JSONL aggregator across all projects
-- `codex-dashboard-generator.js` — Three-model dashboard with Chart.js + Fallback Events panel
-- `codex-handoff.js` — Execution helper: Codex CLI → MiniMax API → user prompt fallback chain
-- `minimax-exec.js` v1.1 — MiniMax M-2.7 provider (runMinimax, runWithFallback, isCodexRateLimited)
-- `minimax-post-scan.js` — PostToolUse bug/security scanner via MiniMax
-- `minimax-compress.js` — Dual-mode compression (PostToolUse hook + require-able library)
-- `minimax-connectivity-test.js` — MiniMax API connectivity verification
-- `migrate-opus-pricing.js` — One-shot historical pricing correction (ran once)
+**v3.0 clean break.** Hard fork from GSD hook infrastructure into standalone plugin. Phase numbering reset to 1.
 
-Dashboard at `~/.claude/dashboard/dashboard.html` — three-model charts, auto-regenerated on every session start.
+Design spec approved 2026-04-04: `docs/specs/2026-04-04-seraphim-v3-design.md`
+
+Existing hook infrastructure (18 scripts at `~/.claude/hooks/`) — 7 consolidated into pipeline, 2 forked into plugin (token-logger, session-start), rest kept for backward compat during migration.
 
 ## Requirements
 
@@ -79,71 +80,78 @@ Dashboard at `~/.claude/dashboard/dashboard.html` — three-model charts, auto-r
 - ✓ Token tracking and cost reporting updated for three models — *v2.0*
 - ✓ Global dashboard updated to show three-model metrics and Fallback Events — *v2.0*
 
-### Active
+### Active (v3.0)
 
-(v3.0 requirements TBD — research phase first)
+- Standalone Seraphim plugin at `~/.claude/plugins/seraphim/` with plugin.json manifest
+- Six phase workflows: Discover, Envision, Judge, Architect, Forge, Crucible
+- Unified executor interface with dispatch.js routing to model-specific executors
+- Nine model executors: codex-exec.js, minimax-exec.js, gemini-exec.js, qwen-exec.js, perplexity-exec.js, plus Claude subagents
+- Five profile presets (Performance, Balanced, Moderate, Budget, Frugal) in profiles.json
+- Per-phase model overrides via .seraphim/config.json
+- opus_enabled toggle with per-profile fallback chain
+- Helper scripts (websearch.sh, fetchdocs.js) for non-Claude model tool access
+- Between-task checkpoint system in Forge phase (runtime + static review)
+- Feedback loops: Judge->Envision (max 2), Crucible->Forge (max 2)
+- Decision logging to decisions.jsonl for adaptive intelligence
+- Pattern learning engine analyzing model performance per phase
+- Auto-recommendation system with human-approval guardrails
+- Consolidated hooks: remove 7 redundant hooks from ~/.claude/hooks/
+- Insights dashboard extension with per-phase model performance heatmap
+- Non-code project support (research, writing, science, mixed)
+- Qwen 3.5-27B local execution via ollama with tool simulation wrapper
+- Gemini API integration with search grounding and thinking mode
 
 ### Out of Scope
 
-- Building a new CLI tool or standalone app — this integrates into existing Claude Code plugins
 - Modifying Claude Code itself — only hooks, agents, and plugin source code
-- Running MiniMax locally (no open weights for M-2.7; API-only, no filesystem access)
-- Head-to-head benchmark suite — research already provides extensive data; track real-world A/B instead
+- Running MiniMax locally (no open weights for M-2.7; API-only)
+- Mobile or web interface — terminal/CLI only
+- Auto-applying model changes without human approval — recommendations only
 - Real-time streaming between models — async handoff is sufficient
-- Mobile or web interface — this is terminal/CLI only
+- Supporting models not in the nine-model roster without explicit user request
 
 ## Context
 
-- **Shipped:** v1.1 with 12 hook scripts, 1 Superpowers skill override, global metrics dashboard
-- **Dashboard:** `~/.claude/dashboard/dashboard.html` — dark-themed, Chart.js charts, session drill-down, auto-regenerated on SessionStart
-- **Research basis:** `minimax-m2.7-synthesis.md` — 8 research sources (3 Claude agents + 5 ChatGPT Deep Research reports), `minimax-m2.7-research.md` — raw Claude research, `research/` — 5 ChatGPT report source files
-- **Key finding:** Cross-model review produces significantly better results than either model alone; MiniMax's self-evolution training gives it genuinely different reasoning patterns ideal for adversarial review
-- **Cost efficiency:** Savings recalculated with corrected Opus 4.6 pricing ($5/$25). Old baseline ($173.74) was 3x overstated; new baseline ($57.91). Real savings now accurately reported.
-- **Runtime:** Ubuntu 24.04, Claude Code CLI v2.1.91, Codex CLI v0.118.0, OpenAI SDK v6.33.0
-- **Subscription:** $20/mo ChatGPT Plus (CLI usage preferred; subject to 5-hour rolling window and weekly caps)
-- **MiniMax credits:** $25 available for M-2.7 API testing
-- **MiniMax API:** OpenAI-compatible at `https://api.minimax.io/v1`, also Anthropic-compatible at `https://api.minimax.io/anthropic`, model `MiniMax-M2.7`, $0.30/$1.20 per M tokens, cache read $0.06/M
-- **MiniMax architecture:** 230B total params, ~10B active (MoE, 23:1 sparsity), 204K context, 131K max output
-- **MiniMax strengths:** SWE-Pro 56.22% (tied frontier), bug detection 6/6 and security scanning 10/10 (matched Opus in head-to-head), low hallucination (34%), 500 RPM / 20M TPM rate limits
-- **MiniMax weaknesses:** No filesystem access (API-only, not a CLI tool), `<think>` tag fragility in multi-turn, no strict JSON mode, temperature cannot be exactly 0, verbosity tax (~4x output tokens), weaker on architecture and integration test depth
-- **MiniMax quirks:** Must preserve full assistant messages including `<think>` content and tool_calls in conversation history; temperature must be (0.0, 1.0]; Codex CLI integration explicitly "not recommended" by MiniMax
-- **Prior attempt:** ~/projects/Model-routing built a Fastify proxy — failed due to OAuth rejection, stream bugs, crashes. Lesson: integrate directly via SDK, not proxy
-- **Execution gap (v1.x):** gsd-executor subagents run on Opus — all code writing burns Opus tokens. v2.0 moves code writing to Codex CLI (free) with MiniMax API fallback (cheap)
-- **User is non-technical** — all changes implemented by Claude, explained in plain English
+- **Renamed from:** Claude X Codex (2026-04-04)
+- **Design spec:** `docs/specs/2026-04-04-seraphim-v3-design.md`
+- **Existing hooks:** 18 scripts at `~/.claude/hooks/` — 7 will be consolidated into plugin, rest kept
+- **Dashboard:** `~/.claude/dashboard/dashboard.html` — will be extended with Seraphim metrics
+- **Hardware:** RTX 3090 in transit for local Qwen 3.5-27B inference
+- **Research basis:** `minimax-m2.7-synthesis.md`, `docs/research/opus-vs-codex-model-comparison.md`
+- **Runtime:** Ubuntu 24.04, Claude Code CLI, Codex CLI v0.118.0, OpenAI SDK v6.33.0
+- **Subscription:** $20/mo ChatGPT Plus, Perplexity paid account, Google AI Studio account needed
+- **API keys configured:** OPENAI_API_KEY, MINIMAX_API_KEY. Needed: GEMINI_API_KEY
+- **MCP configured:** Perplexity, context7, Brave, GitHub, Playwright, filesystem
+- **SearXNG:** Running at localhost:8888
 
 ## Constraints
 
-- **Budget**: $20/mo ChatGPT Plus subscription; $15/day max API spend; prefer CLI over API billing; MiniMax API as cost-efficient fallback
-- **Security**: API keys in environment variables only; CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 active; MiniMax data privacy policy not fully transparent — don't send credentials or PII
-- **Compatibility**: Works with existing GSD and Superpowers plugin versions without breaking workflows
-- **Runtime**: Codex CLI runs locally with filesystem access; MiniMax is API-only (no filesystem access, orchestrator writes files on its behalf)
-- **Orchestration**: Opus always remains the primary orchestrator; neither Codex nor MiniMax make architectural decisions autonomously
-- **Fallback chain**: Codex CLI (free) → MiniMax API ($0.30/$1.20) → prompt user. Execution is fail-closed (prompt user); reviews are fail-open (skip if both fail)
+- **Budget**: $20/mo ChatGPT Plus; $15/day max API spend; local LLM preferred where quality allows
+- **Security**: API keys in environment variables only; never send credentials or PII to MiniMax; bind services to 127.0.0.1
+- **Hardware**: RTX 3090 required for Qwen 3.5-27B local inference; Balanced and Budget profiles unavailable without GPU
+- **Orchestration**: Opus is the session host; it routes to phase models but doesn't own every phase
+- **Plugin**: Must work as a standalone Claude Code plugin; no dependency on GSD or Superpowers at runtime
+- **Fallback**: If a model is unavailable, the executor reports failure; the dispatch layer falls back per profile config
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Both CLI + API for Codex | CLI for autonomous execution (uses subscription), API for fast model-to-model comms | ✓ Good — CLI handles all review/execution; API added for GPT-5.4-mini dispatch |
-| Hook-based integration (not plugin source modification) | Non-invasive; survives plugin updates; uses native Claude Code hooks API | ✓ Good — 7 hooks, zero plugin source changes |
-| Advisory routing (not auto-delegation) | Opus decides whether to delegate; safer than keyword-based auto-routing | ✓ Good — prevents cost runaway, Opus retains judgment |
-| Multi-round review (constructive + adversarial) | Research confirms 2 distinct review types catch more issues than 2 identical passes | ✓ Good — early exit on clean plans saves tokens |
-| Built-in token tracking + cost reporting | Required to prove cost savings — the success metric for "done" | ✓ Good — 86.7% savings demonstrated |
-| User-space skill override for Superpowers | ~/.claude/skills/ shadows plugin cache, survives auto-updates | ✓ Good — durable without modifying plugin source |
-| Centralized pricing module (codex-pricing.js) | Single source of truth for all model pricing; two functions for different safety levels | ✓ Good — eliminated duplicated constants, backward-compatible re-export chain |
-| Configurable discovery roots with defaults | Hardcoded roots miss projects in unexpected locations; config.json extensibility | ✓ Good — covers all CLAUDE.md key paths, users can add more |
-| Append-only global.jsonl with in-memory dedup | Preserves historical data even if per-project logs are deleted | ✓ Good — idempotent, no data loss risk |
-| TTL-gated discovery cache (1hr) | Warm no-op runs under 5ms by skipping 4x spawnSync find processes | ✓ Good — 2ms warm runs vs 151ms cold |
-| Chart.js sidecar with SHA-256 integrity | Downloaded once, inlined into HTML at gen time; works offline | ✓ Good — 204KB cached, integrity-verified |
-| Atomic write-then-rename for dashboard.html | Prevents concurrent session corruption on shared output file | ✓ Good — Linux renameSync is atomic |
-| MiniMax via OpenAI SDK baseURL swap | Zero new deps; reuses existing openai v6.33.0 package | ✓ Good — 3.5s connectivity, $0.000136 test call |
-| Temperature 0.01 for MiniMax | API rejects exactly 0; 0.01 is the established workaround | ✓ Good — deterministic enough for review tasks |
-| 90s timeout for MiniMax | Mandatory `<think>` phase can produce 55s pre-answer latency | ✓ Good — covers P95 latency without blocking |
-| Direct fs.appendFileSync for token logging | Hooks write directly to JSONL; token-logger passes through CODEX_RESULT markers | ✓ Good — consistent pattern across all hooks |
-| Dual review: parallel Promise.all | Independent .catch() wrappers per leg; either model can block independently | ✓ Good — graceful degradation if either fails |
-| MiniMax as adversarial Round 2 (not Codex) | Different reasoning patterns (self-evolution trained) produce genuinely different critiques | ✓ Good — catches issues Codex misses |
-| Codex handoff thin orchestrator | gsd-executor generates specs, Codex CLI writes code (free via subscription) | ✓ Good — expected cost drop from $10-15/day to $1-3/day |
-| Fail-closed execution, fail-open review | Execution tasks prompt user on both-fail; review tasks skip silently | ✓ Good — matches risk profile of each task type |
+| Hard fork from GSD | Too many customizations fighting against GSD's update cycle; own the workflow | v3.0 — clean break |
+| Six phases from first principles | GSD's four phases are code-centric; six phases model the universal creative process | v3.0 — Discover, Envision, Judge, Architect, Forge, Crucible |
+| Nine models, five profiles | Different cost/quality tradeoffs for different situations; profiles are presets, not locks | v3.0 — full override system |
+| Unified executor interface | dispatch.js doesn't care which model; adding a new model = one file | v3.0 — clean abstraction |
+| Qwen for local inference | Zero-cost execution on user hardware; 95% instruction following; strong coding benchmarks | v3.0 — requires RTX 3090 |
+| Gemini 3 Flash for Judge | 90.4% GPQA Diamond (highest available); fast; cheap; adversarial thinking | v3.0 |
+| Perplexity Sonar for external research | Purpose-built for web research; returns citations; better than any LLM at finding information | v3.0 |
+| Adaptive intelligence via decision logging | Learn which models perform best per phase from real data, not benchmarks | v3.0 — recommendations require human approval |
+| Consolidate hooks into pipeline | 7 hooks become redundant; one system to maintain; cleaner architecture | v3.0 |
+| Rename project to Seraphim | Six wings of the seraph = six phases; mythological + cyber aesthetic; reflects evolved identity | v3.0 |
+| Both CLI + API for Codex | CLI for autonomous execution (uses subscription), API for fast model-to-model comms | ✓ Good — v1.0 |
+| Hook-based integration (v1-v2) | Non-invasive; survives plugin updates; uses native Claude Code hooks API | ✓ Good — v1.0, superseded by plugin in v3.0 |
+| MiniMax via OpenAI SDK baseURL swap | Zero new deps; reuses existing openai v6.33.0 package | ✓ Good — v2.0 |
+| MiniMax as adversarial reviewer | Different reasoning patterns (self-evolution trained) produce different critiques | ✓ Good — v2.0 |
+| Fail-closed execution, fail-open review | Execution tasks prompt user on both-fail; review tasks skip silently | ✓ Good — v2.0 |
 
 ## Evolution
 
@@ -163,4 +171,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-03 after v3.0 milestone start*
+*Last updated: 2026-04-04 — v3.0 Seraphim milestone start, project renamed from Claude X Codex*

@@ -1,37 +1,33 @@
 ---
 gsd_state_version: 1.0
 milestone: v3.0
-milestone_name: Adaptive Intelligence
-status: verifying
-stopped_at: Completed 15-03-PLAN.md
-last_updated: "2026-04-04T04:41:02.121Z"
+milestone_name: Seraphim
+status: defining-requirements
+stopped_at: null
+last_updated: "2026-04-04T12:00:00.000Z"
 last_activity: 2026-04-04
 progress:
-  total_phases: 11
-  completed_phases: 8
-  total_plans: 15
-  completed_plans: 15
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-03)
+See: .planning/PROJECT.md (updated 2026-04-04)
 
-**Core value:** Every task goes to the model that's best at it — Opus for reasoning and architecture, Codex for fast execution, MiniMax for analysis — with cross-model review catching what any single model misses alone.
-**Current focus:** Phase 15 — decision-capture-infrastructure
+**Core value:** Six wings, six phases, six cognitive tasks — each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
+**Current focus:** Defining requirements for v3.0 Seraphim
 
 ## Current Position
 
-Phase: 16
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-04-04
-
-```
-v3.0 Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 phases
-```
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-04 — Milestone v3.0 Seraphim started
 
 ## Performance Metrics
 
