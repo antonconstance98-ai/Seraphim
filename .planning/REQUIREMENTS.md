@@ -82,8 +82,8 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 
 ### Adaptive Intelligence
 
-- [ ] **ADPT-01**: Pattern analysis engine reads decisions.jsonl and computes per-phase model rejection rates, cost/quality ratios, and rolling performance averages
-- [ ] **ADPT-02**: Auto-recommendation system suggests profile or override changes based on accumulated data (e.g., "Qwen Envision rejected by Judge 4/5 runs — consider Gemini 3.1 Pro")
+- [x] **ADPT-01**: Pattern analysis engine reads decisions.jsonl and computes per-phase model rejection rates, cost/quality ratios, and rolling performance averages
+- [x] **ADPT-02**: Auto-recommendation system suggests profile or override changes based on accumulated data (e.g., "Qwen Envision rejected by Judge 4/5 runs — consider Gemini 3.1 Pro")
 - [x] **ADPT-03**: All recommendations require explicit human approval — never auto-applied; rejected recommendations logged for audit
 - [ ] **ADPT-04**: Per-phase model performance heatmap panel added to existing dashboard showing success rates by (model, phase) combination
 - [ ] **ADPT-05**: Profile cost/quality comparison panel in dashboard showing average cost per run vs Crucible pass rate per profile
@@ -193,8 +193,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HOOK-01 | Phase 5 | Pending |
 | HOOK-02 | Phase 5 | Pending |
 | HOOK-03 | Phase 5 | Pending |
-| ADPT-01 | Phase 6 | Pending |
-| ADPT-02 | Phase 6 | Pending |
+| ADPT-01 | Phase 6 | Complete |
+| ADPT-02 | Phase 6 | Complete |
 | ADPT-03 | Phase 6 | Complete |
 | ADPT-04 | Phase 6 | Pending |
 | ADPT-05 | Phase 6 | Pending |

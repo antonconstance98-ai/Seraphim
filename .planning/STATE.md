@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
 status: executing
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-04-08T23:10:18.875Z"
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-04-08T23:12:50.904Z"
 last_activity: 2026-04-08
 progress:
   total_phases: 17
   completed_phases: 10
   total_plans: 33
-  completed_plans: 30
+  completed_plans: 31
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 06 (adaptive-intelligence) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-04-08
 
@@ -100,6 +100,8 @@ Key decisions relevant to Phase 1:
 - [Phase 05]: status.md probes all five executors via available() with 2>/dev/null stderr suppression
 - [Phase 06]: decisions-validator.js type-guard uses early return before REQUIRED_FIELDS check — prevents numeric checks running on meta-records
 - [Phase 06]: Scaffold test files use SKIP guard (try/catch + process.exit(0)) so test runner never fails before implementation lands
+- [Phase 06]: aggregateDecisions accepts array or projectRoot — test scaffold passes array directly
+- [Phase 06]: confidence derived from n when metric lacks field — test passes metric without confidence key
 
 ### Roadmap Evolution
 
@@ -123,6 +125,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08T23:10:18.873Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-04-08T23:12:50.902Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
