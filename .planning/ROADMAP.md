@@ -112,7 +112,13 @@ Plans:
   4. `checkpoint.js` branches correctly on `project_type`: a code project triggers tests+lint; a prose project triggers structure+citation check; a science project triggers methodology+replication check — verifiable by running each type
   5. After a complete pipeline run, `decisions.jsonl` contains one record per phase with phase, model, profile, tokens_in, tokens_out, cost_usd, latency_ms, outcome, retry_count, loop_count, and at least one quality signal field — verifiable by reading the file and checking schema
   6. The data integrity validator detects a manually injected negative-cost record in decisions.jsonl on the next session start and reports the violation
-**Plans**: TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — checkpoint.js, decisions-logger.js, decisions-validator.js (new infrastructure)
+- [ ] 04-02-PLAN.md — forge.md: checkpoint gate, retry-with-feedback, crucible fix mode
+- [ ] 04-03-PLAN.md — envision.md: loop path; judge.md: decisions logging + escalation
+- [ ] 04-04-PLAN.md — crucible.md: fix instructions + logging; session-start: validator
 
 ### Phase 5: Session Commands and Hook Consolidation
 **Goal**: Full-auto pipeline runs with resume capability; all session commands work; seven legacy hooks are retired atomically after pipeline is verified
