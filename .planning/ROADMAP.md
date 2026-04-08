@@ -135,7 +135,7 @@ Plans:
 Plans:
 - [x] 05-01-PLAN.md — help.md and status.md (read-only utility commands)
 - [x] 05-02-PLAN.md — history.md, pause.md, resume.md (stateful session commands)
-- [ ] 05-03-PLAN.md — retire-hooks.js and atomic settings.json hook retirement
+- [x] 05-03-PLAN.md — retire-hooks.js and atomic settings.json hook retirement
 
 ### Phase 6: Adaptive Intelligence
 **Goal**: Pattern analysis produces model performance recommendations based on accumulated decisions.jsonl data; dashboard shows per-phase heatmap and profile comparison panels
@@ -149,16 +149,18 @@ Plans:
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 7: Multi-Project Dashboard
-**Goal**: A localhost web interface aggregates progress, metrics, and workflow data across all Seraphim-managed projects into a unified command center
+### Phase 7: Multi-Project Dashboard — Human Home Base
+**Goal**: A localhost web dashboard that serves as the human operator's home base — aggregating all Seraphim-managed projects with their progress, AI activity, human task lists, costs, and phase status into a unified command center
 **Depends on**: Phase 6
 **Requirements**: DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06, DASH-07
 **Success Criteria** (what must be TRUE):
   1. The multi-project scanner discovers `.seraphim/` directories across `~/projects/` and any additional configured paths — verifiable by having two or more projects with `.seraphim/` and confirming both appear
-  2. The dashboard at `127.0.0.1:PORT` displays a multi-project overview showing each project's name, active profile, current phase, progress bar, total cost, and last activity date
-  3. Clicking a project drills down to show its phase roadmap, completed vs remaining tasks, model assignments per phase, and pipeline run history
-  4. The workflow metrics panel shows cross-project model performance aggregated from all projects' decisions.jsonl, cost trends over time, and savings vs Opus-only baseline
-  5. The dashboard serves from a Node.js HTTP server with no external framework dependencies — self-contained with inlined CSS/JS following the existing Chart.js dashboard pattern
+  2. The dashboard at `127.0.0.1:PORT` displays a **project overview** showing each project's name, active profile, current phase, progress bar, total cost, and last activity date
+  3. Clicking a project drills down to show: (a) phase roadmap with completed/remaining tasks, (b) model assignments per phase, (c) pipeline run history, (d) **human task list** — pending decisions, research needed, skills to develop, manual testing items, (e) **AI task list** — what the AI has done and is doing with model/cost/outcome data
+  4. The **Human Tasks view** aggregates all human-required items across all projects: pending decisions from Judge/Crucible, manual verification items from UAT, research the human needs to do, skills to develop — each with status tracking (pending/in-progress/done)
+  5. The **AI Activity view** shows cross-project model performance aggregated from decisions.jsonl, cost trends over time, savings vs Opus-only baseline, and active pipeline status
+  6. The dashboard serves from a Node.js HTTP server with no external framework dependencies — self-contained with inlined CSS/JS following the existing Chart.js dashboard pattern
+  7. The dashboard auto-refreshes and shows real-time pipeline progress when a pipeline is running
 **Plans**: TBD
 **UI hint**: yes
 
