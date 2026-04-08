@@ -31,8 +31,8 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 
 ### Six Phase Pipeline
 
-- [ ] **PIPE-01**: `/seraphim:discover` runs external (web) + internal (codebase) research tracks in parallel, writes to `.seraphim/phases/{N}/discovery/external.md` and `internal.md`
-- [ ] **PIPE-02**: `/seraphim:envision` reads discovery output, generates 3-5 distinct approaches with trade-offs, writes to `.seraphim/phases/{N}/vision.md`
+- [x] **PIPE-01**: `/seraphim:discover` runs external (web) + internal (codebase) research tracks in parallel, writes to `.seraphim/phases/{N}/discovery/external.md` and `internal.md`
+- [x] **PIPE-02**: `/seraphim:envision` reads discovery output, generates 3-5 distinct approaches with trade-offs, writes to `.seraphim/phases/{N}/vision.md`
 - [x] **PIPE-03**: `/seraphim:judge` reads vision output, stress-tests every approach, marks each SURVIVES / FATAL_FLAW / CONDITIONAL with structured machine-readable markers, writes to `.seraphim/phases/{N}/judgment.md`
 - [x] **PIPE-04**: `/seraphim:architect` reads judgment output, creates detailed blueprint with task breakdown, dependencies, and test criteria, writes to `.seraphim/phases/{N}/blueprint.md`
 - [x] **PIPE-05**: `/seraphim:forge` executes blueprint task by task with between-task checkpoints, writes commits + `.seraphim/phases/{N}/forge-log.md`
@@ -157,8 +157,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COST-01 | Phase 2 | Complete |
 | COST-02 | Phase 2 | Complete |
 | COST-06 | Phase 2 | Complete |
-| PIPE-01 | Phase 3 | Pending |
-| PIPE-02 | Phase 3 | Pending |
+| PIPE-01 | Phase 3 | Complete |
+| PIPE-02 | Phase 3 | Complete |
 | PIPE-03 | Phase 3 | Complete |
 | PIPE-04 | Phase 3 | Complete |
 | PIPE-05 | Phase 3 | Complete |
