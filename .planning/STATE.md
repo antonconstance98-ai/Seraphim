@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
 status: executing
-stopped_at: Completed 07-03-PLAN.md
-last_updated: "2026-04-08T23:47:52.653Z"
+stopped_at: Completed 07-04-PLAN.md
+last_updated: "2026-04-08T23:51:52.240Z"
 last_activity: 2026-04-08
 progress:
   total_phases: 17
   completed_phases: 11
   total_plans: 38
-  completed_plans: 36
+  completed_plans: 37
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 07 (multi-project-dashboard) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-04-08
 
@@ -112,6 +112,9 @@ Key decisions relevant to Phase 1:
 - [Phase 07-multi-project-dashboard]: No edge runtime on ingest route — full Node.js serverless function needed for DB writes (edge runtime reserved for plan-04 SSE endpoint)
 - [Phase 07]: ProjectCard is a Server Component — no use client directive needed as no hooks used
 - [Phase 07]: groupIntoRuns detects pipeline run boundaries by phase === discover transition — matches decisions schema
+- [Phase 07]: Edge Runtime SSE endpoint polls MAX(last_pushed_at) every 5s — correct pattern for Vercel streaming, no WebSocket
+- [Phase 07]: chart.js loaded via dynamic import inside useEffect — avoids SSR DOM crash
+- [Phase 07]: phase-push.js filters to .seraphim/phases/* output files only — prevents push on every Write call
 
 ### Roadmap Evolution
 
@@ -135,6 +138,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08T23:47:52.650Z
-Stopped at: Completed 07-03-PLAN.md
+Last session: 2026-04-08T23:51:46.144Z
+Stopped at: Completed 07-04-PLAN.md
 Resume file: None

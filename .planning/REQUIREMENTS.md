@@ -103,7 +103,7 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 - [x] **DASH-04**: Localhost web dashboard at `127.0.0.1:PORT` serves a self-contained HTML interface (Node.js HTTP server, no frameworks)
 - [x] **DASH-05**: Dashboard shows multi-project overview — each project's name, profile, current phase, progress bar, total cost, last activity
 - [x] **DASH-06**: Per-project drill-down shows phase roadmap, completed vs remaining tasks, model assignments, and pipeline run history
-- [ ] **DASH-07**: Workflow metrics panel shows cross-project model performance, cost trends, and savings vs Opus-only baseline (extends existing Chart.js dashboard patterns)
+- [x] **DASH-07**: Workflow metrics panel shows cross-project model performance, cost trends, and savings vs Opus-only baseline (extends existing Chart.js dashboard patterns)
 
 ## Future Requirements
 
@@ -205,7 +205,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-04 | Phase 7 | Complete |
 | DASH-05 | Phase 7 | Complete |
 | DASH-06 | Phase 7 | Complete |
-| DASH-07 | Phase 7 | Pending |
+| DASH-07 | Phase 7 | Complete |
 
 **Coverage:**
 - v3.0 requirements: 68 total (58 original + 7 DASH + 3 PROF-06..08)

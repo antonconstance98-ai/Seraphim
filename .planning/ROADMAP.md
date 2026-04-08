@@ -172,7 +172,7 @@ Plans:
 - [x] 07-01-PLAN.md — Local scanner, progress extractor, push client
 - [x] 07-02-PLAN.md — Next.js scaffold, DB schema, ingest API
 - [x] 07-03-PLAN.md — Project overview + drill-down UI pages
-- [ ] 07-04-PLAN.md — SSE real-time, MetricsPanel, phase-push hook
+- [x] 07-04-PLAN.md — SSE real-time, MetricsPanel, phase-push hook
 - [ ] 07-05-PLAN.md — Vercel deployment + end-to-end verification
 **UI hint**: yes
 
