@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
 status: executing
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-04-08T23:44:04.545Z"
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-04-08T23:45:00.058Z"
 last_activity: 2026-04-08
 progress:
   total_phases: 17
   completed_phases: 11
   total_plans: 38
-  completed_plans: 34
+  completed_plans: 35
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 07 (multi-project-dashboard) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-04-08
 
@@ -108,6 +108,8 @@ Key decisions relevant to Phase 1:
 - [Phase 06]: crucible.md Step 11 is silent skip when run is incomplete — prevents noise for partial runs
 - [Phase 07-multi-project-dashboard]: push-client.js fire-and-forget: no top-level await so push never blocks the Seraphim pipeline
 - [Phase 07-multi-project-dashboard]: SERAPHIM_DASHBOARD_URL missing -> logError to push-errors.log and early return (not throw) so uninitialised installs fail silently
+- [Phase 07-multi-project-dashboard]: getSql() lazy singleton: neon() never called at module scope — prevents next build crash when DATABASE_URL unset
+- [Phase 07-multi-project-dashboard]: No edge runtime on ingest route — full Node.js serverless function needed for DB writes (edge runtime reserved for plan-04 SSE endpoint)
 
 ### Roadmap Evolution
 
@@ -131,6 +133,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08T23:44:04.542Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-04-08T23:45:00.056Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None

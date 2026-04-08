@@ -100,8 +100,8 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 - [x] **DASH-01**: Multi-project scanner discovers all `.seraphim/` directories across `~/projects/` and other configured paths
 - [x] **DASH-02**: Progress extractor parses phase-state.json, blueprint.md, and forge-log.md to surface per-project completion status (phases done, tasks remaining, current phase)
 - [x] **DASH-03**: Workflow data aggregator merges token-log.jsonl and decisions.jsonl across all projects into unified metrics
-- [ ] **DASH-04**: Localhost web dashboard at `127.0.0.1:PORT` serves a self-contained HTML interface (Node.js HTTP server, no frameworks)
-- [ ] **DASH-05**: Dashboard shows multi-project overview — each project's name, profile, current phase, progress bar, total cost, last activity
+- [x] **DASH-04**: Localhost web dashboard at `127.0.0.1:PORT` serves a self-contained HTML interface (Node.js HTTP server, no frameworks)
+- [x] **DASH-05**: Dashboard shows multi-project overview — each project's name, profile, current phase, progress bar, total cost, last activity
 - [ ] **DASH-06**: Per-project drill-down shows phase roadmap, completed vs remaining tasks, model assignments, and pipeline run history
 - [ ] **DASH-07**: Workflow metrics panel shows cross-project model performance, cost trends, and savings vs Opus-only baseline (extends existing Chart.js dashboard patterns)
 
@@ -202,8 +202,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-01 | Phase 7 | Complete |
 | DASH-02 | Phase 7 | Complete |
 | DASH-03 | Phase 7 | Complete |
-| DASH-04 | Phase 7 | Pending |
-| DASH-05 | Phase 7 | Pending |
+| DASH-04 | Phase 7 | Complete |
+| DASH-05 | Phase 7 | Complete |
 | DASH-06 | Phase 7 | Pending |
 | DASH-07 | Phase 7 | Pending |
 
