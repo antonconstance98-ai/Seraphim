@@ -167,7 +167,13 @@ Plans:
   5. The **AI Activity view** shows cross-project model performance aggregated from decisions.jsonl, cost trends over time, savings vs Opus-only baseline, and active pipeline status
   6. The dashboard serves from a Node.js HTTP server with no external framework dependencies — self-contained with inlined CSS/JS following the existing Chart.js dashboard pattern
   7. The dashboard auto-refreshes and shows real-time pipeline progress when a pipeline is running
-**Plans**: TBD
+**Plans**: 5 plans
+Plans:
+- [ ] 07-01-PLAN.md — Local scanner, progress extractor, push client
+- [ ] 07-02-PLAN.md — Next.js scaffold, DB schema, ingest API
+- [ ] 07-03-PLAN.md — Project overview + drill-down UI pages
+- [ ] 07-04-PLAN.md — SSE real-time, MetricsPanel, phase-push hook
+- [ ] 07-05-PLAN.md — Vercel deployment + end-to-end verification
 **UI hint**: yes
 
 ## Progress
@@ -181,7 +187,7 @@ Plans:
 | 4. Quality Gates and Decision Logging | v3.0 | 2/4 | In Progress|  |
 | 5. Session Commands and Hook Consolidation | v3.0 | 2/3 | In Progress|  |
 | 6. Adaptive Intelligence | v3.0 | 4/4 | Complete   | 2026-04-08 |
-| 7. Multi-Project Dashboard | v3.0 | 0/? | Not started | - |
+| 7. Multi-Project Dashboard | v3.0 | 0/5 | Not started | - |
 | 8. Thought Orphanage Integration | v3.0 | 0/? | Not started | - |
 | 9. Human-AI Cognitive Division | v3.0 | 0/? | Not started | - |
 | 10. Context Management and Token Optimization | v3.0 | 0/? | Not started | - |
