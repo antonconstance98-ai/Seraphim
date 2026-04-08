@@ -94,6 +94,7 @@ Key decisions relevant to Phase 1:
 - Phase 9 added: Human-AI Cognitive Division (research where human vs AI leverage sits in the pipeline)
 - Phase 10 added: Context Management and Token Optimization (reduce token usage across nine-model pipeline)
 - Phase 11 added: OpenClaw Local RAG Integration (local RAG for project knowledge referencing)
+- Phase 03.1 inserted after Phase 3: Parallel Discovery Research Tracks (URGENT) — enhance Discover phase to spawn multiple parallel research agents hitting Perplexity from different angles
 
 ### Pending Todos
 

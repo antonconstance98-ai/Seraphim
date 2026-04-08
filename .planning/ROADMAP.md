@@ -85,6 +85,22 @@ Plans:
 - [x] 03-06-PLAN.md — Run orchestrator with --from resume support
 **UI hint**: yes
 
+### Phase 03.1: Parallel Discovery Research Tracks (INSERTED)
+
+**Goal:** Enhance the Discover phase (Wing I) to spawn multiple parallel research agents hitting Perplexity from different angles — existing solutions, anti-patterns, architecture patterns, dependencies — then merge results into a single external.md for richer discovery output
+**Requirements**: PIPE-01
+**Depends on:** Phase 3
+**Success Criteria** (what must be TRUE):
+  1. `/seraphim:discover` spawns 3-4 parallel research agents, each focused on a different research dimension (solutions/frameworks, anti-patterns/pitfalls, architecture/patterns, dependencies/compatibility)
+  2. Each parallel agent uses Perplexity Sonar (or the profile's discover_external model) for web-grounded research
+  3. Results from all parallel agents are merged into a single structured `external.md` with per-track sections and source attribution
+  4. If any parallel track fails, the remaining tracks still complete and external.md notes the failed track with a TRACK_FAILED stub
+  5. The internal codebase analysis track remains unchanged and runs independently of the parallel external tracks
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 03.1 to break down)
+
 ### Phase 4: Quality Gates and Decision Logging
 **Goal**: Forge checkpoints catch task failures and trigger retry-with-feedback; feedback loops run with persisted hard caps; every phase execution is logged to decisions.jsonl with outcome signals
 **Depends on**: Phase 3
