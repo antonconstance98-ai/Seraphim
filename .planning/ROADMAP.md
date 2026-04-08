@@ -146,7 +146,13 @@ Plans:
   2. No recommendation is ever auto-applied — the system presents recommendations for human approval; rejected recommendations appear in the rejection log with the rejection timestamp — verifiable by rejecting a recommendation and reading the log
   3. The dashboard shows a per-phase model performance heatmap panel with success rates by (model, phase) combination — verifiable by opening dashboard.html and seeing the panel populated with data
   4. The dashboard shows a profile cost/quality comparison panel with average cost per run versus Crucible pass rate per profile — verifiable by opening dashboard.html with data from multiple profiles
-**Plans**: TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Validator type-guard fix and test scaffolds
+- [ ] 06-02-PLAN.md — Pattern analyzer and recommendation engine
+- [ ] 06-03-PLAN.md — Seraphim-branded dashboard generator (three panels)
+- [ ] 06-04-PLAN.md — analyze.md, recommendations.md commands and crucible auto-trigger
 **UI hint**: yes
 
 ### Phase 7: Multi-Project Dashboard — Human Home Base
