@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
-status: verifying
-stopped_at: Phases 9-11 context gathered
-last_updated: "2026-04-08T21:13:07.974Z"
-last_activity: 2026-04-05
+status: executing
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-04-08T21:34:51.222Z"
+last_activity: 2026-04-08
 progress:
   total_phases: 15
   completed_phases: 6
   total_plans: 21
-  completed_plans: 15
+  completed_plans: 16
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-04)
 
 **Core value:** Six wings, six phases, six cognitive tasks — each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
-**Current focus:** Phase 02 — model-executors-and-pricing
+**Current focus:** Phase 03 — six-phase-pipeline-and-profile-management
 
 ## Current Position
 
-Phase: 03
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-04-05
+Phase: 03 (six-phase-pipeline-and-profile-management) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-04-08
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -77,6 +77,7 @@ Key decisions relevant to Phase 1:
 - [Phase 02-model-executors-and-pricing]: Perplexity baseURL has no /v1 suffix — api.perplexity.ai routes /chat/completions directly off base
 - [Phase 02-model-executors-and-pricing]: MCP path returns mcpRequest object to caller — MCP tools inaccessible from standalone Node.js
 - [Phase 02-model-executors-and-pricing]: Both executors delegate fallback to dispatch.js — no cross-executor dependencies; runWithFallback removed from minimax fork
+- [Phase 03-01]: EXECUTOR_MAP static lookup in dispatch.js CLI rather than models.json executorFile field — keeps mapping colocated with CLI code, avoids schema change
 
 ### Roadmap Evolution
 
@@ -99,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08T21:13:07.969Z
-Stopped at: Phases 9-11 context gathered
-Resume file: .planning/phases/09-human-ai-cognitive-division/09-CONTEXT.md
+Last session: 2026-04-08T21:34:51.216Z
+Stopped at: Completed 03-01-PLAN.md
+Resume file: None

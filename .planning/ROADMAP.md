@@ -77,7 +77,7 @@ Plans:
   6. Running on a non-code project (blueprint declares `project_type: research`) causes Forge and Crucible to use prose-appropriate behavior instead of test+lint
 **Plans:** 6 plans
 Plans:
-- [ ] 03-01-PLAN.md — Shared infrastructure: dispatch CLI entry point, marker parser, wing banners
+- [x] 03-01-PLAN.md — Shared infrastructure: dispatch CLI entry point, marker parser, wing banners
 - [ ] 03-02-PLAN.md — Discover and Envision commands (Wings I-II)
 - [ ] 03-03-PLAN.md — Judge and Architect commands (Wings III-IV)
 - [ ] 03-04-PLAN.md — Forge and Crucible commands (Wings V-VI)
@@ -141,7 +141,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1. Plugin Scaffold and Infrastructure | v3.0 | 3/3 | Complete   | 2026-04-05 |
 | 2. Model Executors and Pricing | v3.0 | 5/5 | Complete   | 2026-04-05 |
-| 3. Six Phase Pipeline and Profile Management | v3.0 | 0/6 | In Progress | - |
+| 3. Six Phase Pipeline and Profile Management | v3.0 | 1/6 | In Progress|  |
 | 4. Quality Gates and Decision Logging | v3.0 | 0/? | Not started | - |
 | 5. Session Commands and Hook Consolidation | v3.0 | 0/? | Not started | - |
 | 6. Adaptive Intelligence | v3.0 | 0/? | Not started | - |
