@@ -65,11 +65,11 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 
 ### Session & History
 
-- [ ] **SESS-01**: `/seraphim:help` displays all commands, profiles, phase descriptions, and configuration options
+- [x] **SESS-01**: `/seraphim:help` displays all commands, profiles, phase descriptions, and configuration options
 - [x] **SESS-02**: `/seraphim:history` shows pipeline run history with per-phase costs, models used, outcomes, loop counts, and total spend
 - [x] **SESS-03**: `/seraphim:pause` persists current pipeline state (completed phases, loop counts, partial outputs) to `.seraphim/phases/{N}/state.json` for multi-session work
 - [x] **SESS-04**: `/seraphim:resume {N}` restores pipeline state and continues from where it was paused
-- [ ] **SESS-05**: `/seraphim:status` shows active profile, current phase progress, overrides, and model availability
+- [x] **SESS-05**: `/seraphim:status` shows active profile, current phase progress, overrides, and model availability
 
 ### Token Logging & Cost Tracking
 
@@ -185,11 +185,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COST-03 | Phase 4 | Complete |
 | COST-04 | Phase 4 | Complete |
 | COST-05 | Phase 4 | Complete |
-| SESS-01 | Phase 5 | Pending |
+| SESS-01 | Phase 5 | Complete |
 | SESS-02 | Phase 5 | Complete |
 | SESS-03 | Phase 5 | Complete |
 | SESS-04 | Phase 5 | Complete |
-| SESS-05 | Phase 5 | Pending |
+| SESS-05 | Phase 5 | Complete |
 | HOOK-01 | Phase 5 | Pending |
 | HOOK-02 | Phase 5 | Pending |
 | HOOK-03 | Phase 5 | Pending |
