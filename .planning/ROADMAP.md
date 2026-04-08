@@ -130,7 +130,12 @@ Plans:
   3. Running `/seraphim:status` shows the active profile, current phase progress, any active overrides, and model availability for all nine models
   4. Running `/seraphim:help` displays all commands, profiles, phase descriptions, and configuration options without requiring any active pipeline
   5. After the retirement edit to `~/.claude/settings.json`, the token log contains no entries from any of the seven retired hook names during a new pipeline session; archive copies exist at a known path for rollback
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — help.md and status.md (read-only utility commands)
+- [ ] 05-02-PLAN.md — history.md, pause.md, resume.md (stateful session commands)
+- [ ] 05-03-PLAN.md — retire-hooks.js and atomic settings.json hook retirement
 
 ### Phase 6: Adaptive Intelligence
 **Goal**: Pattern analysis produces model performance recommendations based on accumulated decisions.jsonl data; dashboard shows per-phase heatmap and profile comparison panels
@@ -166,7 +171,7 @@ Plans:
 | 3. Six Phase Pipeline and Profile Management | v3.0 | 6/6 | Complete   | 2026-04-08 |
 | 03.1. Parallel Discovery Research Tracks | v3.0 | 0/1 | Complete    | 2026-04-08 |
 | 4. Quality Gates and Decision Logging | v3.0 | 2/4 | In Progress|  |
-| 5. Session Commands and Hook Consolidation | v3.0 | 0/? | Not started | - |
+| 5. Session Commands and Hook Consolidation | v3.0 | 0/3 | Not started | - |
 | 6. Adaptive Intelligence | v3.0 | 0/? | Not started | - |
 | 7. Multi-Project Dashboard | v3.0 | 0/? | Not started | - |
 | 8. Thought Orphanage Integration | v3.0 | 0/? | Not started | - |
@@ -195,6 +200,16 @@ Plans:
   3. Research covers the Jagged Frontier, divergent/convergent boundary, and 2-hour autonomy ceiling as they apply to Seraphim's specific workflow
   4. Recommendations are integrated as configurable human-in-the-loop checkpoints in the pipeline config
 **Plans**: TBD
+
+### Phase 09.1: Human-AI Task Routing and Dashboard Views (INSERTED)
+
+**Goal:** Wire Phase 9's Human-AI Cognitive Division research into the pipeline: Architect produces blueprints with `assignee: human` or `assignee: ai` tags on each task; Forge skips human-tagged tasks and lists them separately; the Multi-Project Dashboard (Phase 7) displays separate human and AI task lists with progress tracking for both
+**Requirements**: PIPE-04
+**Depends on:** Phase 7 (dashboard must exist), Phase 9 (research must exist)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 09.1 to break down)
 
 ### Phase 10: Context Management and Token Optimization
 **Goal**: Research and implement strategies to minimize token usage across the nine-model pipeline without degrading output quality, with measurable before/after cost comparisons
