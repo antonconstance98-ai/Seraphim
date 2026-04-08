@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
-status: verifying
-stopped_at: Completed 04-04-PLAN.md
-last_updated: "2026-04-08T22:42:53.397Z"
+status: executing
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-04-08T22:53:36.400Z"
 last_activity: 2026-04-08
 progress:
-  total_phases: 16
+  total_phases: 17
   completed_phases: 9
-  total_plans: 26
-  completed_plans: 26
+  total_plans: 29
+  completed_plans: 28
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-04)
 
 **Core value:** Six wings, six phases, six cognitive tasks — each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
-**Current focus:** Phase 04 — quality-gates-and-decision-logging
+**Current focus:** Phase 05 — session-commands-and-hook-consolidation
 
 ## Current Position
 
-Phase: 05
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 05 (session-commands-and-hook-consolidation) — EXECUTING
+Plan: 3 of 3
+Status: Ready to execute
 Last activity: 2026-04-08
 
 Progress: [░░░░░░░░░░] 0%
@@ -94,6 +94,10 @@ Key decisions relevant to Phase 1:
 - [Phase 04]: incrementRetry always called for retry counting (never manual state mutation) — crash-safe disk write on every increment
 - [Phase 04-03]: decisions-logger.js created as Rule 3 auto-fix (planned in 04-01, was missing)
 - [Phase 04-quality-gates-and-decision-logging]: session-start.js created from scratch — file was absent from plugin hooks directory; hook follows same stdin/stdout event pattern as token-logger.js
+- [Phase 05]: history.md groups decisions.jsonl records by discover-phase transitions — no run_id in schema
+- [Phase 05]: resume.md clears paused flag before delegating to run.md --from to prevent double-resume
+- [Phase 05]: help.md enumerates profiles live from profiles.json — never hardcodes profile names
+- [Phase 05]: status.md probes all five executors via available() with 2>/dev/null stderr suppression
 
 ### Roadmap Evolution
 
@@ -117,6 +121,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08T22:40:05.853Z
-Stopped at: Completed 04-04-PLAN.md
+Last session: 2026-04-08T22:53:36.398Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None

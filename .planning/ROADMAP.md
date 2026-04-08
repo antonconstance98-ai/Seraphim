@@ -133,8 +133,8 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — help.md and status.md (read-only utility commands)
-- [ ] 05-02-PLAN.md — history.md, pause.md, resume.md (stateful session commands)
+- [x] 05-01-PLAN.md — help.md and status.md (read-only utility commands)
+- [x] 05-02-PLAN.md — history.md, pause.md, resume.md (stateful session commands)
 - [ ] 05-03-PLAN.md — retire-hooks.js and atomic settings.json hook retirement
 
 ### Phase 6: Adaptive Intelligence
@@ -171,7 +171,7 @@ Plans:
 | 3. Six Phase Pipeline and Profile Management | v3.0 | 6/6 | Complete   | 2026-04-08 |
 | 03.1. Parallel Discovery Research Tracks | v3.0 | 0/1 | Complete    | 2026-04-08 |
 | 4. Quality Gates and Decision Logging | v3.0 | 2/4 | In Progress|  |
-| 5. Session Commands and Hook Consolidation | v3.0 | 0/3 | Not started | - |
+| 5. Session Commands and Hook Consolidation | v3.0 | 2/3 | In Progress|  |
 | 6. Adaptive Intelligence | v3.0 | 0/? | Not started | - |
 | 7. Multi-Project Dashboard | v3.0 | 0/? | Not started | - |
 | 8. Thought Orphanage Integration | v3.0 | 0/? | Not started | - |
