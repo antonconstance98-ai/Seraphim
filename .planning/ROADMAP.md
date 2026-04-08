@@ -152,7 +152,7 @@ Plans:
 - [x] 06-01-PLAN.md — Validator type-guard fix and test scaffolds
 - [x] 06-02-PLAN.md — Pattern analyzer and recommendation engine
 - [x] 06-03-PLAN.md — Seraphim-branded dashboard generator (three panels)
-- [ ] 06-04-PLAN.md — analyze.md, recommendations.md commands and crucible auto-trigger
+- [x] 06-04-PLAN.md — analyze.md, recommendations.md commands and crucible auto-trigger
 **UI hint**: yes
 
 ### Phase 7: Multi-Project Dashboard — Human Home Base
@@ -180,7 +180,7 @@ Plans:
 | 03.1. Parallel Discovery Research Tracks | v3.0 | 0/1 | Complete    | 2026-04-08 |
 | 4. Quality Gates and Decision Logging | v3.0 | 2/4 | In Progress|  |
 | 5. Session Commands and Hook Consolidation | v3.0 | 2/3 | In Progress|  |
-| 6. Adaptive Intelligence | v3.0 | 3/4 | In Progress|  |
+| 6. Adaptive Intelligence | v3.0 | 4/4 | Complete   | 2026-04-08 |
 | 7. Multi-Project Dashboard | v3.0 | 0/? | Not started | - |
 | 8. Thought Orphanage Integration | v3.0 | 0/? | Not started | - |
 | 9. Human-AI Cognitive Division | v3.0 | 0/? | Not started | - |
