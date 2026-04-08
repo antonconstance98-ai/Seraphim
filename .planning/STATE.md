@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
 status: executing
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-04-08T21:50:40.100Z"
+stopped_at: Completed 03-06-PLAN.md
+last_updated: "2026-04-08T21:53:52.140Z"
 last_activity: 2026-04-08
 progress:
   total_phases: 15
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 21
-  completed_plans: 20
+  completed_plans: 21
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 03 (six-phase-pipeline-and-profile-management) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-04-08
 
@@ -85,6 +85,8 @@ Key decisions relevant to Phase 1:
 - [Phase 03]: TASK markers include type attribute (code/prose/analysis) even for homogeneous projects to enable Forge per-task branching
 - [Phase 03]: envision.md aborts on missing discovery files — hard prerequisite, no stubs
 - [Phase 03]: discover.md: inline vs dispatch split — resolveExecutorId check; claude-opus-4-6 runs inline, others via CLI
+- [Phase 03]: run.md invokes phase commands by reading their .md files — no re-implementation of phase logic
+- [Phase 03]: new-project.md created as part of PIPE-11 — command was absent from plugin despite plan stating it existed
 
 ### Roadmap Evolution
 
@@ -107,6 +109,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08T21:50:40.095Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-04-08T21:53:45.277Z
+Stopped at: Completed 03-06-PLAN.md
 Resume file: None

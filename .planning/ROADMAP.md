@@ -82,7 +82,7 @@ Plans:
 - [x] 03-03-PLAN.md — Judge and Architect commands (Wings III-IV)
 - [x] 03-04-PLAN.md — Forge and Crucible commands (Wings V-VI)
 - [x] 03-05-PLAN.md — Profile management: set-profile, show-profile, override
-- [ ] 03-06-PLAN.md — Run orchestrator with --from resume support
+- [x] 03-06-PLAN.md — Run orchestrator with --from resume support
 **UI hint**: yes
 
 ### Phase 4: Quality Gates and Decision Logging
@@ -141,7 +141,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1. Plugin Scaffold and Infrastructure | v3.0 | 3/3 | Complete   | 2026-04-05 |
 | 2. Model Executors and Pricing | v3.0 | 5/5 | Complete   | 2026-04-05 |
-| 3. Six Phase Pipeline and Profile Management | v3.0 | 5/6 | In Progress|  |
+| 3. Six Phase Pipeline and Profile Management | v3.0 | 6/6 | Complete   | 2026-04-08 |
 | 4. Quality Gates and Decision Logging | v3.0 | 0/? | Not started | - |
 | 5. Session Commands and Hook Consolidation | v3.0 | 0/? | Not started | - |
 | 6. Adaptive Intelligence | v3.0 | 0/? | Not started | - |
