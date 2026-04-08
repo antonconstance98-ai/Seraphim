@@ -33,14 +33,14 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 
 - [ ] **PIPE-01**: `/seraphim:discover` runs external (web) + internal (codebase) research tracks in parallel, writes to `.seraphim/phases/{N}/discovery/external.md` and `internal.md`
 - [ ] **PIPE-02**: `/seraphim:envision` reads discovery output, generates 3-5 distinct approaches with trade-offs, writes to `.seraphim/phases/{N}/vision.md`
-- [ ] **PIPE-03**: `/seraphim:judge` reads vision output, stress-tests every approach, marks each SURVIVES / FATAL_FLAW / CONDITIONAL with structured machine-readable markers, writes to `.seraphim/phases/{N}/judgment.md`
-- [ ] **PIPE-04**: `/seraphim:architect` reads judgment output, creates detailed blueprint with task breakdown, dependencies, and test criteria, writes to `.seraphim/phases/{N}/blueprint.md`
+- [x] **PIPE-03**: `/seraphim:judge` reads vision output, stress-tests every approach, marks each SURVIVES / FATAL_FLAW / CONDITIONAL with structured machine-readable markers, writes to `.seraphim/phases/{N}/judgment.md`
+- [x] **PIPE-04**: `/seraphim:architect` reads judgment output, creates detailed blueprint with task breakdown, dependencies, and test criteria, writes to `.seraphim/phases/{N}/blueprint.md`
 - [x] **PIPE-05**: `/seraphim:forge` executes blueprint task by task with between-task checkpoints, writes commits + `.seraphim/phases/{N}/forge-log.md`
 - [x] **PIPE-06**: `/seraphim:crucible` runs verification pass (goal-backward check) + adversarial pass (break attempt), writes to `.seraphim/phases/{N}/crucible.md`
 - [x] **PIPE-07**: Phase output schemas use structured machine-readable markers (JSON blocks or `<!-- STATUS: -->` tags) enabling feedback loop parsing
 - [ ] **PIPE-08**: `/seraphim:run {N}` executes all six phases in sequence with auto-advancement and visible phase headers
 - [ ] **PIPE-09**: `/seraphim:run {N} --from [phase]` resumes pipeline from a specific phase without re-running completed phases
-- [ ] **PIPE-10**: Non-code project type support — blueprint declares `project_type` (code, research, writing, science, mixed); Forge and Crucible branch behavior accordingly
+- [x] **PIPE-10**: Non-code project type support — blueprint declares `project_type` (code, research, writing, science, mixed); Forge and Crucible branch behavior accordingly
 - [ ] **PIPE-11**: `/seraphim:new-project` initializes `.seraphim/` directory with default config for a project
 
 ### Profile Management
@@ -159,14 +159,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COST-06 | Phase 2 | Complete |
 | PIPE-01 | Phase 3 | Pending |
 | PIPE-02 | Phase 3 | Pending |
-| PIPE-03 | Phase 3 | Pending |
-| PIPE-04 | Phase 3 | Pending |
+| PIPE-03 | Phase 3 | Complete |
+| PIPE-04 | Phase 3 | Complete |
 | PIPE-05 | Phase 3 | Complete |
 | PIPE-06 | Phase 3 | Complete |
 | PIPE-07 | Phase 3 | Complete |
 | PIPE-08 | Phase 3 | Pending |
 | PIPE-09 | Phase 3 | Pending |
-| PIPE-10 | Phase 3 | Pending |
+| PIPE-10 | Phase 3 | Complete |
 | PIPE-11 | Phase 3 | Pending |
 | PROF-01 | Phase 3 | Pending |
 | PROF-02 | Phase 3 | Pending |

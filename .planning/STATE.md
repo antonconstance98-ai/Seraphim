@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
 status: executing
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-04-08T21:50:32.138Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-04-08T21:50:40.100Z"
 last_activity: 2026-04-08
 progress:
   total_phases: 15
@@ -83,6 +83,8 @@ Key decisions relevant to Phase 1:
 - [Phase 03]: loop_required=true only when ALL approaches receive FATAL_FLAW — conditionals count as viable paths
 - [Phase 03]: Architect selects SURVIVES first, CONDITIONAL fallback — CONDITIONAL selection is noted in blueprint overview
 - [Phase 03]: TASK markers include type attribute (code/prose/analysis) even for homogeneous projects to enable Forge per-task branching
+- [Phase 03]: envision.md aborts on missing discovery files — hard prerequisite, no stubs
+- [Phase 03]: discover.md: inline vs dispatch split — resolveExecutorId check; claude-opus-4-6 runs inline, others via CLI
 
 ### Roadmap Evolution
 
@@ -105,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08T21:50:23.716Z
-Stopped at: Completed 03-04-PLAN.md
+Last session: 2026-04-08T21:50:40.095Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
