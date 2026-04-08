@@ -56,12 +56,12 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 
 ### Quality Gates
 
-- [ ] **QUAL-01**: Between-task checkpoint in Forge runs runtime check (tests, lint, imports) + static code review (profile's checkpoint model) on task diff
+- [x] **QUAL-01**: Between-task checkpoint in Forge runs runtime check (tests, lint, imports) + static code review (profile's checkpoint model) on task diff
 - [ ] **QUAL-02**: Checkpoint failure triggers retry-with-feedback: Forge re-runs failed task with checkpoint findings appended (max 2 retries per task)
 - [ ] **QUAL-03**: Judge->Envision feedback loop: when all approaches get FATAL_FLAW, Envision re-runs with Judge's findings (max 2 loops, persisted to disk)
 - [ ] **QUAL-04**: Crucible->Forge feedback loop: verification or adversarial failures trigger targeted Forge fixes with specific instructions (max 2 loops, persisted to disk)
 - [ ] **QUAL-05**: When any loop cap is exceeded, pipeline stops and surfaces full findings + suggested manual resolution steps to terminal
-- [ ] **QUAL-06**: `checkpoint.js` branches on `project_type`: code gets tests+lint, prose gets structure+citation check, science gets methodology+replication check
+- [x] **QUAL-06**: `checkpoint.js` branches on `project_type`: code gets tests+lint, prose gets structure+citation check, science gets methodology+replication check
 
 ### Session & History
 
@@ -75,9 +75,9 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 
 - [x] **COST-01**: `lib/pricing.js` exposes per-provider cost functions for all nine models — no shared formula (prevents negative/zero costs from incompatible token schemas)
 - [x] **COST-02**: `hooks/token-logger.js` handles four incompatible token count schemas: Anthropic (`input_tokens`/`output_tokens`/`cache_read_input_tokens`), Gemini (`promptTokenCount`/`candidatesTokenCount`), MiniMax/OpenAI (`prompt_tokens`/`completion_tokens`), ollama (`prompt_eval_count`/`eval_count`)
-- [ ] **COST-03**: `decisions.jsonl` logs every phase execution with: phase, model, profile, tokens_in, tokens_out, cost_usd, latency_ms, outcome, retry_count, loop_count
-- [ ] **COST-04**: Quality signals captured in decisions.jsonl: crucible_pass_rate, judge_kill_rate, checkpoint_catch_rate, loop_trigger_reason
-- [ ] **COST-05**: Data integrity validator checks decisions.jsonl for schema violations, missing fields, and anomalous values (negative costs, impossible token counts) on session start
+- [x] **COST-03**: `decisions.jsonl` logs every phase execution with: phase, model, profile, tokens_in, tokens_out, cost_usd, latency_ms, outcome, retry_count, loop_count
+- [x] **COST-04**: Quality signals captured in decisions.jsonl: crucible_pass_rate, judge_kill_rate, checkpoint_catch_rate, loop_trigger_reason
+- [x] **COST-05**: Data integrity validator checks decisions.jsonl for schema violations, missing fields, and anomalous values (negative costs, impossible token counts) on session start
 - [x] **COST-06**: `raw_usage` field preserved in token-logger records for debugging per-provider field mapping issues
 
 ### Adaptive Intelligence
@@ -176,15 +176,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROF-06 | Phase 1 | Complete |
 | PROF-07 | Phase 1 | Complete |
 | PROF-08 | Phase 3 | Pending |
-| QUAL-01 | Phase 4 | Pending |
+| QUAL-01 | Phase 4 | Complete |
 | QUAL-02 | Phase 4 | Pending |
 | QUAL-03 | Phase 4 | Pending |
 | QUAL-04 | Phase 4 | Pending |
 | QUAL-05 | Phase 4 | Pending |
-| QUAL-06 | Phase 4 | Pending |
-| COST-03 | Phase 4 | Pending |
-| COST-04 | Phase 4 | Pending |
-| COST-05 | Phase 4 | Pending |
+| QUAL-06 | Phase 4 | Complete |
+| COST-03 | Phase 4 | Complete |
+| COST-04 | Phase 4 | Complete |
+| COST-05 | Phase 4 | Complete |
 | SESS-01 | Phase 5 | Pending |
 | SESS-02 | Phase 5 | Pending |
 | SESS-03 | Phase 5 | Pending |

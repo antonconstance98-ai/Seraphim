@@ -115,7 +115,7 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — checkpoint.js, decisions-logger.js, decisions-validator.js (new infrastructure)
+- [x] 04-01-PLAN.md — checkpoint.js, decisions-logger.js, decisions-validator.js (new infrastructure)
 - [ ] 04-02-PLAN.md — forge.md: checkpoint gate, retry-with-feedback, crucible fix mode
 - [ ] 04-03-PLAN.md — envision.md: loop path; judge.md: decisions logging + escalation
 - [ ] 04-04-PLAN.md — crucible.md: fix instructions + logging; session-start: validator
