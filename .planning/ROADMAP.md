@@ -206,6 +206,12 @@ Plans:
 **Goal:** Wire Phase 9's Human-AI Cognitive Division research into the pipeline: Architect produces blueprints with `assignee: human` or `assignee: ai` tags on each task; Forge skips human-tagged tasks and lists them separately; the Multi-Project Dashboard (Phase 7) displays separate human and AI task lists with progress tracking for both
 **Requirements**: PIPE-04
 **Depends on:** Phase 7 (dashboard must exist), Phase 9 (research must exist)
+**Success Criteria** (what must be TRUE):
+  1. Architect's `blueprint.md` output includes an `assignee` attribute (`human` or `ai`) on each `SERAPHIM:TASK` marker, informed by Phase 9's cognitive division framework
+  2. Forge skips tasks tagged `assignee="human"` with a `status="human_required"` entry in forge-log.md, and lists them in a separate "## Human Tasks" section
+  3. The Multi-Project Dashboard has a dedicated Human Tasks view showing all human-tagged tasks across projects with status tracking (pending/in-progress/done)
+  4. The Dashboard has an AI Tasks view showing all AI-executed tasks with model, cost, and outcome data
+  5. A `/seraphim:tasks` command lists human and AI tasks for the current phase with their status
 **Plans:** 0 plans
 
 Plans:
