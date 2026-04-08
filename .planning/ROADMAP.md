@@ -169,7 +169,7 @@ Plans:
   7. The dashboard auto-refreshes and shows real-time pipeline progress when a pipeline is running
 **Plans**: 5 plans
 Plans:
-- [ ] 07-01-PLAN.md — Local scanner, progress extractor, push client
+- [x] 07-01-PLAN.md — Local scanner, progress extractor, push client
 - [ ] 07-02-PLAN.md — Next.js scaffold, DB schema, ingest API
 - [ ] 07-03-PLAN.md — Project overview + drill-down UI pages
 - [ ] 07-04-PLAN.md — SSE real-time, MetricsPanel, phase-push hook
