@@ -57,10 +57,10 @@ Requirements for the Seraphim standalone plugin. Each maps to roadmap phases.
 ### Quality Gates
 
 - [x] **QUAL-01**: Between-task checkpoint in Forge runs runtime check (tests, lint, imports) + static code review (profile's checkpoint model) on task diff
-- [ ] **QUAL-02**: Checkpoint failure triggers retry-with-feedback: Forge re-runs failed task with checkpoint findings appended (max 2 retries per task)
+- [x] **QUAL-02**: Checkpoint failure triggers retry-with-feedback: Forge re-runs failed task with checkpoint findings appended (max 2 retries per task)
 - [ ] **QUAL-03**: Judge->Envision feedback loop: when all approaches get FATAL_FLAW, Envision re-runs with Judge's findings (max 2 loops, persisted to disk)
-- [ ] **QUAL-04**: Crucible->Forge feedback loop: verification or adversarial failures trigger targeted Forge fixes with specific instructions (max 2 loops, persisted to disk)
-- [ ] **QUAL-05**: When any loop cap is exceeded, pipeline stops and surfaces full findings + suggested manual resolution steps to terminal
+- [x] **QUAL-04**: Crucible->Forge feedback loop: verification or adversarial failures trigger targeted Forge fixes with specific instructions (max 2 loops, persisted to disk)
+- [x] **QUAL-05**: When any loop cap is exceeded, pipeline stops and surfaces full findings + suggested manual resolution steps to terminal
 - [x] **QUAL-06**: `checkpoint.js` branches on `project_type`: code gets tests+lint, prose gets structure+citation check, science gets methodology+replication check
 
 ### Session & History
@@ -177,10 +177,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROF-07 | Phase 1 | Complete |
 | PROF-08 | Phase 3 | Pending |
 | QUAL-01 | Phase 4 | Complete |
-| QUAL-02 | Phase 4 | Pending |
+| QUAL-02 | Phase 4 | Complete |
 | QUAL-03 | Phase 4 | Pending |
-| QUAL-04 | Phase 4 | Pending |
-| QUAL-05 | Phase 4 | Pending |
+| QUAL-04 | Phase 4 | Complete |
+| QUAL-05 | Phase 4 | Complete |
 | QUAL-06 | Phase 4 | Complete |
 | COST-03 | Phase 4 | Complete |
 | COST-04 | Phase 4 | Complete |

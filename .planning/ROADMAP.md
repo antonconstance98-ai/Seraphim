@@ -116,7 +116,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — checkpoint.js, decisions-logger.js, decisions-validator.js (new infrastructure)
-- [ ] 04-02-PLAN.md — forge.md: checkpoint gate, retry-with-feedback, crucible fix mode
+- [x] 04-02-PLAN.md — forge.md: checkpoint gate, retry-with-feedback, crucible fix mode
 - [ ] 04-03-PLAN.md — envision.md: loop path; judge.md: decisions logging + escalation
 - [ ] 04-04-PLAN.md — crucible.md: fix instructions + logging; session-start: validator
 
@@ -165,7 +165,7 @@ Plans:
 | 2. Model Executors and Pricing | v3.0 | 5/5 | Complete   | 2026-04-05 |
 | 3. Six Phase Pipeline and Profile Management | v3.0 | 6/6 | Complete   | 2026-04-08 |
 | 03.1. Parallel Discovery Research Tracks | v3.0 | 0/1 | Complete    | 2026-04-08 |
-| 4. Quality Gates and Decision Logging | v3.0 | 0/? | Not started | - |
+| 4. Quality Gates and Decision Logging | v3.0 | 2/4 | In Progress|  |
 | 5. Session Commands and Hook Consolidation | v3.0 | 0/? | Not started | - |
 | 6. Adaptive Intelligence | v3.0 | 0/? | Not started | - |
 | 7. Multi-Project Dashboard | v3.0 | 0/? | Not started | - |

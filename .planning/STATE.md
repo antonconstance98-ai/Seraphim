@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-04-08T22:36:03.248Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-04-08T22:36:46.190Z"
 last_activity: 2026-04-08
 progress:
   total_phases: 16
   completed_phases: 8
   total_plans: 26
-  completed_plans: 23
+  completed_plans: 24
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 04 (quality-gates-and-decision-logging) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-04-08
 
@@ -90,6 +90,8 @@ Key decisions relevant to Phase 1:
 - [Phase 03.1]: 4 parallel external research tracks replace single-track Step 6 in Discover phase
 - [Phase 04-01]: checkpoint.js does not require pricing.js — cost computation is the caller's responsibility
 - [Phase 04-01]: decisions-validator.js imports REQUIRED_FIELDS from decisions-logger.js — single source of truth for schema
+- [Phase 04]: cfg.max_loops used as retry cap in forge retry loop — no separate max_retries variable
+- [Phase 04]: incrementRetry always called for retry counting (never manual state mutation) — crash-safe disk write on every increment
 
 ### Roadmap Evolution
 
@@ -113,6 +115,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08T22:36:03.246Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-04-08T22:36:46.188Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
