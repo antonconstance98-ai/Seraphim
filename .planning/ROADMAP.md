@@ -6,7 +6,7 @@
 - ✅ **v1.1 Global Metrics Dashboard** — Phases 5-7 (shipped 2026-04-03) — [archive](milestones/v1.1-ROADMAP.md)
 - ✅ **v2.0 Three-Model Intelligence** — Phases 8-14 (shipped 2026-04-03)
 - ✅ **v2.0 Adaptive Intelligence** — Phase 15 (shipped 2026-04-04)
-- 🔄 **v3.0 Seraphim** — Phases 1-7 (in progress) — clean break, phase numbering reset
+- 🔄 **v3.0 Seraphim** — Phases 1-11 (in progress) — clean break, phase numbering reset
 
 ---
 
@@ -23,6 +23,10 @@
 - [ ] **Phase 5: Session Commands and Hook Consolidation** — Full-auto run with resume; all session commands work; seven legacy hooks retired
 - [ ] **Phase 6: Adaptive Intelligence** — Pattern analysis produces recommendations; dashboard panels show per-phase performance
 - [ ] **Phase 7: Multi-Project Dashboard** — Localhost web interface aggregates progress, metrics, and workflow data across all Seraphim-managed projects
+- [ ] **Phase 8: Thought Orphanage Integration** — Slash command for capturing seed thoughts at project and global level, braindump workflow, dashboard representation
+- [ ] **Phase 9: Human-AI Cognitive Division** — Research where AI vs human leverage is best placed in the Seraphim pipeline, informed by divergent/convergent cognition research
+- [ ] **Phase 10: Context Management and Token Optimization** — Research and implement strategies to reduce token usage across the nine-model pipeline
+- [ ] **Phase 11: OpenClaw Local RAG Integration** — Research OpenClaw's architecture and adapt its local RAG system for project knowledge referencing in Seraphim
 
 ## Phase Details
 
@@ -142,6 +146,54 @@ Plans:
 | 5. Session Commands and Hook Consolidation | v3.0 | 0/? | Not started | - |
 | 6. Adaptive Intelligence | v3.0 | 0/? | Not started | - |
 | 7. Multi-Project Dashboard | v3.0 | 0/? | Not started | - |
+| 8. Thought Orphanage Integration | v3.0 | 0/? | Not started | - |
+| 9. Human-AI Cognitive Division | v3.0 | 0/? | Not started | - |
+| 10. Context Management and Token Optimization | v3.0 | 0/? | Not started | - |
+| 11. OpenClaw Local RAG Integration | v3.0 | 0/? | Not started | - |
+
+### Phase 8: Thought Orphanage Integration
+**Goal**: A `/seraphim:thought` slash command captures seed ideas at project level (`.seraphim/thoughts/`) or global level (`~/thought-orphanage/`), with a guided braindump workflow that matures raw thoughts into structured ideas — all visible on the multi-project dashboard
+**Depends on**: Phase 7
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+  1. Running `/seraphim:thought` in a project directory creates a seed file under `.seraphim/thoughts/` with the braindump workflow (probe → synthesize → SEED.md)
+  2. Running `/seraphim:thought --global` creates a seed in `~/thought-orphanage/seeds/` following the existing thought-orphanage conventions
+  3. The multi-project dashboard shows a "Thought Orphanage" panel listing all seeds across projects with status (raw/exploring/nearly-ready), last-worked date, and graduation signals
+  4. The brainstorming process guides the user from raw idea to structured SEED.md with problem, audience, vision, and graduation criteria — matching the thought-orphanage CLAUDE.md spec
+**Plans**: TBD
+
+### Phase 9: Human-AI Cognitive Division
+**Goal**: Research-backed framework identifying where human cognition vs AI execution is optimally placed within Seraphim's six-phase pipeline, producing concrete routing rules and workflow recommendations
+**Depends on**: Phase 3 (pipeline must exist to analyze it)
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+  1. A cognitive division map exists showing each of the six pipeline phases rated on a human-leverage vs AI-execution spectrum, with evidence citations from the divergent/convergent research
+  2. The framework produces actionable routing recommendations — e.g., "Envision benefits from human seeding before AI expansion" or "Judge phase should always surface decisions for human review"
+  3. Research covers the Jagged Frontier, divergent/convergent boundary, and 2-hour autonomy ceiling as they apply to Seraphim's specific workflow
+  4. Recommendations are integrated as configurable human-in-the-loop checkpoints in the pipeline config
+**Plans**: TBD
+
+### Phase 10: Context Management and Token Optimization
+**Goal**: Research and implement strategies to minimize token usage across the nine-model pipeline without degrading output quality, with measurable before/after cost comparisons
+**Depends on**: Phase 4 (needs decisions.jsonl for measurement)
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+  1. Research document covering context compression techniques, prompt optimization patterns, and caching strategies applicable to multi-model pipelines
+  2. Measurable token reduction (target: 20%+ reduction in average pipeline cost) validated against baseline from decisions.jsonl
+  3. Implementation of at least two concrete optimizations (e.g., context pruning between phases, prompt template compression, intelligent caching of repeated context)
+  4. Dashboard panel showing token usage trends and cost savings from optimizations
+**Plans**: TBD
+
+### Phase 11: OpenClaw Local RAG Integration
+**Goal**: Research OpenClaw's architecture — specifically its local RAG system for project knowledge — and adapt the pattern so Seraphim can reference project history, decisions, and documentation during pipeline phases without external dependencies
+**Depends on**: Phase 3 (pipeline phases need to exist to consume RAG context)
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+  1. Research document analyzing OpenClaw's RAG architecture, indexing strategy, and retrieval patterns
+  2. A local RAG system indexes `.seraphim/` artifacts (decisions.jsonl, phase outputs, config) into a searchable store without requiring cloud services
+  3. Pipeline phases can query project knowledge during execution — e.g., Judge can reference past decision patterns, Architect can reference prior blueprints
+  4. The RAG system works offline with no external API dependencies, using local embeddings or keyword-based retrieval
+**Plans**: TBD
 
 ---
 
