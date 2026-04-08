@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
 status: executing
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-04-08T21:34:51.222Z"
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-04-08T21:50:32.138Z"
 last_activity: 2026-04-08
 progress:
   total_phases: 15
   completed_phases: 6
   total_plans: 21
-  completed_plans: 16
+  completed_plans: 20
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 03 (six-phase-pipeline-and-profile-management) — EXECUTING
-Plan: 2 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-04-08
 
@@ -78,6 +78,11 @@ Key decisions relevant to Phase 1:
 - [Phase 02-model-executors-and-pricing]: MCP path returns mcpRequest object to caller — MCP tools inaccessible from standalone Node.js
 - [Phase 02-model-executors-and-pricing]: Both executors delegate fallback to dispatch.js — no cross-executor dependencies; runWithFallback removed from minimax fork
 - [Phase 03-01]: EXECUTOR_MAP static lookup in dispatch.js CLI rather than models.json executorFile field — keeps mapping colocated with CLI code, avoids schema change
+- [Phase 03]: Forge does NOT auto-commit (Pitfall 7) — Phase 4 checkpoint owns the commit gate
+- [Phase 03]: Crucible adversarial pass always dispatched externally — MiniMax is never inline-Opus
+- [Phase 03]: loop_required=true only when ALL approaches receive FATAL_FLAW — conditionals count as viable paths
+- [Phase 03]: Architect selects SURVIVES first, CONDITIONAL fallback — CONDITIONAL selection is noted in blueprint overview
+- [Phase 03]: TASK markers include type attribute (code/prose/analysis) even for homogeneous projects to enable Forge per-task branching
 
 ### Roadmap Evolution
 
@@ -100,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08T21:34:51.216Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-04-08T21:50:23.716Z
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
