@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Seraphim
-status: verifying
-stopped_at: "Checkpoint: 07-05 deployment awaiting human action (Vercel login, Neon provision, env vars)"
-last_updated: "2026-04-09T00:03:58.455Z"
+status: executing
+stopped_at: Completed 09.1-01-PLAN.md
+last_updated: "2026-04-09T00:28:59.867Z"
 last_activity: 2026-04-09
 progress:
   total_phases: 17
   completed_phases: 12
-  total_plans: 38
-  completed_plans: 38
+  total_plans: 41
+  completed_plans: 39
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-04)
 
 **Core value:** Six wings, six phases, six cognitive tasks — each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
-**Current focus:** Phase 07 — multi-project-dashboard
+**Current focus:** Phase 09.1 — human-ai-task-routing-and-dashboard-views
 
 ## Current Position
 
-Phase: 08
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 09.1 (human-ai-task-routing-and-dashboard-views) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-04-09
 
 Progress: [░░░░░░░░░░] 0%
@@ -116,6 +116,9 @@ Key decisions relevant to Phase 1:
 - [Phase 07]: chart.js loaded via dynamic import inside useEffect — avoids SSR DOM crash
 - [Phase 07]: phase-push.js filters to .seraphim/phases/* output files only — prevents push on every Write call
 - [Phase 07-multi-project-dashboard]: force-dynamic on DB pages — neon() is lazy via getSql() but Next.js static prerender still fires the page function without DATABASE_URL; force-dynamic skips prerender entirely
+- [Phase 09.1-01]: assignee defaults to ai — human is the exception, not the default
+- [Phase 09.1-01]: warn-only (not abort) on missing assignee in architect.md validation — backwards compatibility
+- [Phase 09.1-01]: four human-assignment triggers: creative ideation, domain expertise, physical actions, subjective quality sign-off
 
 ### Roadmap Evolution
 
@@ -139,6 +142,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T00:00:03.906Z
-Stopped at: Checkpoint: 07-05 deployment awaiting human action (Vercel login, Neon provision, env vars)
+Last session: 2026-04-09T00:28:59.860Z
+Stopped at: Completed 09.1-01-PLAN.md
 Resume file: None

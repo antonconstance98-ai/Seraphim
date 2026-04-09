@@ -229,7 +229,7 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 09.1-01-PLAN.md — markers.js emitTask helper + Architect assignee tagging
+- [x] 09.1-01-PLAN.md — markers.js emitTask helper + Architect assignee tagging
 - [ ] 09.1-02-PLAN.md — Forge human-task skip and Human Tasks section in forge-log
 - [ ] 09.1-03-PLAN.md — Dashboard TaskList component, project page views, ProjectCard badge, tasks command
 
