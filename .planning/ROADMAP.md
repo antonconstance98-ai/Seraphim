@@ -55,7 +55,7 @@ Plans:
 - [x] 02-01-PLAN.md — Cross-project overview command with attention signals
 - [x] 02-02-PLAN.md — Feature dependencies, skills/research task extensions
 - [x] 02-03-PLAN.md — Neon PM tables DDL and ingest route extension
-- [ ] 02-04-PLAN.md — PM sync pipeline (auto-push, manual sync, cost trend)
+- [x] 02-04-PLAN.md — PM sync pipeline (auto-push, manual sync, cost trend)
 
 ### Phase 3: Dashboard PM Panels
 **Goal**: The web dashboard becomes the human's PM command center with visual roadmap, human task management, and cross-project overview panels
@@ -75,7 +75,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Core PM Primitives | v3.1 | 4/5 | In Progress|  |
-| 2. Progress Visibility | v3.1 | 3/4 | In Progress|  |
+| 2. Progress Visibility | v3.1 | 4/4 | Complete   | 2026-04-09 |
 | 3. Dashboard PM Panels | v3.1 | 0/? | Not started | - |
 
 ---

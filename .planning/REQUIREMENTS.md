@@ -39,7 +39,7 @@
 - [ ] **OVER-02**: Dashboard cross-project panel showing all projects with PM status (milestone progress, feature counts, human tasks)
 - [x] **OVER-03**: Active-only filter (default) hides idle projects; `--all` flag shows everything
 - [x] **OVER-04**: "What needs attention" signal surfaces blocked features, exceeded WIP limits, and pending human gates prominently
-- [ ] **OVER-05**: Cross-project cost trend aggregating decisions.jsonl across projects by date, rendered as trend line in dashboard
+- [x] **OVER-05**: Cross-project cost trend aggregating decisions.jsonl across projects by date, rendered as trend line in dashboard
 
 ### Architecture & Integration
 
@@ -47,7 +47,7 @@
 - [x] **ARCH-02**: `decisions-logger.js` extended with nullable `feature_id` field linking decisions to features
 - [x] **ARCH-03**: `/seraphim:pause` state.json extended with PM context block (feature ID, milestone, progress) for session continuity
 - [x] **ARCH-04**: Neon database extended with `milestones`, `features`, `human_tasks` tables (additive, no existing table changes)
-- [ ] **ARCH-05**: Sync script extended with two new collection targets: feature_snapshots and human_task_snapshots
+- [x] **ARCH-05**: Sync script extended with two new collection targets: feature_snapshots and human_task_snapshots
 - [x] **ARCH-06**: Anti-features enforced: no sprint/story-points, no time-boxing, no drag-and-drop Kanban, no external PM tool sync
 
 ## v3.2+ Requirements (Deferred)
@@ -105,12 +105,12 @@
 | OVER-02 | Phase 3 | Pending |
 | OVER-03 | Phase 2 | Complete |
 | OVER-04 | Phase 2 | Complete |
-| OVER-05 | Phase 2 | Pending |
+| OVER-05 | Phase 2 | Complete |
 | ARCH-01 | Phase 1 | Complete |
 | ARCH-02 | Phase 1 | Complete |
 | ARCH-03 | Phase 1 | Complete |
 | ARCH-04 | Phase 2 | Complete |
-| ARCH-05 | Phase 2 | Pending |
+| ARCH-05 | Phase 2 | Complete |
 | ARCH-06 | Phase 1 | Complete |
 
 **Coverage:**
