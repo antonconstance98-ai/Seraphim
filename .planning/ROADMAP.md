@@ -191,7 +191,7 @@ Plans:
 | 8. Thought Orphanage Integration | v3.0 | 0/? | Not started | - |
 | 9. Human-AI Cognitive Division | v3.0 | 1/1 | Complete   | 2026-04-09 |
 | 10. Context Management and Token Optimization | v3.0 | 0/? | Not started | - |
-| 11. OpenClaw Local RAG Integration | v3.0 | 0/? | Not started | - |
+| 11. OpenClaw Local RAG Integration | v3.0 | 0/3 | Not started | - |
 
 ### Phase 8: Thought Orphanage Integration
 **Goal**: A `/seraphim:thought` slash command captures seed ideas at project level (`.seraphim/thoughts/`) or global level (`~/thought-orphanage/`), with a guided braindump workflow that matures raw thoughts into structured ideas — all visible on the multi-project dashboard
@@ -253,7 +253,11 @@ Plans:
   2. A local RAG system indexes `.seraphim/` artifacts (decisions.jsonl, phase outputs, config) into a searchable store without requiring cloud services
   3. Pipeline phases can query project knowledge during execution — e.g., Judge can reference past decision patterns, Architect can reference prior blueprints
   4. The RAG system works offline with no external API dependencies, using local embeddings or keyword-based retrieval
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 11-01-PLAN.md — npm deps + rag-indexer.js core library (SQLite schema, hybrid search, fallback, tests)
+- [ ] 11-02-PLAN.md — query-knowledge.js CLI tool, rag-post-phase.js hook, hooks.json registration, test scaffolds
+- [ ] 11-03-PLAN.md — run.md RAG injection (Step 6b-RAG), reindex.md command, config.js rag defaults, new-project.md warm-up
 
 ---
 
