@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v3.1
 milestone_name: Seraphim Project Management
 status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-04-09T17:38:21.630Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-04-09T17:40:59.514Z"
 last_activity: 2026-04-09
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 19
-  completed_plans: 15
+  completed_plans: 17
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 01 (core-pm-primitives) — EXECUTING
-Plan: 2 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Last activity: 2026-04-09
 
@@ -62,6 +62,9 @@ Key decisions relevant to v3.1:
 - [v3.1 Research]: Zero new npm packages -- builds entirely on existing infrastructure
 - [Phase 01]: readRoadmap returns empty milestones on missing file (D-08) — fail-safe default prevents crashes in new projects
 - [Phase 01]: feature_id=null default in buildRecord keeps all existing callers unaffected (D-09)
+- [Phase 01]: task-completions.jsonl sidecar (append-only) — no forge-log.md mutation on task completion
+- [Phase 01]: WIP warn-not-block per D-06: feature starts even when limit exceeded
+- [Phase 01]: start.md passes feature.slug to /seraphim:run as phase-id for pipeline launch
 
 ### Roadmap Evolution
 
@@ -79,6 +82,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T17:38:17.209Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-04-09T17:40:59.512Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
