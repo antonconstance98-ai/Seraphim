@@ -46,7 +46,7 @@
 - [x] **ARCH-01**: PM layer is read-path only -- observes pipeline execution, never gates or blocks it; every PM operation has bypass
 - [x] **ARCH-02**: `decisions-logger.js` extended with nullable `feature_id` field linking decisions to features
 - [x] **ARCH-03**: `/seraphim:pause` state.json extended with PM context block (feature ID, milestone, progress) for session continuity
-- [ ] **ARCH-04**: Neon database extended with `milestones`, `features`, `human_tasks` tables (additive, no existing table changes)
+- [x] **ARCH-04**: Neon database extended with `milestones`, `features`, `human_tasks` tables (additive, no existing table changes)
 - [ ] **ARCH-05**: Sync script extended with two new collection targets: feature_snapshots and human_task_snapshots
 - [x] **ARCH-06**: Anti-features enforced: no sprint/story-points, no time-boxing, no drag-and-drop Kanban, no external PM tool sync
 
@@ -109,7 +109,7 @@
 | ARCH-01 | Phase 1 | Complete |
 | ARCH-02 | Phase 1 | Complete |
 | ARCH-03 | Phase 1 | Complete |
-| ARCH-04 | Phase 2 | Pending |
+| ARCH-04 | Phase 2 | Complete |
 | ARCH-05 | Phase 2 | Pending |
 | ARCH-06 | Phase 1 | Complete |
 
