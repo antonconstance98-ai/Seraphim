@@ -65,7 +65,11 @@ Plans:
   1. Dashboard shows a roadmap panel per project displaying the milestone-feature tree with visual status indicators (planned/in-progress/complete)
   2. Dashboard shows a human tasks panel with all tasks across projects grouped by project and type (decision, research, review, validation, skills) with status tracking
   3. Dashboard shows a cross-project panel with PM status per project -- milestone progress, feature counts, human tasks pending, and cost trend visualization
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 03-01-PLAN.md — Foundation: PM table migration, queries, status colors, TabBar + tab routing
+- [ ] 03-02-PLAN.md — Plan tab (MilestoneTree) + Tasks tab (HumanTasksByType) components
+- [ ] 03-03-PLAN.md — Home page PM extensions: ProjectCard with milestone progress, sparkline, attention badge
 **UI hint**: yes
 
 ## Progress
@@ -76,7 +80,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1. Core PM Primitives | v3.1 | 4/5 | In Progress|  |
 | 2. Progress Visibility | v3.1 | 4/4 | Complete   | 2026-04-09 |
-| 3. Dashboard PM Panels | v3.1 | 0/? | Not started | - |
+| 3. Dashboard PM Panels | v3.1 | 0/3 | In Progress | - |
 
 ---
 
