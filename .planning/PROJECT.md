@@ -22,9 +22,22 @@ Global JSONL aggregation, per-project metrics, Chart.js dashboard, session histo
 
 MiniMax M-2.7 integrated as third model. Dual review gate, adversarial plan review, PostToolUse bug scanning, context compression, execution pipeline with fallback chain, three-model cost reporting.
 
-## Current Milestone: v3.0 Seraphim
+## Shipped: v3.0 Seraphim (2026-04-09)
 
-**Goal:** Replace the hook-based multi-model system with a unified six-phase pipeline plugin. Each phase gets the optimal model for its cognitive task. Five profiles enable cost control from maximum quality to maximum savings. Adaptive intelligence learns from accumulated data to recommend better model assignments.
+Six-phase creative pipeline (Discover→Crucible) with 9 models, 5 profiles, adaptive intelligence, multi-project dashboard (Vercel), human-AI task routing, and local RAG. 13 phases, 43 plans, 21 slash commands.
+
+## Current Milestone: v3.1 Seraphim Project Management
+
+**Goal:** Transform Seraphim from a task execution pipeline into a full global project management system — with roadmaps, feature queues, progress tracking, human/AI task management, and cross-project oversight, all visible on the dashboard.
+
+**Target features:**
+- Project-level roadmap creation and milestone planning
+- Feature queue that feeds individual features into the 6-wing pipeline
+- Progress tracking per feature, per phase, per project
+- Cross-project overview on the dashboard
+- Human task management — research, decisions, skills development
+- Best practices from GSD, Agile, Kanban incorporated
+- Milestone/version management with archival
 
 **Target features:**
 - Standalone Claude Code plugin at `~/.claude/plugins/seraphim/`
