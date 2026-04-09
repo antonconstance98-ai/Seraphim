@@ -12,7 +12,7 @@
 - [x] **ROAD-03**: `/seraphim:add-feature` appends a new feature to a milestone's backlog with name, description, and priority order
 - [x] **ROAD-04**: Milestone completion and archival freezes shipped milestones to `.seraphim/milestones/vX.Y.json` and cleans active roadmap
 - [x] **ROAD-05**: Milestone progress percentage computed from feature statuses (complete/total) and displayed in roadmap view
-- [ ] **ROAD-06**: Roadmap panel on web dashboard showing milestone-feature tree per project with visual status indicators
+- [x] **ROAD-06**: Roadmap panel on web dashboard showing milestone-feature tree per project with visual status indicators
 - [x] **ROAD-07**: Milestone cost tracking aggregates decisions.jsonl costs for all features in a milestone
 
 ### Feature Queue
@@ -30,13 +30,13 @@
 - [x] **TASK-03**: `/seraphim:done {task-id}` marks a human task complete without re-running the full pipeline
 - [x] **TASK-04**: Pipeline gates (before Envision, before Architect, after Crucible) write human tasks to forge-log.md visible in inbox
 - [x] **TASK-05**: Skills development task type with project-domain linkage and recommended resources
-- [ ] **TASK-06**: Human task dashboard panel showing all tasks across projects grouped by project and type
+- [x] **TASK-06**: Human task dashboard panel showing all tasks across projects grouped by project and type
 - [x] **TASK-07**: Research task type with context injection -- on completion, research notes auto-index to project knowledge via RAG
 
 ### Cross-Project Overview
 
 - [x] **OVER-01**: `/seraphim:overview` shows all Seraphim projects with active milestone, features in-progress, human tasks pending, WIP count
-- [ ] **OVER-02**: Dashboard cross-project panel showing all projects with PM status (milestone progress, feature counts, human tasks)
+- [x] **OVER-02**: Dashboard cross-project panel showing all projects with PM status (milestone progress, feature counts, human tasks)
 - [x] **OVER-03**: Active-only filter (default) hides idle projects; `--all` flag shows everything
 - [x] **OVER-04**: "What needs attention" signal surfaces blocked features, exceeded WIP limits, and pending human gates prominently
 - [x] **OVER-05**: Cross-project cost trend aggregating decisions.jsonl across projects by date, rendered as trend line in dashboard
@@ -87,7 +87,7 @@
 | ROAD-03 | Phase 1 | Complete |
 | ROAD-04 | Phase 1 | Complete |
 | ROAD-05 | Phase 1 | Complete |
-| ROAD-06 | Phase 3 | Pending |
+| ROAD-06 | Phase 3 | Complete |
 | ROAD-07 | Phase 1 | Complete |
 | QUEUE-01 | Phase 1 | Complete |
 | QUEUE-02 | Phase 1 | Complete |
@@ -99,10 +99,10 @@
 | TASK-03 | Phase 1 | Complete |
 | TASK-04 | Phase 1 | Complete |
 | TASK-05 | Phase 2 | Complete |
-| TASK-06 | Phase 3 | Pending |
+| TASK-06 | Phase 3 | Complete |
 | TASK-07 | Phase 2 | Complete |
 | OVER-01 | Phase 2 | Complete |
-| OVER-02 | Phase 3 | Pending |
+| OVER-02 | Phase 3 | Complete |
 | OVER-03 | Phase 2 | Complete |
 | OVER-04 | Phase 2 | Complete |
 | OVER-05 | Phase 2 | Complete |
