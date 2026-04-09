@@ -93,6 +93,12 @@ None yet.
 - [Phase 1]: roadmap.json schema design is the critical path -- changing it later cascades across all PM commands
 - [Phase 2]: Event-driven vs file-scanning for dashboard latency needs validation with real project count
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260409-jyy | v3.1 tech debt fixes (6 items) | 2026-04-09 | d47c171..07642ec | [260409-jyy-v3-1-tech-debt-fixes](./quick/260409-jyy-v3-1-tech-debt-fixes/) |
+
 ## Session Continuity
 
 Last session: 2026-04-09T19:27:48.631Z
