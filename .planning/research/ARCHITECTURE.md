@@ -624,22 +624,254 @@ Seraphim is a local single-developer tool. Scaling concerns are about session co
 
 ---
 
+## v3.1 Project Management Layer Integration
+
+*Added: 2026-04-08. Researched via direct code inspection of existing plugin layers.*
+
+### Context
+
+The existing architecture (above) is the v3.0 baseline. This section documents only the new integration work required for v3.1 project management features. No existing files are restructurally changed — all modifications are additive.
+
+### Existing Layer Map (v3.0)
+
+```
+Local (per-project)                  Remote (Vercel + Neon Postgres)
+─────────────────────────────────    ────────────────────────────────
+.seraphim/
+  config.json          ← profile,   POST /api/ingest
+                          overrides    ↳ projects table (upsert)
+  phases/<id>/           per-phase     ↳ decisions table (insert)
+    state.json         ← loops,        ↳ phase_states table (upsert)
+                          retries,
+                          completed   GET /api/events (SSE)
+  decisions.jsonl      ← per-run       ↳ dashboard reads from DB
+                          telemetry
+```
+
+**Key constraint:** Push is one-directional. Local JSONL/JSON is the source of truth. The dashboard is read-only. Nothing in Neon owns authoritative project state.
+
+### New Local File Tree (additive — no existing files removed or renamed)
+
+```
+.seraphim/
+  config.json               ← EXISTING (unchanged)
+  phases/*/state.json       ← EXISTING (unchanged)
+  decisions.jsonl           ← EXISTING (one field added: feature_id, nullable)
+
+  roadmap.md                ← NEW: milestone plan in Markdown (human-editable)
+  milestones/
+    active.json             ← NEW: current milestone metadata
+    <slug>.json             ← NEW: archived milestone snapshots
+  features/
+    queue.jsonl             ← NEW: ordered feature queue (append-only)
+    active.json             ← NEW: feature currently in pipeline
+  tasks/
+    human.jsonl             ← NEW: human-owned tasks (research, decisions, reviews)
+    backlog.json            ← NEW: future features not yet queued
+```
+
+### Why roadmap.md and Not roadmap.json
+
+roadmap.md is the canonical human-readable document. It follows the same pattern as GSD's `.planning/ROADMAP.md` — version-controlled, diffable, human-editable between pipeline runs. JSON/JSONL files carry structured data for programmatic reads. The Markdown carries narrative: milestone goals, feature ordering rationale, dependencies. Both coexist; neither duplicates the other. `lib/roadmap.js` regenerates roadmap.md from the JSON source whenever state changes.
+
+### Data Model: Milestones → Features → Pipeline Runs
+
+```
+Milestone  (milestones/active.json + roadmap.md)
+  id:           slug, e.g. "v3.1-project-management"
+  name:         string
+  goal:         string
+  status:       "active" | "complete" | "archived"
+  target_date:  ISO date
+  feature_ids:  string[]   — ordered list of features in this milestone
+
+  └── Feature  (features/queue.jsonl — append-only, last record per id wins)
+        id:           uuid
+        milestone_id: string
+        title:        string
+        description:  string
+        status:       "queued" | "active" | "complete" | "deferred"
+        phase_results: { [phaseId]: { outcome, model, cost_usd, completed_at } }
+        created_at, started_at, completed_at: ISO timestamps
+
+        └── PipelineRun  (decisions.jsonl — EXISTING, one new nullable field)
+              feature_id:  string | null   ← NEW (nullable, backward compatible)
+              phase, model, cost_usd, outcome, ...  ← EXISTING
+```
+
+The only schema change to decisions.jsonl is adding an optional `feature_id` field to `decisions-logger.buildRecord()`. Existing records without `feature_id` continue to work.
+
+### New Components: What to Build
+
+| Component | Location | Responsibility | Type |
+|-----------|----------|---------------|------|
+| `lib/roadmap.js` | plugin lib/ | Read/write roadmap.md + milestones/*.json. Regenerates Markdown from JSON on any state change. | NEW |
+| `lib/feature-queue.js` | plugin lib/ | Append to features/queue.jsonl, update features/active.json, compute milestone progress. | NEW |
+| `lib/task-manager.js` | plugin lib/ | Read/write tasks/human.jsonl and tasks/backlog.json. | NEW |
+| `commands/roadmap.md` | plugin commands/ | `/seraphim:roadmap` — show current roadmap, create milestone, archive milestone. | NEW |
+| `commands/feature.md` | plugin commands/ | `/seraphim:feature` — add, start, complete, defer features in the queue. | NEW |
+| `commands/tasks.md` | plugin commands/ | `/seraphim:tasks` — list, add, resolve human tasks. | NEW |
+
+### Modified Components: What Changes
+
+| Component | Change | Risk |
+|-----------|--------|------|
+| `lib/decisions-logger.js` | Add optional `feature_id` param to `buildRecord()`. Nullable, defaults to null. | LOW — purely additive, backward compatible |
+| `commands/run.md` | Before invoking pipeline: check `features/active.json`. If present, inject feature title/description/id as context into the Discover phase prompt. | LOW — read-only addition, no phase logic changes |
+| `dashboard/lib/types.ts` | Add `Milestone`, `Feature`, `HumanTask` interfaces. Add optional fields to `IngestPayload`. | LOW — additive |
+| `dashboard/lib/queries.ts` | Add `getMilestones()`, `getFeatures()`, `getHumanTasks()` query functions. | LOW — additive |
+| `dashboard/scripts/migrate.ts` | Add 3 new tables: `milestones`, `features`, `human_tasks`. No changes to existing 3 tables. | LOW — purely additive migration |
+| `dashboard/app/api/ingest/route.ts` | Handle optional `milestone`, `features`, `human_tasks` fields in payload. Missing fields are skipped (existing pushes remain valid). | LOW — conditional insertion |
+| `dashboard/app/page.tsx` | Add project management overview panel: milestone progress, feature queue status, human task counts per project. | MEDIUM — UI work requiring new queries |
+
+### New DB Tables (3 additions, no changes to existing 3)
+
+```sql
+CREATE TABLE IF NOT EXISTS milestones (
+  id           VARCHAR(255) PRIMARY KEY,   -- slug e.g. "v3.1-project-management"
+  project_name VARCHAR(255) REFERENCES projects(name),
+  name         TEXT NOT NULL,
+  goal         TEXT,
+  status       VARCHAR(50),               -- active | complete | archived
+  target_date  DATE,
+  completed_at TIMESTAMPTZ,
+  created_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS features (
+  id           VARCHAR(255) PRIMARY KEY,   -- uuid
+  milestone_id VARCHAR(255) REFERENCES milestones(id),
+  project_name VARCHAR(255) REFERENCES projects(name),
+  title        TEXT NOT NULL,
+  description  TEXT,
+  status       VARCHAR(50),               -- queued | active | complete | deferred
+  phase_results JSONB,                    -- {discover: {outcome, model, cost_usd}}
+  created_at   TIMESTAMPTZ DEFAULT NOW(),
+  started_at   TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS human_tasks (
+  id           VARCHAR(255) PRIMARY KEY,   -- uuid
+  project_name VARCHAR(255) REFERENCES projects(name),
+  feature_id   VARCHAR(255) REFERENCES features(id),
+  title        TEXT NOT NULL,
+  type         VARCHAR(50),               -- research | decision | skill | review
+  status       VARCHAR(50),              -- open | in-progress | done | blocked
+  notes        TEXT,
+  created_at   TIMESTAMPTZ DEFAULT NOW(),
+  resolved_at  TIMESTAMPTZ
+);
+```
+
+Recommended indexes (add to migrate.ts):
+```sql
+CREATE INDEX IF NOT EXISTS idx_features_project_status ON features(project_name, status);
+CREATE INDEX IF NOT EXISTS idx_human_tasks_project_status ON human_tasks(project_name, status);
+```
+
+### Data Flow: Feature Through Pipeline
+
+```
+1. /seraphim:feature add "Build X"
+   → feature-queue.js appends to features/queue.jsonl (status: queued)
+   → roadmap.js regenerates roadmap.md
+
+2. /seraphim:feature start <id>
+   → features/active.json set to this feature record
+   → feature status → active in queue.jsonl (new append record)
+
+3. /seraphim:run (pipeline executes)
+   → commands/run.md reads features/active.json
+   → Injects feature title + description into Discover phase prompt
+   → Each phase calls decisions-logger.buildRecord({ feature_id, ... })
+   → decisions.jsonl records carry feature_id
+
+4. Phase completes (Crucible passes)
+   → feature-queue.js appends phase_results update to queue.jsonl
+   → feature status → complete
+   → features/active.json cleared
+   → roadmap.js regenerates roadmap.md
+
+5. Push (existing push mechanism extended)
+   → POST /api/ingest payload includes milestone + features delta
+   → DB mirrors local state for cross-project dashboard view
+```
+
+### How Feature Context Feeds the Pipeline
+
+The pipeline today runs against the project. With project management, it optionally runs against a feature. `commands/run.md` gains one behavior: when `features/active.json` exists, it reads the feature's title and description and prepends this as context to the first phase prompt.
+
+No phase logic changes. No executor changes. No dispatch.js changes. It is a context injection at pipeline entry only.
+
+### Cross-Project Tracking: Dashboard Already Handles It
+
+The dashboard already queries across all projects (`getAllProjects()` returns all rows ordered by `last_pushed_at`). Adding the three new tables means the existing project list page can show per-project:
+- Active milestone name and completion percentage
+- Feature counts by status (queued, active, complete)
+- Open human task counts
+
+No architectural change to the cross-project query model is needed. The existing multi-project DB structure handles it automatically once the new tables are populated via the extended ingest route.
+
+### Build Order for v3.1 (appends to v3.0 build groups)
+
+```
+GROUP PM-A — New lib files. No dependencies on anything external. All parallel.
+  lib/roadmap.js
+  lib/feature-queue.js
+  lib/task-manager.js
+
+GROUP PM-B — Additive changes to existing lib. Depends on PM-A.
+  lib/decisions-logger.js  (add feature_id to buildRecord)
+
+GROUP PM-C — New commands. Depends on PM-A. All parallel.
+  commands/roadmap.md
+  commands/feature.md
+  commands/tasks.md
+
+GROUP PM-D — Pipeline integration. Depends on PM-A and existing run.md.
+  commands/run.md  (inject feature context)
+
+GROUP PM-E — DB migration. Independent of local file work.
+  dashboard/scripts/migrate.ts  (add 3 tables + indexes)
+
+GROUP PM-F — Dashboard types and queries. Depends on PM-E.
+  dashboard/lib/types.ts   (add Milestone, Feature, HumanTask interfaces)
+  dashboard/lib/queries.ts (add 3 new query functions)
+
+GROUP PM-G — Ingest route extension. Depends on PM-F.
+  dashboard/app/api/ingest/route.ts
+
+GROUP PM-H — Dashboard UI. Depends on PM-F, PM-G. Build last.
+  dashboard/app/page.tsx  (project management overview panel)
+```
+
+### Anti-Patterns Specific to Project Management Integration
+
+**Do not make DB authoritative for local state.** If milestone/feature data lives only in Neon, local commands require network access. The pipeline must work offline. Local files are the source of truth; the DB is a display mirror.
+
+**Do not store feature state in phase-state.js.** Phase state tracks loops/retries/completion for a single phase execution. Features span multiple phases and pipeline runs. Keep the concerns separate: `feature-queue.js` owns feature lifecycle; `phase-state.js` owns phase execution mechanics.
+
+**Do not send the full features/queue.jsonl on every push.** The queue grows indefinitely. Send only features whose `updated_at` is newer than `last_pushed_at` on the project record. Delta diffing prevents payload bloat.
+
+**Do not parse roadmap.md programmatically.** It is a display document. All structured reads go through JSON/JSONL files. `roadmap.js` regenerates roadmap.md from JSON on every state change — manual edits to the Markdown are overwritten. If users want to edit narrative, they edit milestone descriptions in the JSON.
+
+---
+
 ## Sources
 
-- Direct inspection: `/home/alucard/.claude/hooks/codex-exec.js` (v1.1.0) — executor pattern, JSONL parsing, SIGTERM+SIGKILL timeout
-- Direct inspection: `/home/alucard/.claude/hooks/minimax-exec.js` (v1.1.0) — OpenAI SDK baseURL swap, retry backoff, runWithFallback pattern to retire
-- Direct inspection: `/home/alucard/.claude/hooks/codex-pricing.js` (v1.0.0) — pricing table structure to fork and extend
-- Direct inspection: `/home/alucard/.claude/hooks/codex-token-logger.js` (v1.0.0) — JSONL append pattern, [CODEX_RESULT] marker approach
-- Direct inspection: `/home/alucard/.claude/hooks/codex-router.js` (v2.0.0) — PreToolUse advisory pattern, config resolution
-- Direct inspection: `/home/alucard/.claude/hooks/codex-wave-validator.js` (v2.0.0) — PostToolUse checkpoint pattern
-- Direct inspection: `/home/alucard/.claude/settings.json` — all hook registrations, event types, timeout values, enabled plugins
-- Direct inspection: `/home/alucard/.claude/plugins/marketplaces/claude-plugins-official/plugins/example-plugin/` — plugin file structure (commands/, agents/ layout)
-- Direct inspection: `/home/alucard/.claude/plugins/marketplaces/claude-plugins-official/plugins/code-simplifier/agents/code-simplifier.md` — agent frontmatter format (name, description, model)
-- Direct inspection: `/home/alucard/.claude/plugins/marketplaces/claude-plugins-official/plugins/claude-code-setup/skills/claude-automation-recommender/references/plugins-reference.md` — plugin registration pattern
-- Direct inspection: `docs/specs/2026-04-04-seraphim-v3-design.md` — approved design spec (primary source)
-- Direct inspection: `.planning/PROJECT.md` — project constraints, key decisions, requirements
+- Direct code inspection: `~/.claude/plugins/seraphim/lib/config.js` — config read/write pattern
+- Direct code inspection: `~/.claude/plugins/seraphim/lib/phase-state.js` — state file pattern
+- Direct code inspection: `~/.claude/plugins/seraphim/lib/decisions-logger.js` — JSONL append pattern, record schema
+- Direct code inspection: `~/.claude/plugins/seraphim/dashboard/lib/types.ts` — existing type model
+- Direct code inspection: `~/.claude/plugins/seraphim/dashboard/lib/queries.ts` — existing query patterns
+- Direct code inspection: `~/.claude/plugins/seraphim/dashboard/scripts/migrate.ts` — existing DB schema (3 tables)
+- Direct code inspection: `~/.claude/plugins/seraphim/dashboard/app/api/ingest/route.ts` — push mechanism, conditional insertion pattern
+- GSD comparison: `Claude-Workflow-installer/layers/project/.planning/` directory structure, ROADMAP.md, STATE.md
+- Project context: `.planning/PROJECT.md` — v3.1 milestone goals and constraints
+- Architecture research for v3.0: this file (sections above), 2026-04-04
 
 ---
 
 *Architecture research for: Seraphim v3.0 — six-phase multi-model Claude Code plugin*
-*Researched: 2026-04-04*
+*Updated: 2026-04-08 — v3.1 project management integration section added*

@@ -1,369 +1,347 @@
-# Feature Research
+# Feature Landscape: Seraphim v3.1 Project Management
 
-**Domain:** Six-phase multi-model creative pipeline Claude Code plugin (Seraphim v3.0)
-**Researched:** 2026-04-04
-**Confidence:** HIGH — design spec verified against PROJECT.md; ecosystem patterns cross-verified via Claude Code plugin docs, multi-agent orchestration research (Shipyard, Addy Osmani), LLM routing literature, and 2026 practitioner sources
+**Domain:** Project management layer for a solo-developer AI-assisted creative pipeline
+**Researched:** 2026-04-08
+**Confidence:** HIGH — grounded in GSD source analysis, Seraphim existing commands, and PM ecosystem research (Linear, GitHub Projects, Jira, Kanban, Agile literature)
 
 ---
 
 ## Context: Subsequent Milestone Scope
 
-v1.0 (Codex hook integration), v1.1 (Global Dashboard), and v2.0 (Three-Model Intelligence) are shipped. Every feature listed below is scoped to what **v3.0 Seraphim must add**. The following v2.0 components are pre-built dependencies, not features to build:
+v3.0 ships a six-phase execution pipeline — it takes a single feature from idea to verified output.
+v3.1 adds a **project management layer above the pipeline** — managing what gets fed into the pipeline, when, and in what order.
 
-| Pre-built Component | What It Provides |
-|--------------------|-----------------|
-| codex-exec.js hook | Codex CLI execution; will be forked into plugin |
-| minimax-exec.js hook | MiniMax API; will be forked into plugin |
-| token-log.jsonl + logger | Per-call cost tracking; will be forked + extended |
-| Global dashboard | Chart.js HTML dashboard; will be extended with new panels |
-| Dual review gate | Stop hook pattern; being replaced by Crucible phase |
-| Fallback chain logic | Codex → MiniMax → user; concept re-used in dispatch.js |
+The distinction is critical:
 
----
+| Layer | What It Manages | v3.0 Status |
+|-------|----------------|-------------|
+| Pipeline (Discover → Crucible) | How one feature is built | Shipped |
+| Project management | What to build, in what order, across all projects | This milestone |
 
-## Feature Landscape: Five Feature Areas
-
-### 1. Multi-Model Orchestration Plugin
-
-What the plugin infrastructure must provide so that six phases can run nine models.
-
-#### Table Stakes
-
-Features any Claude Code plugin claiming multi-model orchestration must have. Missing these = plugin doesn't function.
-
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| plugin.json manifest | Claude Code plugin loader requires it; without it the plugin is invisible | LOW | Standard schema: name, version, description, hooks array; one file |
-| Slash command per phase | Users invoke pipeline phases via commands; no commands = no plugin experience | LOW | One `.md` file per command in `commands/`; six phase commands + set-profile + show-profile + override + status + new-project |
-| Unified executor interface (`execute`, `stream`, `available`) | Every model must be callable identically; without a uniform interface, dispatch.js cannot route transparently | MEDIUM | Interface: `execute(prompt, opts) -> {success, output, tokens, cost, error}`, `stream()`, `available() -> boolean` |
-| dispatch.js central router | Without centralized routing, every command hard-codes its model; profile switching is impossible | MEDIUM | Reads `.seraphim/config.json`, resolves overrides, loads executor; single abstraction layer |
-| Per-project config (`.seraphim/config.json`) | Users need project-specific profiles without touching global settings | LOW | Fields: `profile`, `opus_enabled`, `overrides`; config.js handles read/write |
-| Phase outputs written to fixed paths on disk | Phase outputs must persist for next phase to read; in-memory passing breaks multi-session runs | LOW | `discovery/external.md`, `discovery/internal.md`, `vision.md`, `judgment.md`, `blueprint.md`, `forge-log.md`, `crucible.md` |
-| `/seraphim:status` command | Users need to verify active profile, overrides, and phase completion before running | LOW | Reads config + phase-state.js; no model calls; instant response |
-| Token logging extended to all nine models | Cost visibility is a v2.0 expectation; regression if new models go untracked | MEDIUM | Fork token-logger.js into plugin; extend pricing.js with Gemini, Qwen, Perplexity rates |
-| decisions.jsonl per project | Foundation for adaptive intelligence; without it the system cannot learn anything | LOW | Schema: phase, model, profile, tokens, cost, latency, outcome, retry_count, loop_count |
-| Graceful failure when model is unavailable | Silently routing to an unavailable model produces corrupted phase output | LOW | `available()` check before dispatch; clear error + fallback attempt; fail-closed for execution, fail-open for review |
-
-#### Differentiators
-
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| `/seraphim:run` full-auto mode with `--from` resume | One command runs all six phases sequentially; `--from judge` resumes mid-pipeline without re-running expensive earlier phases | MEDIUM | State machine reads existing phase outputs to determine which phases are complete; skip completed phases |
-| Nine distinct model executors (five profiles × breadth) | Breadth of model coverage — local + cloud + subscription — is the defining claim of Seraphim; no comparable plugin covers this range | HIGH | gemini-exec.js, qwen-exec.js, perplexity-exec.js are the three new ones; codex + minimax forked from v2.0 |
-| Helper scripts for non-Claude models (`websearch.sh`, `fetchdocs.js`) | Models running outside Claude Code (Codex CLI, Qwen, Gemini) cannot use MCP tools; these bridge the gap | LOW | `websearch.sh` wraps SearXNG at localhost:8888; `fetchdocs.js` calls context7 HTTP endpoint directly |
-| Hooks consolidation (remove 7 redundant v2.0 hooks) | Reduces cognitive overhead; single system to maintain; cleaner architecture | LOW | codex-review-gate, codex-plan-reviewer, codex-multi-round-reviewer, minimax-post-scan, minimax-compress, codex-router, codex-wave-validator all become redundant once pipeline is live |
-| Non-code project type support | Most pipelines are code-only; supporting research/writing/science broadens addressable use case to any creative project | MEDIUM | Project type declared in Architect blueprint; Forge and Crucible behavior branches on `project_type` field |
-
-#### Anti-Features
-
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| Auto-advancing phases without visible confirmation | Faster end-to-end runs | Removes human as orchestrator; errors cascade silently across phases | Explicit phase commands per phase + `/seraphim:run` for full-auto with visible phase headers and completion summaries |
-| Per-model terminal streaming | Feels responsive | Different streaming APIs across nine models; Qwen local has no streaming; adds four integration surface areas | Spinner during model call + structured completion summary; Claude subagents stream natively as a side-effect |
-| GUI or web dashboard for pipeline control | Richer UX | Out of scope (terminal/CLI only per PROJECT.md); adds server dependency; one more thing to maintain | Extend existing Chart.js dashboard HTML for metrics; terminal output for pipeline status |
-| Supporting models outside the nine-model roster | Flexibility | Explicit out-of-scope constraint in PROJECT.md; adds executor surface area mid-milestone | Custom profile in config.json can point to any executor; user adds executor file manually |
+Every feature below is additive. Nothing in v3.0 is being replaced.
 
 ---
 
-### 2. Adaptive Model Selection and Learning
+## Existing Capabilities (Do Not Rebuild)
 
-What the system must do to learn from real usage and improve model routing over time.
+The following are already in place and feed the PM layer:
+
+| Existing Component | What It Provides |
+|-------------------|-----------------|
+| `/seraphim:run {phase-id}` | Executes the six-phase pipeline for a single feature |
+| `phase-state.js` | Tracks per-feature pipeline progress (complete/in-progress/not-started) |
+| `decisions.jsonl` | Per-phase cost, outcome, loop counts — raw data for PM reporting |
+| `token-log.jsonl` | Per-call cost tracking across all nine models |
+| `/seraphim:tasks {phase-id}` | Lists human vs AI tasks for a given feature, with status from blueprint.md + forge-log.md |
+| Seraphim web dashboard (v3.0) | Multi-project metrics, session history, per-phase heatmap — already deployed |
+| `multi-project-scanner.js` | Scans all projects for Seraphim state — foundation for cross-project overview |
+
+---
+
+## Feature Landscape
+
+### 1. Project Roadmap and Milestone Management
+
+**What GSD does here:** GSD maintains `ROADMAP.md` (milestone-scoped phase list), `STATE.md` (current progress), and `.planning/milestones/` archives. Milestones are version-tagged (v1.0, v2.0). Phase numbers are sequential integers or decimals for inserted phases. GSD's `roadmap analyze` command parses all phases and returns structured JSON with completion status per phase.
+
+**What Seraphim lacks:** GSD's planning artifacts live in `.planning/` and are consumed only by GSD commands. Seraphim has no equivalent concept of a milestone, roadmap, or version above the individual feature (phase-id).
 
 #### Table Stakes
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| decisions.jsonl schema with outcome signals | Without outcome labels (did Crucible pass? how many loops?), there is nothing to learn from — logging without signals is inert | LOW | Required fields: phase, model, profile, tokens_in, tokens_out, cost_usd, latency_ms, outcome (success/failure/retry), retry_count, loop_count, quality_signals (crucible_pass, judge_kill_rate) |
-| Human-approval guardrail on all recommendations | Auto-applying model changes without user consent is explicitly out of scope per PROJECT.md; violating this makes the system unsafe | LOW | Recommendations printed to terminal at session start; user must run `/seraphim:override` or manually edit config to apply |
-| Pattern analysis command or periodic script | Raw JSONL is not actionable; the analysis layer turns logs into recommendations like "Qwen Envision rejected by Judge 4/5 times" | MEDIUM | Runs on session start (lightweight) or via explicit command; reads decisions.jsonl; statistical analysis only — no ML |
+| Project-level roadmap (ordered feature list with milestones) | Without a roadmap, there is no plan — just a pile of phase-ids with no ordering or grouping | LOW | Stored in `.seraphim/roadmap.json`: milestones array, each with features array and target version. Simple JSON; no database. |
+| Milestone concept (version-tagged groups of features) | Releases need scope definition; solo developers need to know "what ships in v3.1" vs "what ships in v4.0" | LOW | Milestone = `{id, version, name, status: planned/active/complete, features: [phase-id, ...]}` |
+| Feature status tracking (planned / in-progress / complete / blocked) | Without status, roadmap is static text; useless for daily decision-making | LOW | Derived from `phase-state.js` + a thin status layer; status updates when pipeline phases complete |
+| `/seraphim:roadmap` command to view current roadmap | Core PM visibility; must be terminal-first since the user manages everything from CLI | LOW | Reads roadmap.json + phase-state data; prints milestone → feature tree with statuses |
+| Milestone completion and archival | Shipped milestones should be frozen; active roadmap should stay clean | LOW | `complete-milestone` marks all features done, writes archive to `.seraphim/milestones/vX.Y.json` |
 
 #### Differentiators
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Phase-level rejection rate tracking | Pinpoints exactly which model in which phase is underperforming; more precise than any existing routing tool | LOW | Computed from decisions.jsonl: loop_count > 0 grouped by (phase, model); surfaces patterns no benchmark can reveal |
-| Per-phase model performance heatmap in dashboard | Visualization of which models succeed per phase from real usage data; unique to Seraphim | MEDIUM | Extend dashboard.html with new panel; data sourced from aggregated decisions.jsonl |
-| Profile cost/quality ratio tracking | Tells users if their chosen profile actually delivers better quality per dollar over time; enables informed profile switching | MEDIUM | Aggregate by profile: avg cost per run vs Crucible pass rate per run; render as profile comparison panel in dashboard |
-| Recommendation log with accepted/rejected history | Shows users what the system suggested and what they chose; builds trust via transparency; tracks whether recommendations improved outcomes | LOW | Append `type: "recommendation"` records to decisions.jsonl; capture user response (accepted/rejected/ignored) |
+| Roadmap view on web dashboard | Cross-project roadmaps visible at a glance; better than reading JSON files | MEDIUM | Extend existing dashboard with roadmap panel per project; render milestone → feature tree as visual kanban-style columns |
+| Milestone cost tracking (actual vs estimated) | Show how much the current milestone actually cost to build; unique to AI-assisted workflow PM | MEDIUM | Sum decisions.jsonl costs for all features in milestone; compare against per-feature pre-run estimates if available |
+| Progress percentage per milestone | Instant progress signal without reading individual feature statuses | LOW | Computed field: complete_features / total_features × 100; displayed in `/seraphim:roadmap` output |
 
 #### Anti-Features
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| Auto-apply model changes when confidence is high | Faster improvement | Violates "human as orchestrator" principle; confidence scoring can be wrong; silent quality regressions undetectable | Recommendations only; require explicit user action to apply; log all rejected recommendations for audit |
-| Real-time routing adjustment during a pipeline run | Maximum adaptivity | Model assignment changes between Envision and Judge makes outputs inconsistent; debugging becomes impossible | Apply recommendations only at start of next pipeline run; never mid-run |
-| ML model trained on decisions.jsonl | Richer signal | 100-500 samples at single-user scale is insufficient for reliable ML; adds sklearn/torch dependency and training pipeline for negligible benefit over statistical analysis | Statistical analysis (rates, ratios, rolling averages) on JSONL; graduate to ML only if record count exceeds 1000 labeled outcomes |
+| Feature | Why Avoid | What to Do Instead |
+|---------|-----------|-------------------|
+| Multi-user roadmap sharing / collaborative editing | Solo developer context; adds auth, sync, conflict resolution complexity | JSON files in git; share via repo |
+| Gantt chart with date ranges | Estimates for AI-assisted builds are unreliable; date-focus creates false accountability | Focus on sequence and milestone scope, not calendar dates |
+| Jira-style epic hierarchy (epic → story → task → sub-task) | Four levels of nesting for a solo developer creates bureaucracy | Milestone → Feature (phase-id) → Task (blueprint markers) — three levels maximum |
 
 ---
 
-### 3. Profile-Based Cost Management
+### 2. Feature Queue
 
-What the five-profile system must provide so users can control cost vs quality.
+**What GSD does here:** GSD has no feature queue concept — phases are pre-defined in ROADMAP.md before the milestone starts. There is no mechanism to add features mid-milestone, prioritize them, or feed them into the pipeline on demand.
+
+**What existing PM systems do:** Linear's "backlog" and GitHub Projects' "no status" column serve as the holding area for planned-but-not-started work. Linear uses cycles (sprints) to pull features from backlog into active work. Kanban uses a WIP limit to control how many items are in-progress simultaneously.
 
 #### Table Stakes
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Five profiles with pre-assigned models per phase | Without profiles, every user must configure nine phase-to-model assignments manually; friction kills adoption | LOW | profiles.json: Performance, Balanced, Moderate, Budget, Frugal; each defines all ten sub-phase slots |
-| `/seraphim:set-profile [name]` command | Profiles are useless without a one-command switch | LOW | Writes to `.seraphim/config.json`; prints new phase-to-model assignment table |
-| `/seraphim:show-profile` command | Users need to verify configuration before committing to expensive runs | LOW | Reads config + profiles.json; renders phase-to-model table with cost estimates per phase |
-| Per-phase override (`overrides` in config.json) | Power users need to deviate from a profile for one phase without creating a full custom config | LOW | `overrides: { "architect": "sonnet-4.6" }` in config; dispatch.js checks overrides before profile lookup |
-| opus_enabled toggle with per-profile fallbacks | Opus is the most expensive model ($25/Mtok out); billing-sensitive users need a safe off-ramp | LOW | Flag in config.json; per-profile fallback chain in profiles.json; dispatch checks flag before assigning Opus phases |
-| Graceful unavailability for GPU-dependent profiles | Balanced and Budget profiles require local Qwen; running them without GPU must fail clearly, not silently | LOW | `available()` in qwen-exec.js checks ollama at localhost:11434; dispatch returns clear error: "Balanced profile unavailable: Qwen not running" |
+| Feature backlog (planned items not yet started) | Core PM primitive; without a backlog there is no queue to manage | LOW | Status `planned` in roadmap.json; any feature not yet run through pipeline |
+| Add feature to queue (`/seraphim:add-feature`) | Features emerge throughout a project; no mechanism to capture them is a fatal gap | LOW | Appends to roadmap.json with status `planned`; prompts for feature name, milestone assignment, priority order |
+| Reorder features in queue | Priorities shift; queue must be mutable | LOW | Slash command or direct JSON edit; reorder features array within milestone |
+| WIP limit (max N features in-progress simultaneously) | Without WIP limit, AI-assisted context fragmentation is a real risk; too many in-flight features degrades quality per feature | LOW | Config option: `max_wip: 2` (default); `/seraphim:run` warns if WIP limit exceeded before starting |
+| Feature → pipeline handoff (`/seraphim:start {feature}`) | The bridge between PM layer and execution layer; must be explicit, not automatic | LOW | Moves feature status from `planned` to `in-progress`, then invokes `/seraphim:run` |
 
 #### Differentiators
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| `profile: "custom"` with explicit per-sub-phase assignment | Power users define exactly which model runs each of ten sub-phase slots; no comparable plugin offers this granularity | LOW | JSON schema already defined in design spec; dispatch reads `phases` object when profile is "custom" |
-| Cost estimate before run | Users see approximate cost before committing; prevents surprise bills on long pipeline runs | MEDIUM | Pre-run: sum per-phase model costs based on typical token budgets (configurable per project type); rendered before first model call |
-| Balanced and Budget profiles at near-zero cost via local Qwen | Zero-cost execution on owned hardware; 50-80% cost reduction vs cloud-only profiles | HIGH | Requires ollama + Qwen 3.5-27B Q4 + RTX 3090; GPU in transit; gate with `available()` check |
+| Queue view filtered by milestone | Show only features for the current milestone; avoid noise from future work | LOW | Filter param to `/seraphim:roadmap --milestone vX.Y` |
+| Feature dependency declaration (`depends_on: [phase-id]`) | Some features cannot start until another completes; making dependencies explicit prevents out-of-order execution | LOW | `depends_on` array in feature JSON; `/seraphim:start` warns if dependency not complete |
+| Bulk import from existing ROADMAP.md | Migration path from GSD-style planning; allows bootstrapping queue from existing documents | MEDIUM | Parse GSD ROADMAP.md format into roadmap.json; command: `/seraphim:import-roadmap` |
 
 #### Anti-Features
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| Dynamic mid-run profile switching | Respond to cost overruns in real time | Makes phases inconsistent: Judge output generated by one model, Architect reasoning against a different one | Hard-set profile at run start; show cost estimate before run so user selects correctly upfront |
-| Automatic profile downgrade on budget threshold | Protect against surprise bills | Silently degrading quality without user knowledge violates the orchestrator principle; user may not notice | Alert user when approaching daily budget; pause pipeline and ask which profile to use for remaining phases |
-| More than five profiles | More granularity | Five profiles cover the full cost/quality spectrum (Performance → Frugal); more profiles increase cognitive load without increasing coverage | Custom profile covers any configuration not served by the five presets |
+| Feature | Why Avoid | What to Do Instead |
+|---------|-----------|-------------------|
+| Automatic prioritization via AI scoring | Removes human agency from what to work on next — the core strategic decision | Human reorders queue manually; AI provides cost/complexity estimates as inputs to human decision |
+| Sprint/cycle system with fixed time-boxes | Solo AI-assisted development is not time-boxed; sprints create overhead for no coordination benefit | Use milestone-scoped queues instead; milestones have a scope, not a deadline |
+| Story points / estimation system | Velocity tracking is a team throughput metric; meaningless for solo + AI execution | Track actual cost and time from decisions.jsonl; no pre-estimation theater |
 
 ---
 
-### 4. Between-Task Checkpoint System (Forge Phase)
+### 3. Progress Tracking
 
-What the Forge phase checkpoint must provide to catch errors before they compound across tasks.
+**What GSD does here:** GSD's `STATE.md` tracks completed phases, current phase, blockers, and decisions. `roadmap analyze` returns completion status per phase with `disk_status` (has output files) and `roadmap_complete` (marked complete in ROADMAP.md). Progress is binary per phase — complete or not.
+
+**What Seraphim has:** `phase-state.js` tracks pipeline phase completion per feature. `/seraphim:status` shows config but not cross-feature progress. `/seraphim:tasks` shows task-level status for one feature.
 
 #### Table Stakes
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Runtime check before advancing to next task | Without a sanity check, broken code accumulates silently; bugs compound across tasks and produce unfixable final state | MEDIUM | checkpoint.js: run test suite, lint, check imports; zero-exit means pass; non-zero means fail |
-| Static code review on task diff | Runtime checks miss logic errors, security issues, off-by-ones; static review catches what tests don't cover | MEDIUM | Profile's checkpoint static model (e.g. MiniMax in Performance) reviews git diff of current task; returns structured pass/fail + findings |
-| Retry-with-feedback on checkpoint failure | Proceeding past a failed checkpoint is worse than no checkpoint; feedback must feed back | MEDIUM | Forge executor re-runs the failed task with checkpoint findings appended to prompt; max 2 retries per task |
-| Checkpoint results logged to forge-log.md | Audit trail for Crucible verification; without log, Crucible cannot know what was checked and what was found | LOW | Log per task: model, outcome, findings, retry count; append-only |
-| Hard cap at 2 retries per task before human escalation | Infinite retry loops are the #1 production failure mode for LLM agents (confirmed by Towardsdatascience, Agent Patterns, Medium/LLM tool-calling 2026) | LOW | Retry counter in phase-state.js; on cap exceeded: surface task + findings to terminal with "manual resolution required" message |
+| Per-feature pipeline progress (which of 6 phases complete) | Users need to know where a feature is in the pipeline without reading output files | LOW | Already partially exists via `phase-state.js`; needs surface in PM commands |
+| Cross-project progress overview | Managing multiple projects from CLI requires a single command that shows all project statuses | MEDIUM | Extend `multi-project-scanner.js` to include PM layer data (milestone, features in-progress, WIP count) |
+| Blocked feature flagging | Blocked features need explicit visibility; they silently block milestone completion if untracked | LOW | Status `blocked` in roadmap.json with required `blocked_reason` field; surface prominently in `/seraphim:roadmap` output |
+| Milestone completion percentage | Instant health signal at milestone level | LOW | Computed from feature statuses; displayed in roadmap view and dashboard |
 
 #### Differentiators
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Two-reviewer checkpoint (runtime model + static model, separate) | Runtime (test runner + Sonnet) and static (MiniMax adversarial) catch different failure modes; combined catch rate exceeds either alone | MEDIUM | Both must pass to advance; either failing triggers retry; design spec defines this split at the sub-phase level |
-| Checkpoint model assignment configurable per profile | Budget profile uses Qwen for both; Performance uses Sonnet + MiniMax; not locked to expensive models | LOW | Resolved via dispatch.js using `forge_checkpoint_runtime` and `forge_checkpoint_static` as first-class phase keys in profiles.json |
-| Non-code checkpoint branching | Research/writing projects need different verification (citation coherence, argument structure) than code projects | MEDIUM | checkpoint.js branches on `project_type` from blueprint.md; code: lint+tests; prose: structure check + citation validation |
+| Cost-to-date per feature and per milestone | AI-assisted PM is unique in having granular, real cost data per feature; expose it | LOW | Sum decisions.jsonl for phase-id; group by milestone; display in roadmap view |
+| Phase-level progress breakdown in dashboard | Visualize across all in-progress features: which are at Discover, which at Forge, which at Crucible | MEDIUM | Extend dashboard with per-feature pipeline position; data from phase-state.js aggregated by multi-project-scanner.js |
+| Velocity trend (features completed per week) | Solo developer equivalent of team throughput; useful for realistic milestone scoping | MEDIUM | Computed from timestamps on phase-state completion records; rendered as trend line in dashboard |
 
 #### Anti-Features
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| Checkpoint after every file write | Maximum granularity | Prohibitively expensive at $0.80-3/Mtok for checkpoint models; creates latency that makes Forge unusable for large tasks | Checkpoint between logical tasks as defined in blueprint; not between individual file edits |
-| Automatic git rollback on checkpoint failure | Prevents broken state | Destroys partial work that may be partially correct and useful for retry context; user loses diff for analysis | Retry with feedback; human escalation on cap exceeded; user decides whether to roll back |
-| Streaming checkpoint output to terminal | Feels responsive | MiniMax and Qwen do not support streaming in the same way as Claude; inconsistent UX across profiles | Spinner during check + structured result summary on completion |
+| Feature | Why Avoid | What to Do Instead |
+|---------|-----------|-------------------|
+| Burndown charts | Requires upfront story point estimates which this system explicitly avoids | Use feature completion rate and cost-to-date instead |
+| Time-tracking per feature (wall clock hours) | Misleading for AI-assisted work where most execution happens autonomously | Track AI cost (from decisions.jsonl) and human decision count (from gate interactions) as proxies for effort |
 
 ---
 
-### 5. Feedback Loops with Hard Caps
+### 4. Human Task Management
 
-What the Judge->Envision and Crucible->Forge loops must provide to enable self-correction without infinite recursion.
+**What GSD does here:** GSD has no explicit human task concept separate from AI tasks. Everything is a "plan" with "tasks". The human is expected to read plans and decide what to execute.
+
+**What Seraphim v3.0 has:** `/seraphim:tasks` distinguishes `assignee: human` vs `assignee: ai` task markers in blueprint.md. Phase 9 (human-AI cognitive division) adds three mandatory human gates: before Envision, before Architect, after Crucible. Human tasks are captured in forge-log.md under `SERAPHIM:HUMAN_TASKS`.
+
+**The gap:** Human tasks are currently scoped to one feature's blueprint. There is no PM-level view of all human tasks across all features and projects, no research task type, no skills development task type.
 
 #### Table Stakes
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Judge->Envision loop when all approaches fail | Without retry, a "none survive" verdict dead-ends the pipeline with no resolution path | MEDIUM | Judge output contains structured signal: `{"status": "all_failed", "findings": [...]}` ; orchestrator re-runs Envision with findings appended |
-| Crucible->Forge loop on verification failure | Without retry, Crucible is a reporting tool; verification failures must trigger targeted fixes | MEDIUM | Crucible output includes specific fix instructions per failed requirement; Forge re-runs identified tasks only, not the full phase |
-| Crucible->Forge loop on adversarial findings | Adversarial pass has no effect if findings cannot trigger fixes | MEDIUM | Adversarial findings are distinct from verification failure; Forge receives targeted patch instructions per finding |
-| Hard cap of 2 loops on all feedback cycles | Infinite loops are the critical production failure mode; multiple 2026 sources confirm "max 3 retries then escalate to human" as the industry standard pattern | LOW | Loop counter in phase-state.js; on cap exceeded: stop, surface full findings to terminal, message "manual resolution required — pipeline cannot self-resolve" |
-| Human escalation message with actionable content on cap exceeded | Users need to know what the unresolved problem is, not just that it failed | LOW | Terminal output: which loop hit cap, full findings from last phase run, suggested manual steps (e.g., "restart from Architect with a revised approach") |
-| Feedback context appended to retry prompt | Retrying without feeding the failure reason produces the same output again | LOW | Each loop appends prior phase's structured findings to the next run's prompt; format: `## Previous [Phase] Findings\n[structured findings]` |
+| Human task inbox (all pending human tasks across projects) | Without aggregation, human tasks are buried in individual forge-log.md files | MEDIUM | Scan `SERAPHIM:HUMAN_TASKS` across all active features; render unified inbox in terminal |
+| Human task types: decision, research, review, validation, skills | Different human task types have different urgency and cognitive load; conflating them obscures what actually needs attention | LOW | Enum in task marker schema; surface type in task lists |
+| Human task completion workflow | Human must be able to mark a task complete without re-running the full pipeline | LOW | `/seraphim:done {task-id}` marks the task complete in forge-log.md; `/seraphim:forge {phase-id}` continues with remaining AI tasks |
+| Pipeline gates as human tasks | Phase 9's mandatory human checkpoints (before Envision, before Architect, after Crucible) should appear as human tasks in the inbox, not just as pipeline prompts | LOW | Gate events write a human task to forge-log.md; visible in task inbox alongside blueprint tasks |
+| Skills development task type with project-domain linkage | Phase 9's D-09/D-10 design decision: skill recommendations tied to project content; these need a task type that survives pipeline runs | LOW | `type: skills` task with `domain` field (e.g., "persuasion frameworks"); displayed in inbox with recommended resources |
 
 #### Differentiators
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Structured feedback format between phases | Free-text feedback produces inconsistent retry results; structured schema (FATAL_FLAW, CONDITION, MISSING_REQUIREMENT) enables targeted retries instead of re-running everything | MEDIUM | Judge and Crucible outputs use fixed JSON schema; Envision and Forge parsers read fields explicitly; design spec defines schemas |
-| Loop count logged to decisions.jsonl | Enables adaptive intelligence to surface patterns: "Envision needed 2 loops in 6/8 runs with Qwen" — a recommendation trigger | LOW | Add `loop_count` field to decisions.jsonl schema; logged per phase at completion |
-| Configurable loop cap per project (1-3 range) | Some projects tolerate more iteration; tight deadlines need cap at 1 | LOW | `max_loops` in `.seraphim/config.json`; defaults to 2; validate range 1-3; budget profiles benefit from cap at 1 |
+| Human task dashboard panel | Visual inbox for all human tasks across all projects; captures the "what do I need to do today" question | MEDIUM | Extend Phase 7 web dashboard with human tasks panel grouped by project and type |
+| Research task type with context injection | Research tasks produce outputs (notes, references) that feed back into the pipeline via RAG indexing | MEDIUM | `type: research` task; on completion, prompt for research notes; auto-index to project knowledge via existing RAG tools |
+| Task urgency signals based on pipeline position | A human decision task blocking Architect is more urgent than a skills task; surface urgency automatically | LOW | Urgency = pipeline position of the blocked feature; sort inbox by blocked feature pipeline position |
 
 #### Anti-Features
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| Loop cap above 3 | More chances to self-resolve | After 3 loops with the same models, the problem is structural; the model cannot fix what it cannot see; confirmed by agent loop research | Hard cap at 3; surface to human; let human decide if re-architecting is needed before re-running |
-| Cross-phase feedback loops (e.g., Crucible->Envision) | Richer self-correction — go back further if root cause is in approach design | Creates non-linear execution; phase outputs become inconsistent; debugging becomes intractable | Keep loops local: Judge->Envision and Crucible->Forge only; cross-phase issues require human to run `/seraphim:run --from [phase]` |
-| Parallel retry branches (run Envision N times simultaneously, pick best) | Higher quality through diversity | Multiplies cost by N; produces multiple inconsistent vision.md files in state; Judge cannot receive N versions cleanly | Sequential retry with feedback; Judge picks the best surviving approach in a single run, not the system |
+| Feature | Why Avoid | What to Do Instead |
+|---------|-----------|-------------------|
+| Time estimates per human task | Cognitive tasks are not time-predictable; adds estimation overhead for no scheduling benefit | Let human pull tasks when ready; urgency signal is enough |
+| Automated human task reminders / notifications | Creates notification fatigue; user checks dashboard and `/seraphim:tasks` on their own cadence | Dashboard panel visible whenever user checks status; no push notifications |
+| Complex human task workflows (sub-tasks, dependencies, assignments) | Solo context; any team PM feature here adds overhead | Flat list with type, urgency, and blocked-feature linkage is sufficient |
+
+---
+
+### 5. Cross-Project Overview
+
+**What exists:** `multi-project-scanner.js` already scans `~/projects/` for Seraphim state. Phase 7 dashboard renders per-project metrics. The scanner returns project list with token costs, session counts, and last activity.
+
+**The gap:** Scanner returns execution metrics. It does not return PM-layer data: milestone progress, feature queue depth, WIP count, blocked features, or human tasks pending per project.
+
+#### Table Stakes
+
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| Cross-project status summary in terminal | Primary workflow entry point; `seraphim:overview` shows all projects in one glance | LOW | Extend scanner output to include: active milestone, features in-progress, human tasks pending, WIP count |
+| Dashboard cross-project panel | Visual complement to terminal command; both views of the same data | MEDIUM | Extend existing dashboard with a summary table/cards showing all projects with PM status |
+| Filter to active projects only | Most projects are idle; default view should show only what needs attention | LOW | Filter: projects with status `active` or with human tasks pending; `--all` flag to show everything |
+
+#### Differentiators
+
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Cross-project cost trend | See total AI spend across all projects over time; helps with $15/day budget management | MEDIUM | Aggregate decisions.jsonl across projects by date; render as multi-project cost trend line in dashboard |
+| "What needs attention" signal | Surfaces the one or two projects that are blocked, over WIP limit, or have pending human gates | LOW | Computed: blocked features + exceeded WIP + pending human tasks with gate type; display prominently in overview |
+
+#### Anti-Features
+
+| Feature | Why Avoid | What to Do Instead |
+|---------|-----------|-------------------|
+| Project portfolio management (dependencies between projects) | Overcomplication for solo developer; projects are independent execution contexts | Track project status; cross-project dependencies are resolved by human judgment |
+| External sync (Notion, Linear, Jira) | Adds credentials, sync logic, and data transformation for no local benefit | All PM state in `.seraphim/` JSON files; share via git if needed |
 
 ---
 
 ## Feature Dependencies
 
 ```
-plugin.json manifest
-    └──required by──> All slash commands
-    └──required by──> All hooks
+roadmap.json schema
+    └──required by──> /seraphim:roadmap command
+    └──required by──> /seraphim:add-feature command
+    └──required by──> Milestone completion and archival
+    └──required by──> Feature queue (planned/in-progress/blocked)
+    └──required by──> Progress tracking (per-feature and per-milestone)
+    └──required by──> Cross-project scanner extension
 
-dispatch.js + profiles.json
-    └──required by──> All six phase commands
-    └──required by──> Feedback loops (loop re-invokes phase commands)
-    └──required by──> Checkpoint system (checkpoint models resolved via dispatch)
+phase-state.js (already exists, v3.0)
+    └──feeds──> Feature status in roadmap.json
+    └──feeds──> Progress tracking commands
 
-.seraphim/config.json + config.js
-    └──required by──> dispatch.js
-    └──required by──> Profile management commands
-    └──required by──> max_loops config
+decisions.jsonl (already exists, v3.0)
+    └──feeds──> Cost-to-date per feature and milestone
+    └──feeds──> Velocity trend
+    └──feeds──> Cross-project cost trend
 
-Nine model executors
-    └──required by──> dispatch.js
-    (codex-exec + minimax-exec: fork from v2.0)
-    (gemini-exec + qwen-exec + perplexity-exec: new builds)
+multi-project-scanner.js (already exists, v3.0)
+    └──extended by──> Cross-project PM overview
+    └──extended by──> Dashboard PM panels
 
-phase-state.js (phase progress tracker)
-    └──required by──> /seraphim:run full-auto
-    └──required by──> --from flag resume
-    └──required by──> Hard cap enforcement (loop counters + retry counters)
+SERAPHIM:HUMAN_TASKS in forge-log.md (already exists, v3.0 via /seraphim:tasks)
+    └──extended by──> Human task inbox aggregation
+    └──extended by──> Dashboard human tasks panel
 
-checkpoint.js (runtime + static review)
-    └──required by──> Forge phase
-    └──required by──> Crucible->Forge feedback loop (checkpoint determines if fix worked)
+Phase 9 human gate decisions (context from 09-CONTEXT.md)
+    └──required by──> Pipeline gate → human task writing
+    └──required by──> Human task types (D-01: three mandatory gates)
+    └──required by──> Skills development tasks (D-09, D-10)
 
-Structured phase output schemas (JSON fields in vision.md, judgment.md, crucible.md)
-    └──required by──> Judge->Envision feedback loop
-    └──required by──> Crucible->Forge feedback loop
-    └──required by──> Pattern analysis engine (needs machine-parseable outcomes)
-
-decisions.jsonl schema + per-phase logging
-    └──required by──> Pattern analysis / adaptive intelligence
-    └──required by──> Per-phase performance heatmap (dashboard)
-    └──required by──> Profile cost/quality comparison (dashboard)
-    └──required by──> Loop count tracking
-
-RTX 3090 + ollama + Qwen 3.5-27B Q4
-    └──required by──> Balanced profile
-    └──required by──> Budget profile
-    (GPU in transit; these two profiles unavailable until qwen-exec.js available() returns true)
-
-Forge phase (complete, with checkpoints)
-    └──required by──> Crucible phase
-    └──required by──> Crucible->Forge feedback loop
-
-Judge phase (complete, with structured output schema)
-    └──required by──> Judge->Envision feedback loop
+Web dashboard (already exists, v3.0)
+    └──extended by──> Roadmap panel
+    └──extended by──> Human tasks panel
+    └──extended by──> Cross-project PM summary panel
+    └──extended by──> Phase-level progress visualization
 ```
 
 ### Dependency Notes
 
-- **Nine executors are the root unblock for the entire pipeline.** Without all nine executors passing `available()` checks, dispatch.js cannot route any phase. Executors must be the first deliverable.
-- **Structured phase output schemas must be designed before feedback loops.** Free-text phase outputs make loop context injection unreliable. Schema design (what fields does judgment.md contain? what does crucible.md return?) must precede loop implementation.
-- **decisions.jsonl must be populated from day one.** The adaptive intelligence features have zero value without accumulated data. The logging schema must be correct before the first pipeline run, even if the analysis layer comes later in the milestone.
-- **Balanced and Budget profiles must fail gracefully without GPU.** qwen-exec.js `available()` must check ollama at `localhost:11434` and return false when GPU/ollama is absent. dispatch.js must surface this as a clear error, not silently route to a broken executor.
-- **Checkpoint system depends on profile config being finalized.** Which model runs runtime vs static checkpoints is resolved by dispatch.js reading the profile. Profile definitions must be stable before checkpoint model assignment is tested end-to-end.
+- **roadmap.json is the foundational new artifact.** All PM features read from or write to it. Its schema must be designed first and locked before any PM commands are built.
+- **All new features extend existing v3.0 infrastructure.** Nothing requires new storage systems, databases, or external services. PM state is JSON files in `.seraphim/`.
+- **Human task inbox depends on a consistent task marker schema across pipeline phases.** Phase 9's gate decisions (D-01 through D-03) define when gates fire; the PM layer depends on those gates writing to the same schema as blueprint.md human task markers.
+- **Dashboard extensions are all read-only.** The dashboard reads existing JSON; it does not write state. Dashboard panels can be built independently once their data sources exist.
+- **WIP limit enforcement needs roadmap.json before it can read in-progress features.** WIP check in `/seraphim:run` is gated on roadmap.json existing in the project.
 
 ---
 
 ## MVP Definition
 
-### Launch With (v3.0 Phase 1-6: Plugin Core + Pipeline)
+### Launch With (Phase 1: Core PM primitives)
 
-Minimum to run a complete six-phase pipeline end-to-end on any profile.
+Minimum for the PM layer to be usable — without these, there is no project management system.
 
-- [ ] plugin.json manifest and directory structure — plugin must load
-- [ ] dispatch.js + profiles.json (five profiles; overrides supported; opus_enabled toggle)
-- [ ] All five executor forks/builds: codex-exec.js (fork), minimax-exec.js (fork), gemini-exec.js (new), qwen-exec.js (new, with GPU unavailability guard), perplexity-exec.js (new)
-- [ ] Six phase commands with fixed output paths and disk persistence
-- [ ] Per-project config (.seraphim/config.json) with profile + opus_enabled + overrides
-- [ ] Token logging extended to all nine models (fork + extend pricing.js)
-- [ ] decisions.jsonl schema defined and logging at each phase completion (outcome signals required from day one)
-- [ ] helper scripts: websearch.sh, fetchdocs.js
+- [ ] `roadmap.json` schema definition (milestone → feature hierarchy, status enum, depends_on)
+- [ ] `/seraphim:roadmap` — view current roadmap (milestone → feature tree with statuses)
+- [ ] `/seraphim:add-feature` — add a feature to the backlog
+- [ ] `/seraphim:start {feature}` — move feature from planned to in-progress, launch pipeline
+- [ ] WIP limit check in `/seraphim:run` — warn if max_wip exceeded
+- [ ] Milestone completion and archival (`/seraphim:complete-milestone`)
+- [ ] Human task inbox (`/seraphim:inbox`) — aggregate SERAPHIM:HUMAN_TASKS from all active features
 
-### Add After Core Pipeline Works (v3.0 Phase 7-10: Quality Gates + Loops)
+### Add After Core PM Works (Phase 2: Progress visibility)
 
-- [ ] Between-task checkpoints in Forge: checkpoint.js with runtime check + static review
-- [ ] Retry-with-feedback in Forge (max 2 retries per task, hard cap)
-- [ ] Judge->Envision feedback loop with structured feedback format + hard cap
-- [ ] Crucible->Forge feedback loop (both verification and adversarial) with hard cap
-- [ ] `/seraphim:run` full-auto mode with `--from` resume flag
-- [ ] Non-code project type branching in Forge and Crucible
-- [ ] phase-state.js with loop counters and human escalation messages
+- [ ] Cost-to-date per feature and per milestone (from decisions.jsonl)
+- [ ] Cross-project overview (`/seraphim:overview`) — extend multi-project-scanner.js
+- [ ] Roadmap panel in web dashboard
+- [ ] Human tasks panel in web dashboard
+- [ ] Feature dependency declarations and start-guard check
+- [ ] Blocked feature flagging with reason
 
-### Add After Pipeline Is Stable (v3.0 Phase 11+: Intelligence + Polish)
+### Add After Visibility Works (Phase 3: Intelligence)
 
-- [ ] Pattern analysis engine (reads decisions.jsonl; produces recommendations; requires ~20+ runs of data)
-- [ ] Auto-recommendation system with human-approval guardrail
-- [ ] Per-phase model performance heatmap in dashboard
-- [ ] Profile cost/quality comparison panel in dashboard
-- [ ] Recommendation log with accepted/rejected history
-- [ ] Hooks consolidation (remove 7 redundant v2.0 hooks after pipeline is verified as replacement)
-- [ ] Cost estimate before run (pre-run token budget projection)
+- [ ] Velocity trend computation (features/week from phase-state timestamps)
+- [ ] Cross-project cost trend in dashboard
+- [ ] "What needs attention" signal in overview
+- [ ] Research task type with RAG index handoff
+- [ ] Bulk import from GSD ROADMAP.md format (`/seraphim:import-roadmap`)
+- [ ] Milestone cost tracking (actual vs estimated in dashboard)
 
 ---
 
-## Feature Prioritization Matrix
+## PM System Reference: What Works for Solo AI-Assisted Development
 
-| Feature | User Value | Implementation Cost | Priority |
-|---------|------------|---------------------|----------|
-| plugin.json + slash commands | HIGH | LOW | P1 |
-| dispatch.js + profiles.json | HIGH | MEDIUM | P1 |
-| All nine model executors | HIGH | HIGH | P1 |
-| Per-project config + profile commands | HIGH | LOW | P1 |
-| Phase outputs written to disk | HIGH | LOW | P1 |
-| Token logging extended to 9 models | HIGH | MEDIUM | P1 |
-| decisions.jsonl logging with outcome signals | HIGH | LOW | P1 |
-| Helper scripts (websearch.sh, fetchdocs.js) | MEDIUM | LOW | P1 |
-| Between-task checkpoints (Forge) | HIGH | MEDIUM | P1 |
-| Retry-with-feedback in Forge | HIGH | MEDIUM | P1 |
-| Feedback loops + hard caps (Judge, Crucible) | HIGH | MEDIUM | P1 |
-| phase-state.js + human escalation on cap exceeded | HIGH | LOW | P1 |
-| `/seraphim:run` full-auto + `--from` resume | MEDIUM | MEDIUM | P2 |
-| Per-phase overrides + custom profile | MEDIUM | LOW | P2 |
-| Non-code project type branching | MEDIUM | MEDIUM | P2 |
-| Structured phase output schemas | HIGH | LOW | P2 (design precedes loops) |
-| Pattern learning engine | MEDIUM | MEDIUM | P2 |
-| Auto-recommendations + guardrail | MEDIUM | LOW | P2 |
-| Dashboard heatmap + profile comparison | MEDIUM | MEDIUM | P2 |
-| Hooks consolidation | LOW | LOW | P2 |
-| Cost estimate before run | LOW | MEDIUM | P3 |
-| Configurable loop cap | LOW | LOW | P3 |
+Drawing from GSD, Linear, GitHub Projects, Kanban, and Agile — filtered for solo developer + AI execution context:
 
----
+### From GSD (adopt directly)
 
-## Competitor Feature Analysis
+- **Milestone → phase hierarchy** maps cleanly to milestone → feature in Seraphim PM
+- **STATE.md blocker section** → blocked status in roadmap.json with required reason
+- **`roadmap analyze` JSON output pattern** → same pattern for seraphim roadmap commands
+- **Phase archive on completion** → milestone archive to `.seraphim/milestones/`
+- **Decimal phase insertion (5.1)** → feature can be inserted into a milestone mid-execution without renumbering
 
-No direct competitors exist for a six-phase multi-model Claude Code plugin. Closest analogues:
+### From Linear (adopt selectively)
 
-| Feature | Agent Teams (Anthropic native) | ruflo / oh-my-claudecode | Seraphim v3.0 |
-|---------|-------------------------------|--------------------------|---------------|
-| Phase structure | None (flat task list) | 4-5 step pipelines typically | Six phases with cognitive specialization (diverge → evaluate → converge → execute → verify) |
-| Multi-model routing | Claude-only (subagents) | Claude + Codex typically | Nine models across five profiles; local + cloud + subscription |
-| Cost profiles | None | None | Five presets + per-phase override + custom profile |
-| Adaptive intelligence | None | None | decisions.jsonl logging + pattern analysis + human-approved recommendations |
-| Feedback loops | Implicit (retry in prompt) | Ad-hoc | Explicit structured loops with hard caps and human escalation |
-| Checkpoint system | None | None | Two-reviewer between-task checkpoints (runtime + static) |
-| Non-code support | Yes (general) | Typically code-focused | Explicit project_type branching in Forge and Crucible |
-| Local model support | No | Rarely | Qwen 3.5-27B via ollama (GPU required; graceful degradation without) |
-| Plugin architecture | Native (Agent Teams API) | Plugin/hook based | Standalone plugin; no GSD or Superpowers runtime dependency |
+- **"Cycles" concept** → not needed (no time-boxing for solo AI work)
+- **First-class keyboard-driven UX** → terminal-first commands follow this principle already
+- **Issue status as a workflow state, not just done/not-done** → adopt: planned / in-progress / blocked / complete
+- **Project-level roadmap separate from issue tracker** → adopt: roadmap.json separate from pipeline phases
+
+### From Kanban (adopt selectively)
+
+- **WIP limits** → adopt: `max_wip` config option; warn before exceeding
+- **Visual board** → adopt for dashboard only; not for terminal (terminal uses tree/list views)
+- **Continuous flow over sprints** → adopt: no sprint/cycle concept in Seraphim PM
+
+### From Agile / Jira (reject most)
+
+- **Story points** → reject: meaningless for AI-assisted execution
+- **Sprint ceremonies (standup, retrospective, planning poker)** → reject: team coordination overhead
+- **Epic hierarchy below milestone** → reject: milestone → feature → task is enough
+- **Velocity / burndown** → partial adoption: track feature completion rate, not story points
+
+### From GitHub Projects (adopt selectively)
+
+- **Board, table, roadmap views** → adopt for dashboard; terminal shows list/tree
+- **Filter by milestone, status** → adopt: `/seraphim:roadmap --milestone` filter flag
+- **No-status column as backlog** → equivalent to `planned` status in roadmap.json
 
 ---
 
 ## Sources
 
-- [Shipyard: Multi-agent Claude Code orchestration in 2026](https://shipyard.build/blog/claude-code-multi-agent/)
-- [Addy Osmani: The Code Agent Orchestra — what makes multi-model coding work](https://addyosmani.com/blog/code-agent-orchestra/)
-- [Label Your Data: LLM Orchestration strategies and best practices 2026](https://labelyourdata.com/articles/llm-fine-tuning/llm-orchestration)
-- [Towardsdatascience: The Multi-Agent Trap (infinite loop failure modes)](https://towardsdatascience.com/the-multi-agent-trap/)
-- [Agent Patterns: Infinite Agent Loop failure analysis](https://www.agentpatterns.tech/en/failures/infinite-loop)
-- [Medium (Komalbaparmar): LLM Tool-Calling in Production — the Infinite Loop failure mode](https://medium.com/@komalbaparmar007/llm-tool-calling-in-production-rate-limits-retries-and-the-infinite-loop-failure-mode-you-must-2a1e2a1e84c8)
-- [Kinde: Orchestrating Multi-Step Agents — hard caps and escalation patterns 2026](https://www.kinde.com/learn/ai-for-software-engineering/ai-devops/orchestrating-multi-step-agents-temporal-dagster-langgraph-patterns-for-long-running-work/)
-- [Atlosz: LLM Cost Optimization and Multi-Model Routing — profile-based approaches](https://atlosz.hu/en/blog/llm-koltsegoptimalizalas-routing-strategia/)
-- [Mavik Labs: LLM Cost Optimization 2026 — routing, caching, batching](https://www.maviklabs.com/blog/llm-cost-optimization-2026)
-- [Ollama: Structured Outputs documentation — Qwen3 JSON schema support](https://docs.ollama.com/capabilities/structured-outputs)
-- [Google AI: Gemini 3 Developer Guide — search grounding + function calling + thinking mode](https://ai.google.dev/gemini-api/docs/gemini-3)
-- [Perplexity: Sonar MCP integration — citations pipeline](https://mcp.directory/servers/perplexity)
-- [Claude Code: Create plugins — official plugin structure documentation](https://code.claude.com/docs/en/plugins)
-- [arxiv 2512.18388: Divergent/convergent thinking scaffolding in human-AI co-creation](https://arxiv.org/html/2512.18388v1)
-- [IxDF: Convergent Thinking — design pattern reference](https://ixdf.org/literature/topics/convergent-thinking)
-- Project context: `/home/alucard/projects/Seraphim/.planning/PROJECT.md`
-- Design spec: `/home/alucard/projects/Seraphim/docs/specs/2026-04-04-seraphim-v3-design.md`
+- GSD source analysis: `~/.claude/get-shit-done/workflows/autonomous.md`, `plan-phase.md`
+- Seraphim existing commands: `~/.claude/plugins/seraphim/commands/tasks.md`, `run.md`
+- Phase 9 human-AI context: `.planning/phases/09-human-ai-cognitive-division/09-CONTEXT.md`
+- [Linear app review — features for solo developers](https://www.morgen.so/blog-posts/linear-project-management)
+- [Linear vs GitHub Issues comparison](https://cotera.co/articles/linear-vs-github-issues-comparison)
+- [Kanban vs Agile comparison 2025](https://project-management.com/kanban-vs-agile/)
+- [GitHub Projects documentation](https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/about-projects)
+- Project context: `.planning/PROJECT.md`
 
 ---
 
-*Feature research for: Six-phase multi-model creative pipeline Claude Code plugin (Seraphim v3.0)*
-*Researched: 2026-04-04*
+*Feature research for: Seraphim v3.1 Project Management layer*
+*Researched: 2026-04-08*
