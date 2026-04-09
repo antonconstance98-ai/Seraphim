@@ -50,7 +50,12 @@ Plans:
   3. Blocked features, exceeded WIP limits, and pending human gates surface prominently as "needs attention" signals in both overview and dashboard data
   4. Neon database has `milestones`, `features`, `human_tasks` tables populated by sync script extensions (feature_snapshots and human_task_snapshots collection targets)
   5. Cross-project cost trend data aggregates decisions.jsonl across projects by date, ready for dashboard rendering
-**Plans**: TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 02-01-PLAN.md — Cross-project overview command with attention signals
+- [ ] 02-02-PLAN.md — Feature dependencies, skills/research task extensions
+- [ ] 02-03-PLAN.md — Neon PM tables DDL and ingest route extension
+- [ ] 02-04-PLAN.md — PM sync pipeline (auto-push, manual sync, cost trend)
 
 ### Phase 3: Dashboard PM Panels
 **Goal**: The web dashboard becomes the human's PM command center with visual roadmap, human task management, and cross-project overview panels
