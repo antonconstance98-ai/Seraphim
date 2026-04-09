@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.1
 milestone_name: Seraphim Project Management
-status: executing
-stopped_at: Completed 01-05-PLAN.md
-last_updated: "2026-04-09T17:43:02.135Z"
+status: verifying
+stopped_at: Completed 01-04-PLAN.md
+last_updated: "2026-04-09T17:43:46.345Z"
 last_activity: 2026-04-09
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 19
-  completed_plans: 18
+  completed_plans: 19
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 01 (core-pm-primitives) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-09
 
 Progress: [░░░░░░░░░░] 0%
@@ -66,6 +66,8 @@ Key decisions relevant to v3.1:
 - [Phase 01]: WIP warn-not-block per D-06: feature starts even when limit exceeded
 - [Phase 01]: start.md passes feature.slug to /seraphim:run as phase-id for pipeline launch
 - [Phase 01]: Post-crucible HUMAN_TASKS marker doubles as D-03 inbox notification
+- [Phase 01-core-pm-primitives]: PM context block (state.pm) is null when no active feature — backward compat for pre-PM sessions
+- [Phase 01-core-pm-primitives]: close-milestone warns on incomplete milestone; --force overrides
 
 ### Roadmap Evolution
 
@@ -83,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T17:43:02.133Z
-Stopped at: Completed 01-05-PLAN.md
+Last session: 2026-04-09T17:43:46.343Z
+Stopped at: Completed 01-04-PLAN.md
 Resume file: None

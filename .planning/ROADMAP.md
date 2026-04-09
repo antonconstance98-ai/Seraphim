@@ -37,7 +37,7 @@ Plans:
 - [x] 01-01-PLAN.md — Foundation lib (roadmap.js, config/decisions-logger extensions) + roadmap display
 - [x] 01-02-PLAN.md — Feature lifecycle (add-feature, start commands)
 - [x] 01-03-PLAN.md — Human task inbox + done command
-- [ ] 01-04-PLAN.md — Pause/resume PM context + milestone archival
+- [x] 01-04-PLAN.md — Pause/resume PM context + milestone archival
 - [x] 01-05-PLAN.md — Pipeline gate markers + auto-complete on Crucible success (D-03)
 
 ### Phase 2: Progress Visibility
