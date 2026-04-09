@@ -1,5 +1,25 @@
 # Milestones
 
+## v3.1 Seraphim Project Management (Shipped: 2026-04-09)
+
+**Phases completed:** 3 phases, 12 plans, 10 tasks
+
+**Key accomplishments:**
+
+- One-liner:
+- Inbox and done slash commands for human task management via SERAPHIM:TASK marker scanning and append-only task-completions.jsonl sidecar
+- One-liner:
+- One-liner:
+- One-liner:
+- Task 1 — Dependency check in start.md:
+- Auto-approved checkpoint (Task 1):
+- One-liner:
+- One-liner:
+- Milestone-feature tree (Plan tab) and human-task-by-type panel (Tasks tab) built as Server Components and wired into the project detail page with real Neon PM data.
+- One-liner:
+
+---
+
 ## v2.0 Three-Model Intelligence (Shipped: 2026-04-03)
 
 **Phases completed:** 7 phases, 12 plans, 18 tasks

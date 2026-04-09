@@ -26,18 +26,9 @@ MiniMax M-2.7 integrated as third model. Dual review gate, adversarial plan revi
 
 Six-phase creative pipeline (Discover→Crucible) with 9 models, 5 profiles, adaptive intelligence, multi-project dashboard (Vercel), human-AI task routing, and local RAG. 13 phases, 43 plans, 21 slash commands.
 
-## Current Milestone: v3.1 Seraphim Project Management
+## Shipped: v3.1 Seraphim Project Management (2026-04-09)
 
-**Goal:** Transform Seraphim from a task execution pipeline into a full global project management system — with roadmaps, feature queues, progress tracking, human/AI task management, and cross-project oversight, all visible on the dashboard.
-
-**Target features:**
-- Project-level roadmap creation and milestone planning
-- Feature queue that feeds individual features into the 6-wing pipeline
-- Progress tracking per feature, per phase, per project
-- Cross-project overview on the dashboard
-- Human task management — research, decisions, skills development
-- Best practices from GSD, Agile, Kanban incorporated
-- Milestone/version management with archival
+Full project management layer: roadmaps with milestone-feature hierarchy, feature queues with WIP limits and dependency guards, human task inbox (decision/research/review/validation/skills), pause/resume PM context, milestone archival with cost attribution, cross-project overview terminal command, PM data sync to Neon, dashboard PM panels (roadmap tree, task management, cross-project overview with sparklines). 3 phases, 12 plans, 30 requirements.
 
 **Target features:**
 - Standalone Claude Code plugin at `~/.claude/plugins/seraphim/`
@@ -55,13 +46,9 @@ Six-phase creative pipeline (Discover→Crucible) with 9 models, 5 profiles, ada
 
 ## Current State
 
-**v2.0 shipped 2026-04-03.** 15 phases total across 3 milestones, 27 plans, 43 tasks.
+**v3.1 shipped 2026-04-09.** Seraphim is now a full project management system on top of the six-phase pipeline. 8 new slash commands (/seraphim:roadmap, add-feature, start, inbox, done, pause, resume, close-milestone, overview, sync), PM data syncs to Neon for dashboard consumption, and the web dashboard has roadmap tree, human task, and cross-project overview panels.
 
-**v3.0 clean break.** Hard fork from GSD hook infrastructure into standalone plugin. Phase numbering reset to 1.
-
-Design spec approved 2026-04-04: `docs/specs/2026-04-04-seraphim-v3-design.md`
-
-Existing hook infrastructure (18 scripts at `~/.claude/hooks/`) — 7 consolidated into pipeline, 2 forked into plugin (token-logger, session-start), rest kept for backward compat during migration.
+**Tech debt (8 items):** Neon DDL pending manual application, empty state wrong command reference, ARIA gaps, typography weight deviations, no error boundaries, cost_usd stub, feature_id not passed to decisions-logger. See `.planning/v3.1-MILESTONE-AUDIT.md`.
 
 ## Requirements
 
@@ -184,4 +171,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-04 — v3.0 Seraphim milestone start, project renamed from Claude X Codex*
+*Last updated: 2026-04-09 after v3.1 Seraphim Project Management milestone*
