@@ -98,9 +98,10 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260409-jyy | v3.1 tech debt fixes (6 items) | 2026-04-09 | d47c171..07642ec | [260409-jyy-v3-1-tech-debt-fixes](./quick/260409-jyy-v3-1-tech-debt-fixes/) |
+| 260409-kam | new-milestone command + milestone lifecycle (new-project, add-feature, close-milestone) | 2026-04-09 | b02a433..a8726c4 | [260409-kam-new-project-and-new-milestone-commands](./quick/260409-kam-new-project-and-new-milestone-commands/) |
 
 ## Session Continuity
 
 Last session: 2026-04-09T19:27:48.631Z
-Stopped at: Completed quick/260409-jyy-v3-1-tech-debt-fixes
+Stopped at: Completed quick/260409-kam-new-project-and-new-milestone-commands
 Resume file: None
