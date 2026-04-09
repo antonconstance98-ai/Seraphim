@@ -35,10 +35,10 @@
 
 ### Cross-Project Overview
 
-- [ ] **OVER-01**: `/seraphim:overview` shows all Seraphim projects with active milestone, features in-progress, human tasks pending, WIP count
+- [x] **OVER-01**: `/seraphim:overview` shows all Seraphim projects with active milestone, features in-progress, human tasks pending, WIP count
 - [ ] **OVER-02**: Dashboard cross-project panel showing all projects with PM status (milestone progress, feature counts, human tasks)
-- [ ] **OVER-03**: Active-only filter (default) hides idle projects; `--all` flag shows everything
-- [ ] **OVER-04**: "What needs attention" signal surfaces blocked features, exceeded WIP limits, and pending human gates prominently
+- [x] **OVER-03**: Active-only filter (default) hides idle projects; `--all` flag shows everything
+- [x] **OVER-04**: "What needs attention" signal surfaces blocked features, exceeded WIP limits, and pending human gates prominently
 - [ ] **OVER-05**: Cross-project cost trend aggregating decisions.jsonl across projects by date, rendered as trend line in dashboard
 
 ### Architecture & Integration
@@ -101,10 +101,10 @@
 | TASK-05 | Phase 2 | Complete |
 | TASK-06 | Phase 3 | Pending |
 | TASK-07 | Phase 2 | Complete |
-| OVER-01 | Phase 2 | Pending |
+| OVER-01 | Phase 2 | Complete |
 | OVER-02 | Phase 3 | Pending |
-| OVER-03 | Phase 2 | Pending |
-| OVER-04 | Phase 2 | Pending |
+| OVER-03 | Phase 2 | Complete |
+| OVER-04 | Phase 2 | Complete |
 | OVER-05 | Phase 2 | Pending |
 | ARCH-01 | Phase 1 | Complete |
 | ARCH-02 | Phase 1 | Complete |

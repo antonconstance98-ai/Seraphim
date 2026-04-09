@@ -52,7 +52,7 @@ Plans:
   5. Cross-project cost trend data aggregates decisions.jsonl across projects by date, ready for dashboard rendering
 **Plans:** 4 plans
 Plans:
-- [ ] 02-01-PLAN.md — Cross-project overview command with attention signals
+- [x] 02-01-PLAN.md — Cross-project overview command with attention signals
 - [x] 02-02-PLAN.md — Feature dependencies, skills/research task extensions
 - [x] 02-03-PLAN.md — Neon PM tables DDL and ingest route extension
 - [ ] 02-04-PLAN.md — PM sync pipeline (auto-push, manual sync, cost trend)
@@ -75,7 +75,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Core PM Primitives | v3.1 | 4/5 | In Progress|  |
-| 2. Progress Visibility | v3.1 | 2/4 | In Progress|  |
+| 2. Progress Visibility | v3.1 | 3/4 | In Progress|  |
 | 3. Dashboard PM Panels | v3.1 | 0/? | Not started | - |
 
 ---
