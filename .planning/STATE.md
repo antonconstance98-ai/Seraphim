@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.1
 milestone_name: Seraphim Project Management
-status: ready_to_plan
-stopped_at: Roadmap created
-last_updated: "2026-04-09"
+status: executing
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-04-09T17:38:21.630Z"
 last_activity: 2026-04-09
 progress:
-  total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_phases: 6
+  completed_phases: 3
+  total_plans: 19
+  completed_plans: 15
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Six wings, six phases, six cognitive tasks -- each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
-**Current focus:** v3.1 Phase 1 -- Core PM Primitives
+**Current focus:** Phase 01 — core-pm-primitives
 
 ## Current Position
 
-Phase: 1 of 3 (Core PM Primitives)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-04-09 -- Roadmap created for v3.1
+Phase: 01 (core-pm-primitives) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-04-09
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -60,6 +60,8 @@ Key decisions relevant to v3.1:
 - [v3.1 Research]: roadmap.json is the foundational artifact -- design and lock first
 - [v3.1 Research]: Pause/resume PM context ships in Phase 1 to avoid costly retrofit
 - [v3.1 Research]: Zero new npm packages -- builds entirely on existing infrastructure
+- [Phase 01]: readRoadmap returns empty milestones on missing file (D-08) — fail-safe default prevents crashes in new projects
+- [Phase 01]: feature_id=null default in buildRecord keeps all existing callers unaffected (D-09)
 
 ### Roadmap Evolution
 
@@ -77,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09
-Stopped at: Roadmap created for v3.1 milestone
+Last session: 2026-04-09T17:38:17.209Z
+Stopped at: Completed 01-01-PLAN.md
 Resume file: None
