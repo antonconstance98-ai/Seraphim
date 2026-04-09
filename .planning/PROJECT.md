@@ -30,7 +30,23 @@ Six-phase creative pipeline (Discover→Crucible) with 9 models, 5 profiles, ada
 
 Full project management layer: roadmaps with milestone-feature hierarchy, feature queues with WIP limits and dependency guards, human task inbox (decision/research/review/validation/skills), pause/resume PM context, milestone archival with cost attribution, cross-project overview terminal command, PM data sync to Neon, dashboard PM panels (roadmap tree, task management, cross-project overview with sparklines). 3 phases, 12 plans, 30 requirements.
 
+## Current Milestone: v3.2 Idea-to-Shipped Journey
+
+**Goal:** Bring the full idea-to-shipped development workflow into Seraphim as native commands, with the dashboard as the project control center.
+
 **Target features:**
+- Seed/Idea Capture — braindump sessions merged into Seraphim (from Thought Orphanage)
+- Research System — categorized research with human interrogation before AI research
+- Requirements Definition — REQ-IDs, v1/future/out-of-scope scoping
+- Phased Roadmaps — waves, dependencies, success criteria (richer than flat feature list)
+- Discuss Phase — lock decisions before planning
+- Planning System — wave-structured PLAN.md with tasks and done-criteria
+- Verification — goal-backward verification, UAT
+- Enriched Human Tasks — skills to learn, research tasks, high-leverage thought tasks
+- Progress Visualization — bars, completion %, velocity tracking on dashboard
+- Dashboard — full roadmap view with phases/waves/tasks/costs/metrics as the control center
+
+**Previous target features (v3.0):**
 - Standalone Claude Code plugin at `~/.claude/plugins/seraphim/`
 - Six phases: Discover, Envision, Judge, Architect, Forge, Crucible
 - Nine model integrations: Opus 4.6, Sonnet 4.6, Haiku 4.5, Codex GPT-5.4, MiniMax M-2.7, Gemini 3.1 Pro, Gemini 3 Flash, Qwen 3.5-27B (local), Perplexity Sonar
@@ -46,9 +62,11 @@ Full project management layer: roadmaps with milestone-feature hierarchy, featur
 
 ## Current State
 
-**v3.1 shipped 2026-04-09.** Seraphim is now a full project management system on top of the six-phase pipeline. 8 new slash commands (/seraphim:roadmap, add-feature, start, inbox, done, pause, resume, close-milestone, overview, sync), PM data syncs to Neon for dashboard consumption, and the web dashboard has roadmap tree, human task, and cross-project overview panels.
+**v3.2 started 2026-04-09.** Building the idea-to-shipped journey — bringing GSD-style workflow commands (seed capture, research, requirements, phased roadmaps, planning, verification) into Seraphim as native commands, with the dashboard as the full project control center.
 
-**Tech debt (8 items):** Neon DDL pending manual application, empty state wrong command reference, ARIA gaps, typography weight deviations, no error boundaries, cost_usd stub, feature_id not passed to decisions-logger. See `.planning/v3.1-MILESTONE-AUDIT.md`.
+**Previous:** v3.1 shipped 2026-04-09. Full PM system: 8 slash commands, Neon sync, dashboard PM panels.
+
+**Tech debt (8 items from v3.1):** Neon DDL pending manual application, empty state wrong command reference, ARIA gaps, typography weight deviations, no error boundaries, cost_usd stub, feature_id not passed to decisions-logger.
 
 ## Requirements
 
@@ -171,4 +189,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-09 after v3.1 Seraphim Project Management milestone*
+*Last updated: 2026-04-09 — v3.2 Idea-to-Shipped Journey milestone started*
