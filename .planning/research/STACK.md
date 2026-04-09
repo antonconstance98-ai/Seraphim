@@ -1,240 +1,244 @@
-# Technology Stack: v3.1 Seraphim Project Management
+# Technology Stack: v3.2 Idea-to-Shipped Journey
 
-**Project:** Seraphim — v3.1 Project Management Layer
-**Researched:** 2026-04-08
-**Confidence:** HIGH (based on live system verification + GSD source reading + existing validated stack)
-
----
-
-## What Is NOT Being Re-Researched
-
-The following stack is already validated and in production. Do not change any of it:
-
-| Technology | Version | Status |
-|------------|---------|--------|
-| Node.js | v22.22.0 | Installed, all plugin scripts |
-| npm | 10.9.4 | Installed |
-| `@openai/codex` CLI | 0.118.0 | Installed at `~/.npm-global/bin/codex` |
-| `openai` npm package | 6.33.0 | Plugin executor base |
-| Claude Code plugin hooks | v2.1.89+ | Active |
-| Next.js + Vercel | Current | Multi-project dashboard host |
-| Neon Postgres | Serverless | Dashboard persistence layer |
-| Chart.js | Bundled inline | Dashboard metrics charts |
-
-This research covers ONLY new additions required for project management features.
+**Project:** Seraphim — v3.2 Idea-to-Shipped Workflow
+**Researched:** 2026-04-09
+**Confidence:** HIGH (all findings based on live codebase inspection)
 
 ---
 
-## What v3.1 Actually Needs
+## Core Finding: Zero New Dependencies
 
-The goal is: roadmaps, milestones, feature queues, progress tracking, human task management, cross-project oversight, and milestone archival.
+After inspecting the full plugin stack (plugin `package.json`, dashboard `package.json`, all lib modules, existing data files), v3.2 needs no new npm packages. Every required capability is already present.
 
-**Critical insight from studying GSD's architecture:** GSD already implements all of this with plain Markdown + JSONL files. The entire project management layer — roadmaps, milestones, requirements, state, phases, plans — lives in `.planning/` as flat files. There is no database, no ORM, no schema migration. The existing Seraphim plugin inherits this architecture.
-
-v3.1 does not need a new persistence layer. It needs:
-1. New file schemas in the existing `.planning/` structure
-2. New slash commands that read/write those files
-3. Dashboard panels that read and visualize the data
+| v3.2 Feature | Capability Needed | Already Covered By |
+|-------------|------------------|--------------------|
+| Seed/Idea Capture | Persistent markdown + state index | Node.js `fs` — pattern proven by SEED-001 in `.planning/seeds/` |
+| Research System | Categorized notes, web search | Node.js `fs` + Perplexity MCP (already configured) |
+| Requirements Definition | REQ-ID generation, scoped lists | Node.js `fs` — REQUIREMENTS.md pattern already used in v3.0 |
+| Phased Roadmaps with waves/deps | Wave JSON, dependency resolution | Extend `lib/roadmap.js` — inline topological sort (~40 lines) |
+| Discuss Phase | Decision lock state flag | Node.js `fs`, `.seraphim/discuss-state.json` |
+| Planning System | PLAN.md generation, task tracking | Node.js `fs` — existing phase system already generates markdown |
+| Verification | Goal-backward check scripts | Node.js `fs` + existing Crucible phase infrastructure |
+| Enriched Human Tasks | Extended task types with skills/research | Extend existing `human-tasks.md` schema (v3.1 established) |
+| Progress Visualization | Completion bars, velocity | Chart.js 4.5.1 — already in dashboard, horizontal bar is built-in |
+| Dashboard Control Center | Full roadmap/wave/task/cost view | Next.js 16.2.3 + @neondatabase/serverless 1.0.2 — already in place |
 
 ---
 
-## New Stack Additions
+## Existing Stack Reference (No Changes)
 
-### 1. Feature Queue: JSONL File Per Project
+### Plugin Runtime
 
-**File:** `.seraphim/feature-queue.jsonl`
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Node.js | 22.22.0 | All command handlers, lib modules, file I/O |
+| better-sqlite3 | 12.8.0 (installed) | Local SQLite for RAG — reuse for seed/research indexing |
+| @huggingface/transformers | 4.0.1 (installed) | Local embeddings — seeds and research docs auto-indexed on write |
+| sqlite-vec | 0.1.9 (installed) | Vector similarity search for RAG |
 
-**Why JSONL (not a new table or SQLite):** Every other event-sourced data in Seraphim is JSONL (token-log.jsonl, decision-log.jsonl). The GSD decision-log.jsonl pattern is append-only and survives crashes. JSONL integrates with the existing Node.js `fs/promises` reading pattern already in the plugin.
+### Dashboard
 
-**Why not SQLite:** Adds a native dependency (`better-sqlite3` requires `node-gyp`, which may fail on system Node without build tools). The feature queue has fewer than a few hundred items per project — file I/O is fast enough forever.
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Next.js | 16.2.3 | API routes + SSR for new roadmap/wave/progress pages |
+| React | 19.2.4 | Dashboard UI components |
+| @neondatabase/serverless | 1.0.2 | Neon Postgres queries |
+| Chart.js | 4.5.1 | Progress bars (horizontal bar), velocity (line), burndown (line) |
+| Tailwind CSS | 4.x | Styling — no additional component library needed |
+| TypeScript | 5.x | Types for new data models |
 
-**Why not a new Neon table:** Neon is for the dashboard read layer (cross-project aggregation for display). It is not the source of truth. The file is the source of truth; Neon is a projection of it.
+---
+
+## New Data Models (File Schemas — No New Packages)
+
+### Seed Store
+
+**Location:** `.planning/seeds/SEED-NNN-slug.md` + `.planning/seeds/index.jsonl`
+
+The format is already established — SEED-001 exists live. The `index.jsonl` is new for fast status lookups without scanning all markdown files.
 
 ```jsonl
-{"id":"feat-001","title":"Roadmap view in dashboard","status":"queued","priority":"high","created":"2026-04-08","phase_target":null,"milestone":"v3.1","tags":["dashboard"]}
-{"id":"feat-001","status":"in_pipeline","phase_target":"discover","updated":"2026-04-08"}
+{"id":"SEED-001","slug":"self-improving-intelligence","status":"dormant","planted":"2026-04-03","scope":"Large"}
 ```
 
-**No new npm packages.** Node.js built-in `fs/promises` handles append and read.
+**On write:** Call `lib/rag-indexer.js` to index the seed into local SQLite. Seeds become searchable context in future Discover phases. The `reindex` command already handles batch reindex if the index falls out of sync.
 
----
+### Research Store
 
-### 2. Progress Tracking: Extend Existing phase-state.json
+**Location:** `.planning/research/` (this directory — already used for STACK.md, FEATURES.md, etc.)
 
-**File:** `.seraphim/phases/{N}/state.json` — already exists from v3.0
+New: `.planning/research/index.jsonl` tracking research items by status:
 
-**What to add to the schema:**
+```jsonl
+{"id":"RES-001","question":"What rate limits apply to Gemini 3.1 Pro?","category":"api","status":"open","created":"2026-04-09"}
+{"id":"RES-001","status":"answered","answer":"1000 RPM on free tier","source":"https://ai.google.dev/pricing","updated":"2026-04-09"}
+```
+
+Research docs are append-only events (same pattern as `decision-log.jsonl`). The dashboard reads the latest state per ID.
+
+### Requirements Store
+
+**Location:** `.planning/REQUIREMENTS.md` (reinstate — was deleted during v3.1 audit) + `.seraphim/requirements.json` (machine-readable)
+
+The `.seraphim/requirements.json` enables the roadmap validator to check that all `v1` requirements map to at least one feature:
+
 ```json
 {
-  "phase": 1,
-  "feature_id": "feat-001",
-  "status": "in_progress",
-  "started": "2026-04-08T10:00:00Z",
-  "completed": null,
-  "loop_counters": {},
-  "checkpoint_results": []
+  "requirements": [
+    { "id": "REQ-001", "text": "Seed capture via /seed command", "scope": "v1", "feature_ids": ["feat-012"] }
+  ]
 }
 ```
 
-Adding `feature_id` links a phase run to the feature that triggered it. Adding `started`/`completed` timestamps enables per-phase duration tracking. This is a schema extension to an existing file — no new files, no new packages.
+### Phased Roadmap with Waves + Dependencies
 
----
+Extend the existing `roadmap.json` schema. Current structure is flat (`milestones → features`). v3.2 adds a wave layer and dependency list per feature:
 
-### 3. Human Task Management: New MARKDOWN File
-
-**File:** `.seraphim/human-tasks.md`
-
-**Why Markdown (not JSONL):** Human tasks are things a person reads and edits — decisions to make, research to do, skills to develop. They benefit from human-readable structure. GSD's STATE.md and REQUIREMENTS.md demonstrate that Markdown is the correct format for human-facing task lists. JSONL is for machine-readable event logs.
-
-**Format:** Standard GFM task list with metadata frontmatter:
-```markdown
----
-updated: 2026-04-08
----
-
-## Decisions Needed
-
-- [ ] [DECIDE-01] Choose primary color scheme for dashboard v2
-
-## Research Tasks
-
-- [ ] [RESEARCH-01] Evaluate Drizzle ORM vs raw pg for future schema needs
-
-## Skills Development
-
-- [ ] [SKILL-01] Learn Neon branching for staging environments
+```json
+{
+  "milestones": [{
+    "version": "v3.2",
+    "name": "Idea-to-Shipped Journey",
+    "waves": [{
+      "id": "wave-1",
+      "name": "Foundation",
+      "features": [{
+        "id": "feat-012",
+        "slug": "seed-capture",
+        "title": "Seed/Idea Capture",
+        "status": "queued",
+        "deps": [],
+        "success_criteria": ["Can capture a braindump in under 2 minutes", "Seeds are searchable via RAG"]
+      }]
+    }]
+  }]
+}
 ```
 
-**Parsing:** Node.js built-in `fs/promises.readFile()` + regex on GFM task syntax. Already done in GSD tooling for plan parsing.
+**Dependency resolution:** Implement Kahn's algorithm inline in `lib/roadmap.js` (~40 lines). The wave graph has at most a few dozen nodes per milestone — no library needed. The function signature: `validateDeps(roadmap) → { valid: boolean, cycles: string[][] }`.
+
+### Progress Tracking
+
+Extend `lib/push-client.js` to sync wave completion to a new `wave_snapshots` Neon table. Extend `dashboard/lib/types.ts` with:
+
+```typescript
+interface WaveSnapshot {
+  wave_id: string;
+  milestone_version: string;
+  project_name: string;
+  name: string;
+  feature_count: number;
+  completed_count: number;
+  completion_pct: number;
+  velocity_7d: number; // features completed in last 7 days
+  pushed_at: string;
+}
+```
+
+### Discuss Phase State
+
+**Location:** `.seraphim/discuss-state.json`
+
+A simple lock file:
+
+```json
+{
+  "locked": false,
+  "decisions": [
+    { "id": "DEC-001", "question": "...", "decision": "...", "locked_at": "2026-04-09T12:00:00Z" }
+  ]
+}
+```
+
+When `locked: true`, the planning phase checks this file before generating PLAN.md. The `/seraphim:discuss` command writes decisions here and flips the lock.
 
 ---
 
-### 4. Cross-Project Overview: Neon Postgres (Existing)
+## Neon Schema Additions
 
-The dashboard already uses Neon Postgres for cross-project metric aggregation. v3.1 adds two new tables to the existing schema.
-
-**New tables:**
+Two new tables — DDL appended to `dashboard/scripts/migrate.ts`:
 
 ```sql
--- Feature queue snapshot (written by sync script, read by dashboard)
-CREATE TABLE IF NOT EXISTS feature_snapshots (
+-- Research items (for cross-project research tracking)
+CREATE TABLE IF NOT EXISTS research_items (
   id TEXT NOT NULL,
-  project_path TEXT NOT NULL,
-  title TEXT NOT NULL,
-  status TEXT NOT NULL,
-  priority TEXT,
-  milestone TEXT,
-  tags TEXT[],
-  synced_at TIMESTAMPTZ DEFAULT NOW(),
-  PRIMARY KEY (id, project_path)
+  project_name TEXT NOT NULL,
+  question TEXT NOT NULL,
+  category TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'open',
+  answer TEXT,
+  source TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (id, project_name)
 );
 
--- Human task snapshot
-CREATE TABLE IF NOT EXISTS human_task_snapshots (
-  id TEXT NOT NULL,
-  project_path TEXT NOT NULL,
-  category TEXT NOT NULL,
-  title TEXT NOT NULL,
-  completed BOOLEAN DEFAULT FALSE,
-  synced_at TIMESTAMPTZ DEFAULT NOW(),
-  PRIMARY KEY (id, project_path)
+-- Wave progress snapshots (for dashboard progress visualization)
+CREATE TABLE IF NOT EXISTS wave_snapshots (
+  id SERIAL PRIMARY KEY,
+  project_name TEXT NOT NULL,
+  milestone_version TEXT NOT NULL,
+  wave_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  feature_count INT NOT NULL DEFAULT 0,
+  completed_count INT NOT NULL DEFAULT 0,
+  velocity_7d FLOAT NOT NULL DEFAULT 0,
+  pushed_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
-**ORM decision — raw `pg` (already installed, no addition):**
-
-The existing dashboard sync already uses the `pg` npm package (Node-postgres) via environment variable `DATABASE_URL`. Adding two tables does not require Drizzle or Prisma. Schema changes are run as idempotent `CREATE TABLE IF NOT EXISTS` migrations inline in the sync script.
-
-**Do not add:** Drizzle ORM, Prisma, or any migration framework. The schema is two small tables. Migration frameworks add a dev dependency, a migration directory, and a CLI step that can fail in CI. Raw `pg` with `CREATE TABLE IF NOT EXISTS` is sufficient and already in use.
-
-**Confidence:** HIGH — `pg` package already in the dashboard project; verified from existing sync scripts.
+No new Neon SDK version needed. `@neondatabase/serverless` 1.0.2 is already installed and handles these tables.
 
 ---
 
-### 5. Roadmap and Milestone Management: Extend Existing Files
+## Dashboard New Pages
 
-GSD's approach (verified from source): ROADMAP.md is the human-readable roadmap. MILESTONES.md archives shipped milestones. STATE.md tracks current position. These are already present in `.planning/`.
+Two new Next.js pages — no new libraries:
 
-v3.1 does not need a new roadmap file format. It needs:
+| Page | Route | Chart Type | Data Source |
+|------|-------|-----------|-------------|
+| Roadmap Control Center | `/app/roadmap/page.tsx` | Nested list + horizontal bar per wave | `wave_snapshots` + `feature_snapshots` |
+| Research Tracker | `/app/research/page.tsx` | Status badge list | `research_items` |
 
-1. **Milestone archival command** — `/seraphim:close-milestone` writes current roadmap snapshot to `.planning/milestones/vX.Y-ROADMAP.md` (GSD already does this pattern — see `.planning/milestones/v1.0-ROADMAP.md`)
-2. **Feature-to-phase traceability** — add `feature_id` column in ROADMAP.md phase tables
-
-No new file formats. No new packages.
-
----
-
-### 6. Dashboard Panels: Next.js + React (Existing)
-
-The v3.0 dashboard is already a Next.js app on Vercel reading from Neon. v3.1 adds panels:
-- Feature queue board (Kanban-style columns: Queued → In Pipeline → Done)
-- Progress per feature per phase (heatmap or table)
-- Human tasks panel
-- Cross-project roadmap view
-
-**Component library decision — none (use Tailwind + existing inline styles):**
-
-The existing dashboard uses Chart.js + Tailwind (from the v3.0 research). Adding a Kanban view does not require a drag-and-drop library — features are moved via slash commands in the terminal, not via browser drag. The dashboard is a read-heavy display layer, not an interactive editor.
-
-**Do not add:** `@dnd-kit/core`, `react-beautiful-dnd`, `react-query`, or any state management library. The Kanban columns are static snapshots rendered from Neon query results. Server Components + `fetch` from Neon is sufficient.
-
-**Confidence:** HIGH — architecture aligns with existing v3.0 dashboard pattern.
-
----
-
-## Complete Stack for v3.1 (Delta Only)
-
-| Addition | Type | Version | Where |
-|----------|------|---------|-------|
-| `feature-queue.jsonl` schema | New file format | — | `.seraphim/feature-queue.jsonl` per project |
-| `human-tasks.md` schema | New file format | — | `.seraphim/human-tasks.md` per project |
-| `feature_snapshots` table | New Postgres table | — | Existing Neon database |
-| `human_task_snapshots` table | New Postgres table | — | Existing Neon database |
-| Milestone archival pattern | New slash command | — | Extends existing GSD pattern |
-| Feature queue Kanban panel | New Next.js page/component | — | Existing Vercel app |
-
-**New npm packages required: ZERO.**
+Chart.js horizontal bar chart is already available in 4.5.1. No new chart library needed. The roadmap tree view is a styled nested `<ul>` in Tailwind — no `react-flow` or graph layout library.
 
 ---
 
 ## What NOT to Add
 
-| Technology | Reason |
-|------------|--------|
-| SQLite (`better-sqlite3`) | Requires `node-gyp` build step; unnecessary given JSONL already works for queues |
-| Drizzle ORM / Prisma | Two-table schema does not justify a migration framework; raw `pg` already in use |
-| `react-beautiful-dnd` / `@dnd-kit` | Kanban moves happen via terminal commands, not browser drag |
-| `react-query` / `swr` | Dashboard is a server-rendered read layer; no client-side mutation needed |
-| GitHub Projects API | External dependency; the project is already self-hosted with Seraphim's own management layer |
-| Dedicated PM database (Supabase, PlanetScale) | Neon is already the persistence layer; don't introduce a second database provider |
-| Jira/Linear/Asana integration | No requirement; Seraphim IS the project management system |
-| Full-text search (Meilisearch, Typesense) | Feature lists are small enough for Postgres `ILIKE`; no dedicated search needed |
+| Avoid | Why | Instead |
+|-------|-----|---------|
+| `toposort` / `graphlib` | 30+ transitive deps for a 40-line algorithm; wave graphs have <50 nodes | Kahn's algorithm inline in `lib/roadmap.js` |
+| `zod` | Not currently in project; runtime validation is light in this codebase | Inline type checks with clear error messages (existing pattern) |
+| `react-flow` / `dagre` | 400KB+ bundle for a static roadmap tree; overkill | Nested HTML `<ul>` styled with Tailwind |
+| `unified` / `remark` | Seeds and research docs are template-generated by AI agents; arbitrary markdown parsing not needed | Template-driven string generation (existing pattern in lib/) |
+| Second vector store (Pinecone, Chroma) | RAG already in sqlite-vec; adding a second store creates sync burden | Re-use `lib/rag-indexer.js` — research docs indexed on write |
+| `bull` / `p-queue` | Research is human-triggered; no background job queue needed | Synchronous command execution (existing pattern) |
+| `@prisma/client` / Drizzle | Schema additions are two small tables; migration framework is overkill | `CREATE TABLE IF NOT EXISTS` in `migrate.ts` (v3.1 pattern) |
 
 ---
 
-## Integration Points
+## Installation
 
-The new data flows through the existing pipeline without changes to v3.0 components:
+No new packages. All capabilities already present.
 
+```bash
+# Verify existing deps are installed (should already be)
+cd ~/.claude/plugins/seraphim && npm list better-sqlite3 @huggingface/transformers
+cd ~/.claude/plugins/seraphim/dashboard && npm list chart.js @neondatabase/serverless next
 ```
-/seraphim:add-feature  →  feature-queue.jsonl (append)
-/seraphim:start-feature →  dispatch.js (existing) + phase-state.json (extended)
-sync-script.js          →  feature-queue.jsonl → Neon feature_snapshots
-Next.js dashboard       →  SELECT from feature_snapshots → Kanban panel
-```
-
-The sync script already exists (syncs token logs and decision logs). v3.1 adds two more collection targets to the same script.
 
 ---
 
 ## Sources
 
-- GSD source (live): `~/.claude/get-shit-done/workflows/new-project.md`, `new-milestone.md`, `execute-phase.md`
-- GSD templates (live): `templates/project.md`, `templates/requirements.md`
-- Seraphim project state (live): `.planning/ROADMAP.md`, `.planning/STATE.md`, `.planning/PROJECT.md`
-- Seraphim v3.0 design spec (live): `docs/specs/2026-04-04-seraphim-v3-design.md`
-- Node.js v22 `fs.glob()`: verified on installed v22.22.0 (prior research)
-- `pg` package: in use in existing dashboard (prior research, HIGH confidence)
-- Neon Postgres: https://neon.com/docs/guides/nextjs (verified as existing integration)
-- AIPIM (JSONL event-log PM pattern): https://github.com/rmarsigli/aipim (MEDIUM confidence — independent confirmation of JSONL append-only approach)
-- Backlog.md (markdown-native PM pattern): https://github.com/MrLesk/Backlog.md (MEDIUM confidence — confirms markdown-as-source-of-truth is a validated approach for AI-native PM)
+- Live codebase: `~/.claude/plugins/seraphim/package.json` — confirmed installed deps (HIGH)
+- Live codebase: `~/.claude/plugins/seraphim/dashboard/package.json` — Chart.js 4.5.1, Next.js 16.2.3 (HIGH)
+- Live codebase: `~/.claude/plugins/seraphim/lib/roadmap.js` — confirmed flat roadmap schema to extend (HIGH)
+- Live codebase: `.planning/seeds/SEED-001-*.md` — confirmed seed file format already established (HIGH)
+- Live codebase: `dashboard/lib/types.ts` — confirmed existing type structure for extension (HIGH)
+- Kahn's algorithm: standard topological sort, well-documented, ~40 lines in Node.js (HIGH)
+
+---
+*Stack research for: Seraphim v3.2 Idea-to-Shipped Journey*
+*Researched: 2026-04-09*
