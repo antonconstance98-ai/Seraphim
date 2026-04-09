@@ -226,10 +226,12 @@ Plans:
   3. The Multi-Project Dashboard has a dedicated Human Tasks view showing all human-tagged tasks across projects with status tracking (pending/in-progress/done)
   4. The Dashboard has an AI Tasks view showing all AI-executed tasks with model, cost, and outcome data
   5. A `/seraphim:tasks` command lists human and AI tasks for the current phase with their status
-**Plans:** 0 plans
+**Plans:** 3 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 09.1 to break down)
+- [ ] 09.1-01-PLAN.md — markers.js emitTask helper + Architect assignee tagging
+- [ ] 09.1-02-PLAN.md — Forge human-task skip and Human Tasks section in forge-log
+- [ ] 09.1-03-PLAN.md — Dashboard TaskList component, project page views, ProjectCard badge, tasks command
 
 ### Phase 10: Context Management and Token Optimization
 **Goal**: Research and implement strategies to minimize token usage across the nine-model pipeline without degrading output quality, with measurable before/after cost comparisons
