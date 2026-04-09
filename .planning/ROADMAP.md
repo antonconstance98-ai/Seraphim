@@ -32,12 +32,13 @@
   3. Running `/seraphim:inbox` shows all pending human tasks (decisions, research, review, validation) across active features with type labels -- verifiable by having pipeline gates write tasks and seeing them aggregated
   4. Completing a milestone via archival freezes it to `.seraphim/milestones/vX.Y.json`, cleans active roadmap, and shows milestone cost from decisions.jsonl
   5. Running `/seraphim:pause` during a feature preserves PM context (feature ID, milestone, progress) in state.json; `/seraphim:resume` restores it -- no orphaned PM state after session restart
-**Plans:** 4 plans
+**Plans:** 5 plans
 Plans:
 - [ ] 01-01-PLAN.md — Foundation lib (roadmap.js, config/decisions-logger extensions) + roadmap display
 - [ ] 01-02-PLAN.md — Feature lifecycle (add-feature, start commands)
 - [ ] 01-03-PLAN.md — Human task inbox + done command
 - [ ] 01-04-PLAN.md — Pause/resume PM context + milestone archival
+- [ ] 01-05-PLAN.md — Pipeline gate markers + auto-complete on Crucible success (D-03)
 
 ### Phase 2: Progress Visibility
 **Goal**: Cross-project oversight works from terminal and data flows into Neon for dashboard consumption -- feature dependencies are enforced, blocked features surface prominently, and cost trends aggregate across projects
@@ -68,7 +69,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Core PM Primitives | v3.1 | 0/4 | Not started | - |
+| 1. Core PM Primitives | v3.1 | 0/5 | Not started | - |
 | 2. Progress Visibility | v3.1 | 0/? | Not started | - |
 | 3. Dashboard PM Panels | v3.1 | 0/? | Not started | - |
 
