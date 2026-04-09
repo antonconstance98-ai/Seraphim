@@ -38,7 +38,7 @@ Plans:
 - [x] 01-02-PLAN.md — Feature lifecycle (add-feature, start commands)
 - [x] 01-03-PLAN.md — Human task inbox + done command
 - [ ] 01-04-PLAN.md — Pause/resume PM context + milestone archival
-- [ ] 01-05-PLAN.md — Pipeline gate markers + auto-complete on Crucible success (D-03)
+- [x] 01-05-PLAN.md — Pipeline gate markers + auto-complete on Crucible success (D-03)
 
 ### Phase 2: Progress Visibility
 **Goal**: Cross-project oversight works from terminal and data flows into Neon for dashboard consumption -- feature dependencies are enforced, blocked features surface prominently, and cost trends aggregate across projects
@@ -69,7 +69,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Core PM Primitives | v3.1 | 3/5 | In Progress|  |
+| 1. Core PM Primitives | v3.1 | 4/5 | In Progress|  |
 | 2. Progress Visibility | v3.1 | 0/? | Not started | - |
 | 3. Dashboard PM Panels | v3.1 | 0/? | Not started | - |
 
