@@ -9,7 +9,7 @@
 
 - [x] **ROAD-01**: Project-level roadmap stored in `.seraphim/roadmap.json` with milestone-to-feature hierarchy, status enum, and version tagging
 - [x] **ROAD-02**: `/seraphim:roadmap` displays current roadmap as milestone-feature tree with statuses in terminal
-- [ ] **ROAD-03**: `/seraphim:add-feature` appends a new feature to a milestone's backlog with name, description, and priority order
+- [x] **ROAD-03**: `/seraphim:add-feature` appends a new feature to a milestone's backlog with name, description, and priority order
 - [ ] **ROAD-04**: Milestone completion and archival freezes shipped milestones to `.seraphim/milestones/vX.Y.json` and cleans active roadmap
 - [x] **ROAD-05**: Milestone progress percentage computed from feature statuses (complete/total) and displayed in roadmap view
 - [ ] **ROAD-06**: Roadmap panel on web dashboard showing milestone-feature tree per project with visual status indicators
@@ -18,17 +18,17 @@
 ### Feature Queue
 
 - [x] **QUEUE-01**: Feature backlog with `planned` status in roadmap.json; any feature not yet started is in the backlog
-- [ ] **QUEUE-02**: `/seraphim:start {feature}` moves feature from `planned` to `in-progress` and launches the six-phase pipeline
-- [ ] **QUEUE-03**: WIP limit (configurable, default 2) enforced on `/seraphim:start`; warns if limit exceeded before starting
-- [ ] **QUEUE-04**: Feature reordering within a milestone via command or direct JSON edit
+- [x] **QUEUE-02**: `/seraphim:start {feature}` moves feature from `planned` to `in-progress` and launches the six-phase pipeline
+- [x] **QUEUE-03**: WIP limit (configurable, default 2) enforced on `/seraphim:start`; warns if limit exceeded before starting
+- [x] **QUEUE-04**: Feature reordering within a milestone via command or direct JSON edit
 - [ ] **QUEUE-05**: Feature dependency declarations (`depends_on` array) with start-guard check that warns if dependencies incomplete
 
 ### Human Task Management
 
-- [ ] **TASK-01**: `/seraphim:inbox` aggregates all pending human tasks across all active features and projects into a unified inbox
-- [ ] **TASK-02**: Human task types: decision, research, review, validation, skills -- surfaced as type labels in task lists
-- [ ] **TASK-03**: `/seraphim:done {task-id}` marks a human task complete without re-running the full pipeline
-- [ ] **TASK-04**: Pipeline gates (before Envision, before Architect, after Crucible) write human tasks to forge-log.md visible in inbox
+- [x] **TASK-01**: `/seraphim:inbox` aggregates all pending human tasks across all active features and projects into a unified inbox
+- [x] **TASK-02**: Human task types: decision, research, review, validation, skills -- surfaced as type labels in task lists
+- [x] **TASK-03**: `/seraphim:done {task-id}` marks a human task complete without re-running the full pipeline
+- [x] **TASK-04**: Pipeline gates (before Envision, before Architect, after Crucible) write human tasks to forge-log.md visible in inbox
 - [ ] **TASK-05**: Skills development task type with project-domain linkage and recommended resources
 - [ ] **TASK-06**: Human task dashboard panel showing all tasks across projects grouped by project and type
 - [ ] **TASK-07**: Research task type with context injection -- on completion, research notes auto-index to project knowledge via RAG
@@ -48,7 +48,7 @@
 - [ ] **ARCH-03**: `/seraphim:pause` state.json extended with PM context block (feature ID, milestone, progress) for session continuity
 - [ ] **ARCH-04**: Neon database extended with `milestones`, `features`, `human_tasks` tables (additive, no existing table changes)
 - [ ] **ARCH-05**: Sync script extended with two new collection targets: feature_snapshots and human_task_snapshots
-- [ ] **ARCH-06**: Anti-features enforced: no sprint/story-points, no time-boxing, no drag-and-drop Kanban, no external PM tool sync
+- [x] **ARCH-06**: Anti-features enforced: no sprint/story-points, no time-boxing, no drag-and-drop Kanban, no external PM tool sync
 
 ## v3.2+ Requirements (Deferred)
 
@@ -84,20 +84,20 @@
 |-------------|-------|--------|
 | ROAD-01 | Phase 1 | Complete |
 | ROAD-02 | Phase 1 | Complete |
-| ROAD-03 | Phase 1 | Pending |
+| ROAD-03 | Phase 1 | Complete |
 | ROAD-04 | Phase 1 | Pending |
 | ROAD-05 | Phase 1 | Complete |
 | ROAD-06 | Phase 3 | Pending |
 | ROAD-07 | Phase 1 | Pending |
 | QUEUE-01 | Phase 1 | Complete |
-| QUEUE-02 | Phase 1 | Pending |
-| QUEUE-03 | Phase 1 | Pending |
-| QUEUE-04 | Phase 1 | Pending |
+| QUEUE-02 | Phase 1 | Complete |
+| QUEUE-03 | Phase 1 | Complete |
+| QUEUE-04 | Phase 1 | Complete |
 | QUEUE-05 | Phase 2 | Pending |
-| TASK-01 | Phase 1 | Pending |
-| TASK-02 | Phase 1 | Pending |
-| TASK-03 | Phase 1 | Pending |
-| TASK-04 | Phase 1 | Pending |
+| TASK-01 | Phase 1 | Complete |
+| TASK-02 | Phase 1 | Complete |
+| TASK-03 | Phase 1 | Complete |
+| TASK-04 | Phase 1 | Complete |
 | TASK-05 | Phase 2 | Pending |
 | TASK-06 | Phase 3 | Pending |
 | TASK-07 | Phase 2 | Pending |
@@ -111,7 +111,7 @@
 | ARCH-03 | Phase 1 | Pending |
 | ARCH-04 | Phase 2 | Pending |
 | ARCH-05 | Phase 2 | Pending |
-| ARCH-06 | Phase 1 | Pending |
+| ARCH-06 | Phase 1 | Complete |
 
 **Coverage:**
 - v3.1 requirements: 30 total

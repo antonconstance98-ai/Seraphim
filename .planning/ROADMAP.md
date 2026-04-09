@@ -69,7 +69,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Core PM Primitives | v3.1 | 1/5 | In Progress|  |
+| 1. Core PM Primitives | v3.1 | 3/5 | In Progress|  |
 | 2. Progress Visibility | v3.1 | 0/? | Not started | - |
 | 3. Dashboard PM Panels | v3.1 | 0/? | Not started | - |
 
