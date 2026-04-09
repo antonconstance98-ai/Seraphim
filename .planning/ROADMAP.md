@@ -68,7 +68,7 @@ Plans:
 **Plans:** 3 plans
 Plans:
 - [x] 03-01-PLAN.md — Foundation: PM table migration, queries, status colors, TabBar + tab routing
-- [ ] 03-02-PLAN.md — Plan tab (MilestoneTree) + Tasks tab (HumanTasksByType) components
+- [x] 03-02-PLAN.md — Plan tab (MilestoneTree) + Tasks tab (HumanTasksByType) components
 - [x] 03-03-PLAN.md — Home page PM extensions: ProjectCard with milestone progress, sparkline, attention badge
 **UI hint**: yes
 
@@ -80,7 +80,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1. Core PM Primitives | v3.1 | 4/5 | In Progress|  |
 | 2. Progress Visibility | v3.1 | 4/4 | Complete   | 2026-04-09 |
-| 3. Dashboard PM Panels | v3.1 | 2/3 | In Progress|  |
+| 3. Dashboard PM Panels | v3.1 | 3/3 | Complete   | 2026-04-09 |
 
 ---
 
