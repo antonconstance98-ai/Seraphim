@@ -21,7 +21,7 @@
 - [x] **QUEUE-02**: `/seraphim:start {feature}` moves feature from `planned` to `in-progress` and launches the six-phase pipeline
 - [x] **QUEUE-03**: WIP limit (configurable, default 2) enforced on `/seraphim:start`; warns if limit exceeded before starting
 - [x] **QUEUE-04**: Feature reordering within a milestone via command or direct JSON edit
-- [ ] **QUEUE-05**: Feature dependency declarations (`depends_on` array) with start-guard check that warns if dependencies incomplete
+- [x] **QUEUE-05**: Feature dependency declarations (`depends_on` array) with start-guard check that warns if dependencies incomplete
 
 ### Human Task Management
 
@@ -29,9 +29,9 @@
 - [x] **TASK-02**: Human task types: decision, research, review, validation, skills -- surfaced as type labels in task lists
 - [x] **TASK-03**: `/seraphim:done {task-id}` marks a human task complete without re-running the full pipeline
 - [x] **TASK-04**: Pipeline gates (before Envision, before Architect, after Crucible) write human tasks to forge-log.md visible in inbox
-- [ ] **TASK-05**: Skills development task type with project-domain linkage and recommended resources
+- [x] **TASK-05**: Skills development task type with project-domain linkage and recommended resources
 - [ ] **TASK-06**: Human task dashboard panel showing all tasks across projects grouped by project and type
-- [ ] **TASK-07**: Research task type with context injection -- on completion, research notes auto-index to project knowledge via RAG
+- [x] **TASK-07**: Research task type with context injection -- on completion, research notes auto-index to project knowledge via RAG
 
 ### Cross-Project Overview
 
@@ -93,14 +93,14 @@
 | QUEUE-02 | Phase 1 | Complete |
 | QUEUE-03 | Phase 1 | Complete |
 | QUEUE-04 | Phase 1 | Complete |
-| QUEUE-05 | Phase 2 | Pending |
+| QUEUE-05 | Phase 2 | Complete |
 | TASK-01 | Phase 1 | Complete |
 | TASK-02 | Phase 1 | Complete |
 | TASK-03 | Phase 1 | Complete |
 | TASK-04 | Phase 1 | Complete |
-| TASK-05 | Phase 2 | Pending |
+| TASK-05 | Phase 2 | Complete |
 | TASK-06 | Phase 3 | Pending |
-| TASK-07 | Phase 2 | Pending |
+| TASK-07 | Phase 2 | Complete |
 | OVER-01 | Phase 2 | Pending |
 | OVER-02 | Phase 3 | Pending |
 | OVER-03 | Phase 2 | Pending |

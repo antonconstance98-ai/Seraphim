@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v3.1
 milestone_name: Seraphim Project Management
 status: executing
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-04-09T18:02:57.042Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-04-09T18:03:02.404Z"
 last_activity: 2026-04-09
 progress:
   total_phases: 3
@@ -69,6 +69,8 @@ Key decisions relevant to v3.1:
 - [Phase 01-core-pm-primitives]: PM context block (state.pm) is null when no active feature — backward compat for pre-PM sessions
 - [Phase 01-core-pm-primitives]: close-milestone warns on incomplete milestone; --force overrides
 - [Phase 02-03]: PM fields are fully optional in IngestPayload -- existing callers require no changes
+- [Phase 02-progress-visibility]: Used indexProject (not indexFile) for research RAG — indexFile not in rag-indexer exports
+- [Phase 02-progress-visibility]: add-feature.md already had depends_on:[] default — no change required
 
 ### Roadmap Evolution
 
@@ -86,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T18:02:50.378Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-04-09T18:03:02.402Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
