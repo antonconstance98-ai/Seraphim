@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v3.0
-milestone_name: Seraphim
-status: verifying
-stopped_at: Completed 11-03-PLAN.md
-last_updated: "2026-04-09T01:10:26.499Z"
+milestone: v3.1
+milestone_name: Seraphim Project Management
+status: ready_to_plan
+stopped_at: Roadmap created
+last_updated: "2026-04-09"
 last_activity: 2026-04-09
 progress:
-  total_phases: 17
-  completed_phases: 14
-  total_plans: 44
-  completed_plans: 44
+  total_phases: 3
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
   percent: 0
 ---
 
@@ -18,33 +18,33 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-04)
+See: .planning/PROJECT.md (updated 2026-04-09)
 
-**Core value:** Six wings, six phases, six cognitive tasks — each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
-**Current focus:** v3.1 Seraphim Project Management — defining requirements
+**Core value:** Six wings, six phases, six cognitive tasks -- each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
+**Current focus:** v3.1 Phase 1 -- Core PM Primitives
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-09 — Milestone v3.1 started
+Phase: 1 of 3 (Core PM Primitives)
+Plan: 0 of ? in current phase
+Status: Ready to plan
+Last activity: 2026-04-09 -- Roadmap created for v3.1
 
 Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
-**Velocity (v1.0–v2.0 history):**
+**Velocity (v1.0-v3.0 history):**
 
-- Total plans completed: 27 (across previous milestones)
+- Total plans completed: 44 (across v3.0) + 27 (v1.0-v2.0) = 71
 - Average duration: ~5 min/plan
-- Total execution time: ~135 min
+- Total execution time: ~6 hours
 
-**By Phase:** — (v3.0 not started)
+**By Phase:** -- (v3.1 not started)
 
 **Recent Trend:**
 
-- Last 5 plans (v2.0): 2, 2, 3, 2, 6 min
+- Last 5 plans (v3.0): stable
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -54,87 +54,17 @@ Progress: [░░░░░░░░░░] 0%
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-Key decisions relevant to Phase 1:
+Key decisions relevant to v3.1:
 
-- [v3.0 Design]: plugin.json must be at `.claude-plugin/plugin.json` — wrong path = silent failure (research confirmed)
-- [v3.0 Design]: Use only `hooks/hooks.json` for hook declarations — never `plugin.json` to avoid double-registration silent failure
-- [v3.0 Design]: `phase-state.js` persists loop counters to disk at every increment — in-memory counters lost on crash
-- [v3.0 Design]: dispatch.js resolution order: override > opus_enabled flag > profile preset
-- [Phase 01-plugin-scaffold-and-infrastructure]: plugin.json at .claude-plugin/plugin.json (not root) — wrong path causes silent failure where /seraphim: commands never register
-- [Phase 01-plugin-scaffold-and-infrastructure]: No hooks key in plugin.json — hooks auto-discovered from hooks/hooks.json; declaring in both causes conflicting manifests error
-- [Phase 01-plugin-scaffold-and-infrastructure]: Plugin git repo initialized at ~/.claude/plugins/seraphim/ (separate from project repo) to track plugin source files
-- [Phase 01]: dispatch.js resolution order locked: override > opus_enabled > profile preset
-- [Phase 01]: All dispatch error cases return {error: string} objects — callers check typeof result === 'string'
-- [Phase 01]: phase-state.js writes synchronously on every mutation for crash safety over performance
-- [Phase 01]: hooks.json auto-discovery prevents double-registration silent failure — never declare hooks in plugin.json
-- [Phase 01]: session-start.js uses setTimeout.unref() so the 10s guard timer does not block normal process exit
-- [Phase 01]: new-project.md references ${CLAUDE_PLUGIN_ROOT}/config/profiles.json and models.json for runtime profile data
-- [Phase 02-model-executors-and-pricing]: fetchdocs.js uses claude CLI subprocess as MCP bridge — no confirmed public Context7 REST API; websearch.sh fallback ensures Codex/Qwen retain research capability
-- [Phase 02-model-executors-and-pricing]: cache_read tokens are a positive charge at reduced rate (not a credit) — mishandling causes negative cost delta (COST-01)
-- [Phase 02-model-executors-and-pricing]: token-logger.js writes to .seraphim/token-log.jsonl (not .planning/) per Seraphim per-project state convention
-- [Phase 02-model-executors-and-pricing]: @google/genai@1.48.0 used (not deprecated @google/generative-ai); stateless GoogleGenAI client per call; { googleSearch: {} } grounding pattern (not google_search_retrieval); stream() delegates to execute() per FUTR-04
-- [Phase 02-model-executors-and-pricing]: available() uses inference probe not /api/tags — forces VRAM load, catches cold-start GPU failures
-- [Phase 02-model-executors-and-pricing]: Perplexity baseURL has no /v1 suffix — api.perplexity.ai routes /chat/completions directly off base
-- [Phase 02-model-executors-and-pricing]: MCP path returns mcpRequest object to caller — MCP tools inaccessible from standalone Node.js
-- [Phase 02-model-executors-and-pricing]: Both executors delegate fallback to dispatch.js — no cross-executor dependencies; runWithFallback removed from minimax fork
-- [Phase 03-01]: EXECUTOR_MAP static lookup in dispatch.js CLI rather than models.json executorFile field — keeps mapping colocated with CLI code, avoids schema change
-- [Phase 03]: Forge does NOT auto-commit (Pitfall 7) — Phase 4 checkpoint owns the commit gate
-- [Phase 03]: Crucible adversarial pass always dispatched externally — MiniMax is never inline-Opus
-- [Phase 03]: loop_required=true only when ALL approaches receive FATAL_FLAW — conditionals count as viable paths
-- [Phase 03]: Architect selects SURVIVES first, CONDITIONAL fallback — CONDITIONAL selection is noted in blueprint overview
-- [Phase 03]: TASK markers include type attribute (code/prose/analysis) even for homogeneous projects to enable Forge per-task branching
-- [Phase 03]: envision.md aborts on missing discovery files — hard prerequisite, no stubs
-- [Phase 03]: discover.md: inline vs dispatch split — resolveExecutorId check; claude-opus-4-6 runs inline, others via CLI
-- [Phase 03]: run.md invokes phase commands by reading their .md files — no re-implementation of phase logic
-- [Phase 03]: new-project.md created as part of PIPE-11 — command was absent from plugin despite plan stating it existed
-- [Phase 03.1]: 4 parallel external research tracks replace single-track Step 6 in Discover phase
-- [Phase 04-01]: checkpoint.js does not require pricing.js — cost computation is the caller's responsibility
-- [Phase 04-01]: decisions-validator.js imports REQUIRED_FIELDS from decisions-logger.js — single source of truth for schema
-- [Phase 04]: cfg.max_loops used as retry cap in forge retry loop — no separate max_retries variable
-- [Phase 04]: incrementRetry always called for retry counting (never manual state mutation) — crash-safe disk write on every increment
-- [Phase 04-03]: decisions-logger.js created as Rule 3 auto-fix (planned in 04-01, was missing)
-- [Phase 04-quality-gates-and-decision-logging]: session-start.js created from scratch — file was absent from plugin hooks directory; hook follows same stdin/stdout event pattern as token-logger.js
-- [Phase 05]: history.md groups decisions.jsonl records by discover-phase transitions — no run_id in schema
-- [Phase 05]: resume.md clears paused flag before delegating to run.md --from to prevent double-resume
-- [Phase 05]: help.md enumerates profiles live from profiles.json — never hardcodes profile names
-- [Phase 05]: status.md probes all five executors via available() with 2>/dev/null stderr suppression
-- [Phase 06]: decisions-validator.js type-guard uses early return before REQUIRED_FIELDS check — prevents numeric checks running on meta-records
-- [Phase 06]: Scaffold test files use SKIP guard (try/catch + process.exit(0)) so test runner never fails before implementation lands
-- [Phase 06]: aggregateDecisions accepts array or projectRoot — test scaffold passes array directly
-- [Phase 06]: confidence derived from n when metric lacks field — test passes metric without confidence key
-- [Phase 06]: generateSeraphimDashboard accepts both raw records and pre-computed metrics forms — dual input format for test compatibility
-- [Phase 06]: Chart.js loaded via CDN script tag only — no local file read at startup to avoid Pitfall 4
-- [Phase 06]: analyze.md loads allRecords separately from aggregateDecisions for deduplication — aggregateDecisions filters meta-records out
-- [Phase 06]: crucible.md Step 11 is silent skip when run is incomplete — prevents noise for partial runs
-- [Phase 07-multi-project-dashboard]: push-client.js fire-and-forget: no top-level await so push never blocks the Seraphim pipeline
-- [Phase 07-multi-project-dashboard]: SERAPHIM_DASHBOARD_URL missing -> logError to push-errors.log and early return (not throw) so uninitialised installs fail silently
-- [Phase 07-multi-project-dashboard]: getSql() lazy singleton: neon() never called at module scope — prevents next build crash when DATABASE_URL unset
-- [Phase 07-multi-project-dashboard]: No edge runtime on ingest route — full Node.js serverless function needed for DB writes (edge runtime reserved for plan-04 SSE endpoint)
-- [Phase 07]: ProjectCard is a Server Component — no use client directive needed as no hooks used
-- [Phase 07]: groupIntoRuns detects pipeline run boundaries by phase === discover transition — matches decisions schema
-- [Phase 07]: Edge Runtime SSE endpoint polls MAX(last_pushed_at) every 5s — correct pattern for Vercel streaming, no WebSocket
-- [Phase 07]: chart.js loaded via dynamic import inside useEffect — avoids SSR DOM crash
-- [Phase 07]: phase-push.js filters to .seraphim/phases/* output files only — prevents push on every Write call
-- [Phase 07-multi-project-dashboard]: force-dynamic on DB pages — neon() is lazy via getSql() but Next.js static prerender still fires the page function without DATABASE_URL; force-dynamic skips prerender entirely
-- [Phase 09.1-01]: assignee defaults to ai — human is the exception, not the default
-- [Phase 09.1-01]: warn-only (not abort) on missing assignee in architect.md validation — backwards compatibility
-- [Phase 09.1-01]: four human-assignment triggers: creative ideation, domain expertise, physical actions, subjective quality sign-off
-- [Phase 09.1]: Human-task skip fires BEFORE fix-mode filtering — human tasks are never attempted regardless of fix mode
-- [Phase 09.1]: Human tasks filtered by outcome='human_required' from decisions table — simplest MVP approach
-- [Phase 11]: package.json created at plugin root — was absent, needed for npm deps
-- [Phase 11]: globSync implemented as internal recursive walker — avoids undeclared glob dependency in rag-indexer.js
-- [Phase 11]: sqlite-vec vec0 DDL wrapped in secondary try/catch — defence in depth against partial extension loads
-- [Phase 11]: query-knowledge.js exits 0 silently on all error paths — phases must never fail because RAG is unavailable (D-09)
-- [Phase 11]: rag-post-phase.js uses detached spawn + unref() pattern for true fire-and-forget — avoids keeping Node event loop alive
-- [Phase 11]: RAG step named 6b-RAG inserted between 6a and 6b to preserve existing numbering in run.md
+- [v3.1 Research]: PM is read-path only -- never gates the pipeline
+- [v3.1 Research]: roadmap.json is the foundational artifact -- design and lock first
+- [v3.1 Research]: Pause/resume PM context ships in Phase 1 to avoid costly retrofit
+- [v3.1 Research]: Zero new npm packages -- builds entirely on existing infrastructure
 
 ### Roadmap Evolution
 
-- Phase 8 added: Thought Orphanage Integration (slash command for seed thought capture + dashboard representation)
-- Phase 9 added: Human-AI Cognitive Division (research where human vs AI leverage sits in the pipeline)
-- Phase 10 added: Context Management and Token Optimization (reduce token usage across nine-model pipeline)
-- Phase 11 added: OpenClaw Local RAG Integration (local RAG for project knowledge referencing)
-- Phase 03.1 inserted after Phase 3: Parallel Discovery Research Tracks (URGENT) — enhance Discover phase to spawn multiple parallel research agents hitting Perplexity from different angles
+- v3.0 archived (13 phases, shipped 2026-04-09)
+- v3.1 roadmap created: 3 phases, 30 requirements
 
 ### Pending Todos
 
@@ -142,14 +72,11 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 2]: Gemini SDK search grounding + thinking mode APIs need research verification before planning. Perplexity MCP bridge from Node.js executor needs design work — mechanism is not standard.
-- [Phase 2]: RTX 3090 in transit — Qwen Balanced/Budget profiles unavailable until GPU arrives. Executor must exist and fail gracefully before GPU is installed.
-- [Phase 4]: Cost-gate design before loop iterations needs implementation design (research flag).
-- [Phase 5]: Non-code checkpoint design needs research — what a "research" or "writing" checkpoint actually verifies.
-- [Coverage note]: REQUIREMENTS.md header states 52 requirements; actual count is 58 (7+9+11+5+6+5+6+6+3). Traceability table reflects actual 58.
+- [Phase 1]: roadmap.json schema design is the critical path -- changing it later cascades across all PM commands
+- [Phase 2]: Event-driven vs file-scanning for dashboard latency needs validation with real project count
 
 ## Session Continuity
 
-Last session: 2026-04-09T01:06:32.057Z
-Stopped at: Completed 11-03-PLAN.md
+Last session: 2026-04-09
+Stopped at: Roadmap created for v3.1 milestone
 Resume file: None
