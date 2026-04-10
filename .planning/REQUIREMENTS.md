@@ -1,123 +1,137 @@
-# Requirements: Seraphim v3.1 Project Management
+# Requirements — v3.2 Idea-to-Shipped Journey
 
-**Defined:** 2026-04-09
-**Core Value:** Six wings, six phases, six cognitive tasks -- each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time. v3.1 adds a project management layer so the human knows **what** to build, in what order, across all projects.
+## Foundations
 
-## v3.1 Requirements
+- [ ] **FOUND-01**: v3.1 Neon DDL applied — all PM tables exist in production Neon
+- [ ] **FOUND-02**: Schema consistency — `project` vs `project_name` mismatch resolved across all tables
+- [ ] **FOUND-03**: `feature_id` flows through decisions-logger to Neon
+- [ ] **FOUND-04**: Schema extension audit — every v3.2 data concept extends existing structures (no parallel files)
 
-### Roadmap & Milestone Management
+## Idea Capture
 
-- [x] **ROAD-01**: Project-level roadmap stored in `.seraphim/roadmap.json` with milestone-to-feature hierarchy, status enum, and version tagging
-- [x] **ROAD-02**: `/seraphim:roadmap` displays current roadmap as milestone-feature tree with statuses in terminal
-- [x] **ROAD-03**: `/seraphim:add-feature` appends a new feature to a milestone's backlog with name, description, and priority order
-- [x] **ROAD-04**: Milestone completion and archival freezes shipped milestones to `.seraphim/milestones/vX.Y.json` and cleans active roadmap
-- [x] **ROAD-05**: Milestone progress percentage computed from feature statuses (complete/total) and displayed in roadmap view
-- [x] **ROAD-06**: Roadmap panel on web dashboard showing milestone-feature tree per project with visual status indicators
-- [x] **ROAD-07**: Milestone cost tracking aggregates decisions.jsonl costs for all features in a milestone
+- [ ] **SEED-01**: User can capture a raw idea via `/seraphim:seed` with braindump-style freeform input
+- [ ] **SEED-02**: Seeds stored in `.planning/seeds/` with SEED-NNN.md format and index.jsonl for lookups
+- [ ] **SEED-03**: User can promote a seed to a feature with requirements via `/seraphim:promote`
+- [ ] **SEED-04**: Seeds have trigger conditions that auto-surface during new-milestone when scope matches
+- [ ] **SEED-05**: User can capture zero-friction notes via `/seraphim:note` (one write, no questions)
+- [ ] **SEED-06**: User can add structured todos via `/seraphim:add-todo` with area tagging
+- [ ] **SEED-07**: User can list and select pending todos via `/seraphim:check-todos`
 
-### Feature Queue
+## Requirements
 
-- [x] **QUEUE-01**: Feature backlog with `planned` status in roadmap.json; any feature not yet started is in the backlog
-- [x] **QUEUE-02**: `/seraphim:start {feature}` moves feature from `planned` to `in-progress` and launches the six-phase pipeline
-- [x] **QUEUE-03**: WIP limit (configurable, default 2) enforced on `/seraphim:start`; warns if limit exceeded before starting
-- [x] **QUEUE-04**: Feature reordering within a milestone via command or direct JSON edit
-- [x] **QUEUE-05**: Feature dependency declarations (`depends_on` array) with start-guard check that warns if dependencies incomplete
+- [ ] **REQ-01**: User can define requirements with REQ-IDs via `/seraphim:requirements` (AI suggests, human approves)
+- [ ] **REQ-02**: Requirements grouped by category with v1/future/out-of-scope scoping
+- [ ] **REQ-03**: REQ traceability matrix mapping REQ-IDs to phases, features, and verification status
+- [ ] **REQ-04**: `lib/requirements.js` manages REQ-ID CRUD following roadmap.js atomic write pattern
 
-### Human Task Management
+## Planning
 
-- [x] **TASK-01**: `/seraphim:inbox` aggregates all pending human tasks across all active features and projects into a unified inbox
-- [x] **TASK-02**: Human task types: decision, research, review, validation, skills -- surfaced as type labels in task lists
-- [x] **TASK-03**: `/seraphim:done {task-id}` marks a human task complete without re-running the full pipeline
-- [x] **TASK-04**: Pipeline gates (before Envision, before Architect, after Crucible) write human tasks to forge-log.md visible in inbox
-- [x] **TASK-05**: Skills development task type with project-domain linkage and recommended resources
-- [x] **TASK-06**: Human task dashboard panel showing all tasks across projects grouped by project and type
-- [x] **TASK-07**: Research task type with context injection -- on completion, research notes auto-index to project knowledge via RAG
+- [ ] **PLAN-01**: Roadmap.json extended with waves, dependency graph, and success criteria per feature
+- [ ] **PLAN-02**: Dependency resolution via Kahn's algorithm in `lib/wave-planner.js`
+- [ ] **PLAN-03**: User can generate wave-structured PLAN.md via `/seraphim:plan` with tasks and done-criteria
+- [ ] **PLAN-04**: User can lock implementation decisions before planning via `/seraphim:discuss` producing CONTEXT.md
+- [ ] **PLAN-05**: User can surface Claude's assumptions about a phase via `/seraphim:assumptions`
+- [ ] **PLAN-06**: Plan verification loop — planner + checker agents with revision (max 3 iterations)
 
-### Cross-Project Overview
+## Execution
 
-- [x] **OVER-01**: `/seraphim:overview` shows all Seraphim projects with active milestone, features in-progress, human tasks pending, WIP count
-- [x] **OVER-02**: Dashboard cross-project panel showing all projects with PM status (milestone progress, feature counts, human tasks)
-- [x] **OVER-03**: Active-only filter (default) hides idle projects; `--all` flag shows everything
-- [x] **OVER-04**: "What needs attention" signal surfaces blocked features, exceeded WIP limits, and pending human gates prominently
-- [x] **OVER-05**: Cross-project cost trend aggregating decisions.jsonl across projects by date, rendered as trend line in dashboard
+- [ ] **EXEC-01**: User can execute all plans in a phase via `/seraphim:execute` with wave-based parallel execution
+- [ ] **EXEC-02**: User can execute a single plan via `/seraphim:execute-plan`
+- [ ] **EXEC-03**: User can run all remaining phases autonomously via `/seraphim:autonomous` (discuss→plan→execute per phase)
+- [ ] **EXEC-04**: User can execute small ad-hoc tasks via `/seraphim:quick` with atomic commits and state tracking
+- [ ] **EXEC-05**: User can execute trivial tasks inline via `/seraphim:fast` (no subagents, no ceremony)
+- [ ] **EXEC-06**: Wave-based parallel execution with dependency analysis and agent grouping
 
-### Architecture & Integration
+## Research
 
-- [x] **ARCH-01**: PM layer is read-path only -- observes pipeline execution, never gates or blocks it; every PM operation has bypass
-- [x] **ARCH-02**: `decisions-logger.js` extended with nullable `feature_id` field linking decisions to features
-- [x] **ARCH-03**: `/seraphim:pause` state.json extended with PM context block (feature ID, milestone, progress) for session continuity
-- [x] **ARCH-04**: Neon database extended with `milestones`, `features`, `human_tasks` tables (additive, no existing table changes)
-- [x] **ARCH-05**: Sync script extended with two new collection targets: feature_snapshots and human_task_snapshots
-- [x] **ARCH-06**: Anti-features enforced: no sprint/story-points, no time-boxing, no drag-and-drop Kanban, no external PM tool sync
+- [ ] **RSRCH-01**: User can scope research focus via `/seraphim:research-scope` (human interrogation gate)
+- [ ] **RSRCH-02**: User can run AI research via `/seraphim:research-run` (only after scope is locked)
+- [ ] **RSRCH-03**: Two-command separation enforced — interrogation gate cannot be skipped
+- [ ] **RSRCH-04**: `lib/research-tracker.js` manages research item state and categorization
+- [ ] **RSRCH-05**: User can analyze codebase structure via `/seraphim:map-codebase` with parallel mapper agents
 
-## v3.2+ Requirements (Deferred)
+## Verification
 
-### Intelligence Layer
+- [ ] **VFY-01**: User can verify built features via `/seraphim:verify` with goal-backward traceability
+- [ ] **VFY-02**: Every verification report contains at least one REQUIRES_HUMAN_JUDGMENT item
+- [ ] **VFY-03**: User can validate phase completion via `/seraphim:validate` with Nyquist gap auditing
+- [ ] **VFY-04**: User can run conversational UAT via `/seraphim:uat` with persistent UAT.md state
+- [ ] **VFY-05**: User can audit milestone completion via `/seraphim:audit-milestone` checking cross-phase integration
+- [ ] **VFY-06**: User can run cross-phase UAT audit via `/seraphim:audit-uat` surfacing unresolved items
 
-- **INTEL-01**: Velocity trend computation (features completed per week from phase-state timestamps)
-- **INTEL-02**: ML-based urgency scoring for "what needs attention" (v3.1 uses rule-based)
-- **INTEL-03**: Research task RAG handoff with automatic embedding of research outputs
+## Debugging
 
-### Migration
+- [ ] **DBG-01**: User can debug systematically via `/seraphim:debug` with persistent state across resets
+- [ ] **DBG-02**: Autonomous root-cause analysis agents for UAT gaps
+- [ ] **DBG-03**: User can run post-mortem investigation via `/seraphim:forensics` (read-only, diagnostic)
+- [ ] **DBG-04**: Failed task auto-repair with RETRY/DECOMPOSE/PRUNE/ESCALATE strategies
 
-- **MIGR-01**: Bulk import from GSD ROADMAP.md format (`/seraphim:import-roadmap`)
-- **MIGR-02**: Milestone cost tracking with pre-run estimates vs actual comparison
+## Human Tasks
+
+- [ ] **HTASK-01**: Human task inbox enriched with skills-to-learn field
+- [ ] **HTASK-02**: Human task inbox enriched with thought-prompt field for high-leverage thinking
+- [ ] **HTASK-03**: Human task inbox enriched with research-task field
+
+## Navigation & Routing
+
+- [ ] **NAV-01**: User can auto-advance to next logical step via `/seraphim:next` (discuss→plan→execute→verify progression)
+- [ ] **NAV-02**: User can route freeform text to the right command via `/seraphim:do`
+- [ ] **NAV-03**: User can check project progress and route to next action via `/seraphim:progress`
+
+## Session Management
+
+- [ ] **SESS-01**: User can pause work with full context handoff via `/seraphim:pause` (HANDOFF.json + .continue-here.md)
+- [ ] **SESS-02**: User can resume work from previous session via `/seraphim:resume` with context restoration
+- [ ] **SESS-03**: Session reports generated via `/seraphim:session-report` with work summary and outcomes
+
+## Phase & Milestone Management
+
+- [ ] **MGMT-01**: User can add a phase to end of milestone via `/seraphim:add-phase`
+- [ ] **MGMT-02**: User can insert urgent decimal phase between existing phases via `/seraphim:insert-phase`
+- [ ] **MGMT-03**: User can remove an unstarted phase via `/seraphim:remove-phase` with renumbering
+- [ ] **MGMT-04**: User can complete milestone via `/seraphim:complete-milestone` with archival and git tagging
+- [ ] **MGMT-05**: User can create clean PR branch filtering .planning/ via `/seraphim:pr-branch`
+- [ ] **MGMT-06**: User can validate .planning/ directory integrity via `/seraphim:health`
+- [ ] **MGMT-07**: User can manage parallel workstreams via `/seraphim:workstreams`
+- [ ] **MGMT-08**: User can manage phases from interactive command center via `/seraphim:manager`
+
+## Visualization & Reporting
+
+- [ ] **VIZ-01**: Dashboard shows progress bars and completion % per phase and milestone
+- [ ] **VIZ-02**: Dashboard shows velocity tracking (rolling 7-day completion rate)
+- [ ] **VIZ-03**: Dashboard shows wave progress panels (per-wave breakdown)
+- [ ] **VIZ-04**: User can view comprehensive project statistics via `/seraphim:stats`
+- [ ] **VIZ-05**: Full roadmap tree view in dashboard with phases/waves/tasks/costs
+
+## Configuration
+
+- [ ] **CFG-01**: Model profiles (quality/balanced/budget/inherit) control agent routing per command
+- [ ] **CFG-02**: User can configure workflow settings via `/seraphim:settings`
+
+## UI & Quality
+
+- [ ] **UI-01**: User can generate UI design contract via `/seraphim:ui-spec` for frontend phases
+- [ ] **UI-02**: User can run retroactive 6-pillar UI audit via `/seraphim:ui-review`
+- [ ] **UI-03**: User can generate tests for completed phase via `/seraphim:add-tests`
+
+## Future Requirements (deferred to v3.3+)
+
+- Dashboard click-to-action control center (requires local socket listener)
+- Real-time streaming between models
 
 ## Out of Scope
 
-| Feature | Reason |
-|---------|--------|
-| Sprint/cycle system with fixed time-boxes | Solo AI-assisted work is not time-boxed; sprints add overhead for no coordination benefit |
-| Story points / estimation system | Team throughput metric; meaningless for solo + AI execution |
-| Drag-and-drop Kanban in browser | Features move via terminal commands; adds dependency for minimal value |
-| Multi-user roadmap sharing | Solo developer context; adds auth, sync, conflict resolution complexity |
-| Gantt chart with date ranges | AI build time estimates are unreliable; date-focus creates false accountability |
-| Jira-style 4-level hierarchy | Milestone-Feature-Task (3 levels) is sufficient for solo developer |
-| External PM sync (Notion, Linear, Jira) | Adds credentials, sync logic, data transformation for no local benefit |
-| Automated task reminders/notifications | Creates notification fatigue; user checks on their own cadence |
-| Time estimates per human task | Cognitive tasks are not time-predictable; adds estimation overhead |
-| Project portfolio dependencies | Projects are independent execution contexts; cross-project deps resolved by human judgment |
+- Modifying Claude Code itself — plugin commands, agents, and lib only
+- Running MiniMax locally (API-only)
+- Auto-applying model changes without human approval
+- Supporting models outside the nine-model roster without explicit request
 
 ## Traceability
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| ROAD-01 | Phase 1 | Complete |
-| ROAD-02 | Phase 1 | Complete |
-| ROAD-03 | Phase 1 | Complete |
-| ROAD-04 | Phase 1 | Complete |
-| ROAD-05 | Phase 1 | Complete |
-| ROAD-06 | Phase 3 | Complete |
-| ROAD-07 | Phase 1 | Complete |
-| QUEUE-01 | Phase 1 | Complete |
-| QUEUE-02 | Phase 1 | Complete |
-| QUEUE-03 | Phase 1 | Complete |
-| QUEUE-04 | Phase 1 | Complete |
-| QUEUE-05 | Phase 2 | Complete |
-| TASK-01 | Phase 1 | Complete |
-| TASK-02 | Phase 1 | Complete |
-| TASK-03 | Phase 1 | Complete |
-| TASK-04 | Phase 1 | Complete |
-| TASK-05 | Phase 2 | Complete |
-| TASK-06 | Phase 3 | Complete |
-| TASK-07 | Phase 2 | Complete |
-| OVER-01 | Phase 2 | Complete |
-| OVER-02 | Phase 3 | Complete |
-| OVER-03 | Phase 2 | Complete |
-| OVER-04 | Phase 2 | Complete |
-| OVER-05 | Phase 2 | Complete |
-| ARCH-01 | Phase 1 | Complete |
-| ARCH-02 | Phase 1 | Complete |
-| ARCH-03 | Phase 1 | Complete |
-| ARCH-04 | Phase 2 | Complete |
-| ARCH-05 | Phase 2 | Complete |
-| ARCH-06 | Phase 1 | Complete |
-
-**Coverage:**
-- v3.1 requirements: 30 total
-- Mapped to phases: 30
-- Unmapped: 0
+| REQ-ID | Phase | Status |
+|--------|-------|--------|
+| (populated by roadmapper) | | |
 
 ---
-*Requirements defined: 2026-04-09*
-*Last updated: 2026-04-09 -- roadmap phase assignments complete*
+*v3.2 — 62 requirements across 13 categories*
+*Generated: 2026-04-09*
