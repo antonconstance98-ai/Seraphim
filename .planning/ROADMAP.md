@@ -103,12 +103,11 @@ Plans:
   2. User can run `/seraphim:debug` across session resets and have persistent debug state that accumulates findings without repeating prior investigation
   3. User can run `/seraphim:forensics` and receive a read-only root-cause report without any side effects to the codebase
   4. A failed task triggers automatic RETRY/DECOMPOSE/PRUNE/ESCALATE repair within the configured budget before surfacing to human
-**Plans:** 4 plans
+**Plans:** 3 plans
 Plans:
-- [x] 34-01-PLAN.md — Research tracker lib + scope/run commands
-- [x] 34-02-PLAN.md — Session management (pause/resume/report)
-- [x] 34-03-PLAN.md — Navigation routing (next/do/progress)
-- [x] 34-04-PLAN.md — Codebase mapping with parallel agents
+- [ ] 36-01-PLAN.md — Human task enrichment (migration, push-client, ingest, inbox)
+- [ ] 36-02-PLAN.md — Debug/forensics commands and repair.js strategy cascade
+- [ ] 36-03-PLAN.md — Pipeline enrichment wiring and auto-repair integration
 
 ### Phase 37: Verification + Dashboard
 **Goal**: Users can verify built features against requirements with goal-backward traceability, run UAT, and see full progress visualization in the dashboard
@@ -137,7 +136,7 @@ Plans:
 | 33. Core Command Layer | 5/5 | Complete    | 2026-04-10 |
 | 34. Research + Session + Navigation | 4/4 | Complete    | 2026-04-10 |
 | 35. Phase Management + Config + UI Tooling | 4/4 | Complete    | 2026-04-10 |
-| 36. Human Tasks + Debugging | 0/? | Not started | - |
+| 36. Human Tasks + Debugging | 0/3 | Not started | - |
 | 37. Verification + Dashboard | 0/? | Not started | - |
 
 ---
