@@ -107,7 +107,7 @@ Plans:
 Plans:
 - [x] 36-01-PLAN.md — Human task enrichment (migration, push-client, ingest, inbox)
 - [x] 36-02-PLAN.md — Debug/forensics commands and repair.js strategy cascade
-- [ ] 36-03-PLAN.md — Pipeline enrichment wiring and auto-repair integration
+- [x] 36-03-PLAN.md — Pipeline enrichment wiring and auto-repair integration
 
 ### Phase 37: Verification + Dashboard
 **Goal**: Users can verify built features against requirements with goal-backward traceability, run UAT, and see full progress visualization in the dashboard
@@ -136,7 +136,7 @@ Plans:
 | 33. Core Command Layer | 5/5 | Complete    | 2026-04-10 |
 | 34. Research + Session + Navigation | 4/4 | Complete    | 2026-04-10 |
 | 35. Phase Management + Config + UI Tooling | 4/4 | Complete    | 2026-04-10 |
-| 36. Human Tasks + Debugging | 2/3 | In Progress|  |
+| 36. Human Tasks + Debugging | 3/3 | Complete   | 2026-04-10 |
 | 37. Verification + Dashboard | 0/? | Not started | - |
 
 ---
