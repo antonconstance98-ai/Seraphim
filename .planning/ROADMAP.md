@@ -36,7 +36,11 @@
   2. All PM tables use a consistent column name for the project identifier (no mixed `project`/`project_name`)
   3. `feature_id` appears in the decisions log entries written to Neon
   4. A schema extension audit doc exists confirming every v3.2 data concept maps to an existing structure
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 32-01-PLAN.md — Neon DDL migration + schema unification (project_name)
+- [ ] 32-02-PLAN.md — feature_id wiring through decisions pipeline
+- [ ] 32-03-PLAN.md — Schema extension audit document
 
 ### Phase 33: Core Command Layer
 **Goal**: Users can capture ideas, define requirements, generate wave-structured plans, and execute work through native Seraphim commands
@@ -103,7 +107,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 32. Foundations | 0/? | Not started | - |
+| 32. Foundations | 0/3 | Planned | - |
 | 33. Core Command Layer | 0/? | Not started | - |
 | 34. Research + Session + Navigation | 0/? | Not started | - |
 | 35. Phase Management + Config + UI Tooling | 0/? | Not started | - |
