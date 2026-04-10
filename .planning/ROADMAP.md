@@ -40,7 +40,7 @@
 Plans:
 - [x] 32-01-PLAN.md — Neon DDL migration + schema unification (project_name)
 - [x] 32-02-PLAN.md — feature_id wiring through decisions pipeline
-- [ ] 32-03-PLAN.md — Schema extension audit document
+- [x] 32-03-PLAN.md — Schema extension audit document
 
 ### Phase 33: Core Command Layer
 **Goal**: Users can capture ideas, define requirements, generate wave-structured plans, and execute work through native Seraphim commands
@@ -107,7 +107,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 32. Foundations | 2/3 | In Progress|  |
+| 32. Foundations | 3/3 | Complete   | 2026-04-10 |
 | 33. Core Command Layer | 0/? | Not started | - |
 | 34. Research + Session + Navigation | 0/? | Not started | - |
 | 35. Phase Management + Config + UI Tooling | 0/? | Not started | - |
