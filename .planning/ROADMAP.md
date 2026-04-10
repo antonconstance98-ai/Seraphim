@@ -72,9 +72,9 @@ Plans:
   4. User can run `/seraphim:map-codebase` and receive a structured codebase map produced by parallel mapper agents
 **Plans:** 4 plans
 Plans:
-- [ ] 34-01-PLAN.md — Research tracker lib + scope/run commands
-- [ ] 34-02-PLAN.md — Session management (pause/resume/report)
-- [ ] 34-03-PLAN.md — Navigation routing (next/do/progress)
+- [x] 34-01-PLAN.md — Research tracker lib + scope/run commands
+- [x] 34-02-PLAN.md — Session management (pause/resume/report)
+- [x] 34-03-PLAN.md — Navigation routing (next/do/progress)
 - [x] 34-04-PLAN.md — Codebase mapping with parallel agents
 
 ### Phase 35: Phase Management + Config + UI Tooling
@@ -88,10 +88,10 @@ Plans:
   4. User can run `/seraphim:settings` and change model profile or workflow toggles that persist to config.json
 **Plans:** 4 plans
 Plans:
-- [ ] 34-01-PLAN.md — Research tracker lib + scope/run commands
-- [ ] 34-02-PLAN.md — Session management (pause/resume/report)
-- [ ] 34-03-PLAN.md — Navigation routing (next/do/progress)
-- [ ] 34-04-PLAN.md — Codebase mapping with parallel agents
+- [x] 34-01-PLAN.md — Research tracker lib + scope/run commands
+- [x] 34-02-PLAN.md — Session management (pause/resume/report)
+- [x] 34-03-PLAN.md — Navigation routing (next/do/progress)
+- [x] 34-04-PLAN.md — Codebase mapping with parallel agents
 **UI hint**: yes
 
 ### Phase 36: Human Tasks + Debugging
@@ -108,7 +108,7 @@ Plans:
 - [ ] 34-01-PLAN.md — Research tracker lib + scope/run commands
 - [ ] 34-02-PLAN.md — Session management (pause/resume/report)
 - [ ] 34-03-PLAN.md — Navigation routing (next/do/progress)
-- [ ] 34-04-PLAN.md — Codebase mapping with parallel agents
+- [x] 34-04-PLAN.md — Codebase mapping with parallel agents
 
 ### Phase 37: Verification + Dashboard
 **Goal**: Users can verify built features against requirements with goal-backward traceability, run UAT, and see full progress visualization in the dashboard
@@ -135,7 +135,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 32. Foundations | 3/3 | Complete    | 2026-04-10 |
 | 33. Core Command Layer | 5/5 | Complete    | 2026-04-10 |
-| 34. Research + Session + Navigation | 1/4 | In Progress|  |
+| 34. Research + Session + Navigation | 4/4 | Complete   | 2026-04-10 |
 | 35. Phase Management + Config + UI Tooling | 0/? | Not started | - |
 | 36. Human Tasks + Debugging | 0/? | Not started | - |
 | 37. Verification + Dashboard | 0/? | Not started | - |

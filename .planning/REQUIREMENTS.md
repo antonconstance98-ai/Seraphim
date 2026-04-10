@@ -44,10 +44,10 @@
 
 ## Research
 
-- [ ] **RSRCH-01**: User can scope research focus via `/seraphim:research-scope` (human interrogation gate)
-- [ ] **RSRCH-02**: User can run AI research via `/seraphim:research-run` (only after scope is locked)
-- [ ] **RSRCH-03**: Two-command separation enforced — interrogation gate cannot be skipped
-- [ ] **RSRCH-04**: `lib/research-tracker.js` manages research item state and categorization
+- [x] **RSRCH-01**: User can scope research focus via `/seraphim:research-scope` (human interrogation gate)
+- [x] **RSRCH-02**: User can run AI research via `/seraphim:research-run` (only after scope is locked)
+- [x] **RSRCH-03**: Two-command separation enforced — interrogation gate cannot be skipped
+- [x] **RSRCH-04**: `lib/research-tracker.js` manages research item state and categorization
 - [x] **RSRCH-05**: User can analyze codebase structure via `/seraphim:map-codebase` with parallel mapper agents
 
 ## Verification
@@ -80,9 +80,9 @@
 
 ## Session Management
 
-- [ ] **SESS-01**: User can pause work with full context handoff via `/seraphim:pause` (HANDOFF.json + .continue-here.md)
-- [ ] **SESS-02**: User can resume work from previous session via `/seraphim:resume` with context restoration
-- [ ] **SESS-03**: Session reports generated via `/seraphim:session-report` with work summary and outcomes
+- [x] **SESS-01**: User can pause work with full context handoff via `/seraphim:pause` (HANDOFF.json + .continue-here.md)
+- [x] **SESS-02**: User can resume work from previous session via `/seraphim:resume` with context restoration
+- [x] **SESS-03**: Session reports generated via `/seraphim:session-report` with work summary and outcomes
 
 ## Phase & Milestone Management
 
@@ -157,14 +157,14 @@
 | EXEC-04 | Phase 33 | Complete |
 | EXEC-05 | Phase 33 | Complete |
 | EXEC-06 | Phase 33 | Complete |
-| RSRCH-01 | Phase 34 | Pending |
-| RSRCH-02 | Phase 34 | Pending |
-| RSRCH-03 | Phase 34 | Pending |
-| RSRCH-04 | Phase 34 | Pending |
+| RSRCH-01 | Phase 34 | Complete |
+| RSRCH-02 | Phase 34 | Complete |
+| RSRCH-03 | Phase 34 | Complete |
+| RSRCH-04 | Phase 34 | Complete |
 | RSRCH-05 | Phase 34 | Complete |
-| SESS-01 | Phase 34 | Pending |
-| SESS-02 | Phase 34 | Pending |
-| SESS-03 | Phase 34 | Pending |
+| SESS-01 | Phase 34 | Complete |
+| SESS-02 | Phase 34 | Complete |
+| SESS-03 | Phase 34 | Complete |
 | NAV-01 | Phase 34 | Pending |
 | NAV-02 | Phase 34 | Pending |
 | NAV-03 | Phase 34 | Pending |
