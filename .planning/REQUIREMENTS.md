@@ -89,9 +89,9 @@
 - [ ] **MGMT-01**: User can add a phase to end of milestone via `/seraphim:add-phase`
 - [ ] **MGMT-02**: User can insert urgent decimal phase between existing phases via `/seraphim:insert-phase`
 - [ ] **MGMT-03**: User can remove an unstarted phase via `/seraphim:remove-phase` with renumbering
-- [ ] **MGMT-04**: User can complete milestone via `/seraphim:complete-milestone` with archival and git tagging
-- [ ] **MGMT-05**: User can create clean PR branch filtering .planning/ via `/seraphim:pr-branch`
-- [ ] **MGMT-06**: User can validate .planning/ directory integrity via `/seraphim:health`
+- [x] **MGMT-04**: User can complete milestone via `/seraphim:complete-milestone` with archival and git tagging
+- [x] **MGMT-05**: User can create clean PR branch filtering .planning/ via `/seraphim:pr-branch`
+- [x] **MGMT-06**: User can validate .planning/ directory integrity via `/seraphim:health`
 - [ ] **MGMT-07**: User can manage parallel workstreams via `/seraphim:workstreams`
 - [ ] **MGMT-08**: User can manage phases from interactive command center via `/seraphim:manager`
 
@@ -171,9 +171,9 @@
 | MGMT-01 | Phase 35 | Pending |
 | MGMT-02 | Phase 35 | Pending |
 | MGMT-03 | Phase 35 | Pending |
-| MGMT-04 | Phase 35 | Pending |
-| MGMT-05 | Phase 35 | Pending |
-| MGMT-06 | Phase 35 | Pending |
+| MGMT-04 | Phase 35 | Complete |
+| MGMT-05 | Phase 35 | Complete |
+| MGMT-06 | Phase 35 | Complete |
 | MGMT-07 | Phase 35 | Pending |
 | MGMT-08 | Phase 35 | Pending |
 | CFG-01 | Phase 35 | Pending |

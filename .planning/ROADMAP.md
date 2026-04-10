@@ -89,7 +89,7 @@ Plans:
 **Plans:** 4 plans
 Plans:
 - [ ] 35-01-PLAN.md — ROADMAP.md manipulation lib + add/insert/remove-phase commands
-- [ ] 35-02-PLAN.md — Milestone lifecycle (complete-milestone, pr-branch, health)
+- [x] 35-02-PLAN.md — Milestone lifecycle (complete-milestone, pr-branch, health)
 - [ ] 35-03-PLAN.md — Workstreams, manager, and settings commands
 - [x] 35-04-PLAN.md — UI and quality tooling (ui-spec, ui-review, add-tests)
 **UI hint**: yes
@@ -136,7 +136,7 @@ Plans:
 | 32. Foundations | 3/3 | Complete    | 2026-04-10 |
 | 33. Core Command Layer | 5/5 | Complete    | 2026-04-10 |
 | 34. Research + Session + Navigation | 4/4 | Complete    | 2026-04-10 |
-| 35. Phase Management + Config + UI Tooling | 1/4 | In Progress|  |
+| 35. Phase Management + Config + UI Tooling | 2/4 | In Progress|  |
 | 36. Human Tasks + Debugging | 0/? | Not started | - |
 | 37. Verification + Dashboard | 0/? | Not started | - |
 
