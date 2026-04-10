@@ -88,10 +88,10 @@ Plans:
   4. User can run `/seraphim:settings` and change model profile or workflow toggles that persist to config.json
 **Plans:** 4 plans
 Plans:
-- [x] 34-01-PLAN.md — Research tracker lib + scope/run commands
-- [x] 34-02-PLAN.md — Session management (pause/resume/report)
-- [x] 34-03-PLAN.md — Navigation routing (next/do/progress)
-- [x] 34-04-PLAN.md — Codebase mapping with parallel agents
+- [ ] 35-01-PLAN.md — ROADMAP.md manipulation lib + add/insert/remove-phase commands
+- [ ] 35-02-PLAN.md — Milestone lifecycle (complete-milestone, pr-branch, health)
+- [ ] 35-03-PLAN.md — Workstreams, manager, and settings commands
+- [ ] 35-04-PLAN.md — UI and quality tooling (ui-spec, ui-review, add-tests)
 **UI hint**: yes
 
 ### Phase 36: Human Tasks + Debugging
