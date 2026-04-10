@@ -70,7 +70,12 @@ Plans:
   2. User can run `/seraphim:pause` and find a HANDOFF.json and `.continue-here.md` that restore full working context on next session
   3. User can run `/seraphim:next` and be routed to the correct next command (discuss→plan→execute→verify) based on current project state
   4. User can run `/seraphim:map-codebase` and receive a structured codebase map produced by parallel mapper agents
-**Plans**: TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 34-01-PLAN.md — Research tracker lib + scope/run commands
+- [ ] 34-02-PLAN.md — Session management (pause/resume/report)
+- [ ] 34-03-PLAN.md — Navigation routing (next/do/progress)
+- [ ] 34-04-PLAN.md — Codebase mapping with parallel agents
 
 ### Phase 35: Phase Management + Config + UI Tooling
 **Goal**: Users can manage the full phase lifecycle from interactive commands, configure workflow settings, and run UI audits and test generation
@@ -81,7 +86,12 @@ Plans:
   2. User can complete a milestone via `/seraphim:complete-milestone` and get an archived snapshot with git tag and cost attribution
   3. User can run `/seraphim:ui-spec` for a frontend phase and receive a design contract that specifies layout, components, and interaction patterns
   4. User can run `/seraphim:settings` and change model profile or workflow toggles that persist to config.json
-**Plans**: TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 34-01-PLAN.md — Research tracker lib + scope/run commands
+- [ ] 34-02-PLAN.md — Session management (pause/resume/report)
+- [ ] 34-03-PLAN.md — Navigation routing (next/do/progress)
+- [ ] 34-04-PLAN.md — Codebase mapping with parallel agents
 **UI hint**: yes
 
 ### Phase 36: Human Tasks + Debugging
@@ -93,7 +103,12 @@ Plans:
   2. User can run `/seraphim:debug` across session resets and have persistent debug state that accumulates findings without repeating prior investigation
   3. User can run `/seraphim:forensics` and receive a read-only root-cause report without any side effects to the codebase
   4. A failed task triggers automatic RETRY/DECOMPOSE/PRUNE/ESCALATE repair within the configured budget before surfacing to human
-**Plans**: TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 34-01-PLAN.md — Research tracker lib + scope/run commands
+- [ ] 34-02-PLAN.md — Session management (pause/resume/report)
+- [ ] 34-03-PLAN.md — Navigation routing (next/do/progress)
+- [ ] 34-04-PLAN.md — Codebase mapping with parallel agents
 
 ### Phase 37: Verification + Dashboard
 **Goal**: Users can verify built features against requirements with goal-backward traceability, run UAT, and see full progress visualization in the dashboard
@@ -104,7 +119,12 @@ Plans:
   2. User can run `/seraphim:uat` conversationally and have UAT.md accumulate findings with persistent state across resets
   3. Dashboard shows a progress bar and completion percentage for each phase and the overall milestone
   4. Dashboard shows a rolling 7-day velocity chart and a full roadmap tree with phases, waves, tasks, costs, and metrics
-**Plans**: TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 34-01-PLAN.md — Research tracker lib + scope/run commands
+- [ ] 34-02-PLAN.md — Session management (pause/resume/report)
+- [ ] 34-03-PLAN.md — Navigation routing (next/do/progress)
+- [ ] 34-04-PLAN.md — Codebase mapping with parallel agents
 **UI hint**: yes
 
 ---
@@ -115,7 +135,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 32. Foundations | 3/3 | Complete    | 2026-04-10 |
 | 33. Core Command Layer | 5/5 | Complete    | 2026-04-10 |
-| 34. Research + Session + Navigation | 0/? | Not started | - |
+| 34. Research + Session + Navigation | 0/4 | Planned | - |
 | 35. Phase Management + Config + UI Tooling | 0/? | Not started | - |
 | 36. Human Tasks + Debugging | 0/? | Not started | - |
 | 37. Verification + Dashboard | 0/? | Not started | - |
