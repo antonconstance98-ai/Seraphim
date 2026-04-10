@@ -98,10 +98,10 @@
 ## Visualization & Reporting
 
 - [x] **VIZ-01**: Dashboard shows progress bars and completion % per phase and milestone
-- [ ] **VIZ-02**: Dashboard shows velocity tracking (rolling 7-day completion rate)
+- [x] **VIZ-02**: Dashboard shows velocity tracking (rolling 7-day completion rate)
 - [x] **VIZ-03**: Dashboard shows wave progress panels (per-wave breakdown)
 - [x] **VIZ-04**: User can view comprehensive project statistics via `/seraphim:stats`
-- [ ] **VIZ-05**: Full roadmap tree view in dashboard with phases/waves/tasks/costs
+- [x] **VIZ-05**: Full roadmap tree view in dashboard with phases/waves/tasks/costs
 
 ## Configuration
 
@@ -195,10 +195,10 @@
 | VFY-05 | Phase 37 | Complete |
 | VFY-06 | Phase 37 | Complete |
 | VIZ-01 | Phase 37 | Complete |
-| VIZ-02 | Phase 37 | Pending |
+| VIZ-02 | Phase 37 | Complete |
 | VIZ-03 | Phase 37 | Complete |
 | VIZ-04 | Phase 37 | Complete |
-| VIZ-05 | Phase 37 | Pending |
+| VIZ-05 | Phase 37 | Complete |
 
 ---
 *v3.2 — 69 requirements across 15 categories*
