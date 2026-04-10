@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.2
 milestone_name: Idea-to-Shipped Journey
-status: executing
-stopped_at: Completed 36.1-02-PLAN.md
-last_updated: "2026-04-10T18:07:32.055Z"
+status: verifying
+stopped_at: Completed 36.1-03-PLAN.md
+last_updated: "2026-04-10T18:12:22.461Z"
 last_activity: 2026-04-10
 progress:
   total_phases: 7
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 22
-  completed_plans: 21
+  completed_plans: 22
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 Phase: 36.1 (pipeline-redesign-discover-envision-judge-forge) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-10
 
 Progress: [░░░░░░░░░░] 0%
@@ -106,6 +106,9 @@ Key decisions relevant to v3.2:
 - [Phase 36.1]: discover.md: single discovery.md replaces external.md+internal.md split (D-06)
 - [Phase 36.1]: envision.md: zero APPROACH markers — convergent single vision (D-07); discussion topics AI-proposed human-reordered (D-10)
 - [Phase 36.1-02]: Judge Pass 2 is the blueprint author — Architect produces plans, Judge produces blueprint
+- [Phase 36.1]: forge.md: per-build-phase GSD cycle with fresh agent context (no context bleed, D-28)
+- [Phase 36.1]: run.md: autonomous lockout gate — blocks until vision.md is Judge-approved (D-30/D-31)
+- [Phase 36.1]: run.md: Architect->Judge rework loop capped at 1 via incrementLoop (D-35)
 
 ### Roadmap Evolution
 
@@ -144,9 +147,10 @@ None.
 | Phase 36 P03 | 3 | 1 tasks | 2 files |
 | Phase 36.1 P01 | 12 | 2 tasks | 2 files |
 | Phase 36.1 P02 | 8 | 2 tasks | 2 files |
+| Phase 36.1 P03 | 322 | 2 tasks | 2 files |
 
 ## Session Continuity
 
-Last session: 2026-04-10T18:07:32.050Z
-Stopped at: Completed 36.1-02-PLAN.md
+Last session: 2026-04-10T18:12:22.456Z
+Stopped at: Completed 36.1-03-PLAN.md
 Resume file: None

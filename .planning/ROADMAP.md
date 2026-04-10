@@ -127,7 +127,7 @@ Plans:
 Plans:
 - [x] 36.1-01-PLAN.md — Discover + Envision rewrites (interactive rounds, convergent vision)
 - [x] 36.1-02-PLAN.md — Judge + Architect rewrites (two-pass judge, technical plan generation)
-- [ ] 36.1-03-PLAN.md — Forge + run.md rewrites (GSD-style execution, pipeline orchestration)
+- [x] 36.1-03-PLAN.md — Forge + run.md rewrites (GSD-style execution, pipeline orchestration)
 
 ### Phase 37: Verification + Dashboard
 **Goal**: Users can verify built features against requirements with goal-backward traceability, run UAT, and see full progress visualization in the dashboard
@@ -157,7 +157,7 @@ Plans:
 | 34. Research + Session + Navigation | 4/4 | Complete    | 2026-04-10 |
 | 35. Phase Management + Config + UI Tooling | 4/4 | Complete    | 2026-04-10 |
 | 36. Human Tasks + Debugging | 3/3 | Complete    | 2026-04-10 |
-| 36.1. Pipeline Redesign | 2/3 | In Progress|  |
+| 36.1. Pipeline Redesign | 3/3 | Complete   | 2026-04-10 |
 | 37. Verification + Dashboard | 0/? | Not started | - |
 
 ---
