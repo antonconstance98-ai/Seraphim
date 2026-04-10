@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.2
 milestone_name: Idea-to-Shipped Journey
-status: executing
-stopped_at: Completed 35-02-PLAN.md
-last_updated: "2026-04-10T13:48:17.473Z"
+status: verifying
+stopped_at: Completed 35-03-PLAN.md
+last_updated: "2026-04-10T13:48:47.663Z"
 last_activity: 2026-04-10
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 16
-  completed_plans: 14
+  completed_plans: 16
   percent: 0
 ---
 
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 35 (phase-management-config-ui-tooling) — EXECUTING
-Plan: 3 of 4
-Status: Ready to execute
+Plan: 4 of 4
+Status: Phase complete — ready for verification
 Last activity: 2026-04-10
 
 Progress: [░░░░░░░░░░] 0%
@@ -97,6 +97,9 @@ Key decisions relevant to v3.2:
 - [Phase 34]: next.md uses dynamic directory glob (not hardcoded paths) per pitfall-4 in RESEARCH.md
 - [Phase 35]: complete-milestone checks git tag existence before tagging (Pitfall 3)
 - [Phase 35]: pr-branch includes mixed commits per Pitfall 4
+- [Phase 35-01]: removePhase blocks on started phases — completed plan count check guards against data loss
+- [Phase 35-01]: insertPhase uses decimal suffix auto-increment for urgent mid-milestone phase insertion
+- [Phase 35]: settings.md validates toggle names against explicit allowlist before any write (Pitfall 5)
 
 ### Roadmap Evolution
 
@@ -128,9 +131,10 @@ None.
 | Phase 34 P01 | 8 | 2 tasks | 3 files |
 | Phase 34 P03 | 10 | 2 tasks | 3 files |
 | Phase 35 P02 | 5 | 2 tasks | 3 files |
+| Phase 35 P03 | 12 | 2 tasks | 3 files |
 
 ## Session Continuity
 
-Last session: 2026-04-10T13:48:17.467Z
-Stopped at: Completed 35-02-PLAN.md
+Last session: 2026-04-10T13:48:47.657Z
+Stopped at: Completed 35-03-PLAN.md
 Resume file: None
