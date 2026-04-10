@@ -58,7 +58,7 @@ Plans:
 - [x] 33-02-PLAN.md — Seed/note/todo commands (seed, note, add-todo, check-todos, promote)
 - [x] 33-03-PLAN.md — Requirements + discuss + assumptions commands
 - [x] 33-04-PLAN.md — Plan command with wave resolution and checker loop
-- [ ] 33-05-PLAN.md — Execution commands (execute, execute-plan, autonomous, quick, fast)
+- [x] 33-05-PLAN.md — Execution commands (execute, execute-plan, autonomous, quick, fast)
 **UI hint**: yes
 
 ### Phase 34: Research + Session + Navigation
@@ -114,7 +114,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 32. Foundations | 3/3 | Complete    | 2026-04-10 |
-| 33. Core Command Layer | 4/5 | In Progress|  |
+| 33. Core Command Layer | 5/5 | Complete   | 2026-04-10 |
 | 34. Research + Session + Navigation | 0/? | Not started | - |
 | 35. Phase Management + Config + UI Tooling | 0/? | Not started | - |
 | 36. Human Tasks + Debugging | 0/? | Not started | - |

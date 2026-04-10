@@ -35,11 +35,11 @@
 
 ## Execution
 
-- [ ] **EXEC-01**: User can execute all plans in a phase via `/seraphim:execute` with wave-based parallel execution
-- [ ] **EXEC-02**: User can execute a single plan via `/seraphim:execute-plan`
-- [ ] **EXEC-03**: User can run all remaining phases autonomously via `/seraphim:autonomous` (discuss→plan→execute per phase)
-- [ ] **EXEC-04**: User can execute small ad-hoc tasks via `/seraphim:quick` with atomic commits and state tracking
-- [ ] **EXEC-05**: User can execute trivial tasks inline via `/seraphim:fast` (no subagents, no ceremony)
+- [x] **EXEC-01**: User can execute all plans in a phase via `/seraphim:execute` with wave-based parallel execution
+- [x] **EXEC-02**: User can execute a single plan via `/seraphim:execute-plan`
+- [x] **EXEC-03**: User can run all remaining phases autonomously via `/seraphim:autonomous` (discuss→plan→execute per phase)
+- [x] **EXEC-04**: User can execute small ad-hoc tasks via `/seraphim:quick` with atomic commits and state tracking
+- [x] **EXEC-05**: User can execute trivial tasks inline via `/seraphim:fast` (no subagents, no ceremony)
 - [x] **EXEC-06**: Wave-based parallel execution with dependency analysis and agent grouping
 
 ## Research
@@ -151,11 +151,11 @@
 | PLAN-04 | Phase 33 | Complete |
 | PLAN-05 | Phase 33 | Complete |
 | PLAN-06 | Phase 33 | Complete |
-| EXEC-01 | Phase 33 | Pending |
-| EXEC-02 | Phase 33 | Pending |
-| EXEC-03 | Phase 33 | Pending |
-| EXEC-04 | Phase 33 | Pending |
-| EXEC-05 | Phase 33 | Pending |
+| EXEC-01 | Phase 33 | Complete |
+| EXEC-02 | Phase 33 | Complete |
+| EXEC-03 | Phase 33 | Complete |
+| EXEC-04 | Phase 33 | Complete |
+| EXEC-05 | Phase 33 | Complete |
 | EXEC-06 | Phase 33 | Complete |
 | RSRCH-01 | Phase 34 | Pending |
 | RSRCH-02 | Phase 34 | Pending |
