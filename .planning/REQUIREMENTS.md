@@ -130,8 +130,76 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| (populated by roadmapper) | | |
+| FOUND-01 | Phase 32 | Pending |
+| FOUND-02 | Phase 32 | Pending |
+| FOUND-03 | Phase 32 | Pending |
+| FOUND-04 | Phase 32 | Pending |
+| SEED-01 | Phase 33 | Pending |
+| SEED-02 | Phase 33 | Pending |
+| SEED-03 | Phase 33 | Pending |
+| SEED-04 | Phase 33 | Pending |
+| SEED-05 | Phase 33 | Pending |
+| SEED-06 | Phase 33 | Pending |
+| SEED-07 | Phase 33 | Pending |
+| REQ-01 | Phase 33 | Pending |
+| REQ-02 | Phase 33 | Pending |
+| REQ-03 | Phase 33 | Pending |
+| REQ-04 | Phase 33 | Pending |
+| PLAN-01 | Phase 33 | Pending |
+| PLAN-02 | Phase 33 | Pending |
+| PLAN-03 | Phase 33 | Pending |
+| PLAN-04 | Phase 33 | Pending |
+| PLAN-05 | Phase 33 | Pending |
+| PLAN-06 | Phase 33 | Pending |
+| EXEC-01 | Phase 33 | Pending |
+| EXEC-02 | Phase 33 | Pending |
+| EXEC-03 | Phase 33 | Pending |
+| EXEC-04 | Phase 33 | Pending |
+| EXEC-05 | Phase 33 | Pending |
+| EXEC-06 | Phase 33 | Pending |
+| RSRCH-01 | Phase 34 | Pending |
+| RSRCH-02 | Phase 34 | Pending |
+| RSRCH-03 | Phase 34 | Pending |
+| RSRCH-04 | Phase 34 | Pending |
+| RSRCH-05 | Phase 34 | Pending |
+| SESS-01 | Phase 34 | Pending |
+| SESS-02 | Phase 34 | Pending |
+| SESS-03 | Phase 34 | Pending |
+| NAV-01 | Phase 34 | Pending |
+| NAV-02 | Phase 34 | Pending |
+| NAV-03 | Phase 34 | Pending |
+| MGMT-01 | Phase 35 | Pending |
+| MGMT-02 | Phase 35 | Pending |
+| MGMT-03 | Phase 35 | Pending |
+| MGMT-04 | Phase 35 | Pending |
+| MGMT-05 | Phase 35 | Pending |
+| MGMT-06 | Phase 35 | Pending |
+| MGMT-07 | Phase 35 | Pending |
+| MGMT-08 | Phase 35 | Pending |
+| CFG-01 | Phase 35 | Pending |
+| CFG-02 | Phase 35 | Pending |
+| UI-01 | Phase 35 | Pending |
+| UI-02 | Phase 35 | Pending |
+| UI-03 | Phase 35 | Pending |
+| HTASK-01 | Phase 36 | Pending |
+| HTASK-02 | Phase 36 | Pending |
+| HTASK-03 | Phase 36 | Pending |
+| DBG-01 | Phase 36 | Pending |
+| DBG-02 | Phase 36 | Pending |
+| DBG-03 | Phase 36 | Pending |
+| DBG-04 | Phase 36 | Pending |
+| VFY-01 | Phase 37 | Pending |
+| VFY-02 | Phase 37 | Pending |
+| VFY-03 | Phase 37 | Pending |
+| VFY-04 | Phase 37 | Pending |
+| VFY-05 | Phase 37 | Pending |
+| VFY-06 | Phase 37 | Pending |
+| VIZ-01 | Phase 37 | Pending |
+| VIZ-02 | Phase 37 | Pending |
+| VIZ-03 | Phase 37 | Pending |
+| VIZ-04 | Phase 37 | Pending |
+| VIZ-05 | Phase 37 | Pending |
 
 ---
-*v3.2 — 62 requirements across 13 categories*
+*v3.2 — 69 requirements across 15 categories*
 *Generated: 2026-04-09*

@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v3.2
 milestone_name: Idea-to-Shipped Journey
-status: defining-requirements
+status: roadmap-created
 stopped_at: null
-last_updated: "2026-04-09T20:00:00.000Z"
+last_updated: "2026-04-09T20:30:00.000Z"
 last_activity: 2026-04-09
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,30 +21,30 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Six wings, six phases, six cognitive tasks -- each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
-**Current focus:** Defining requirements for v3.2
+**Current focus:** v3.2 Idea-to-Shipped Journey — roadmap created, ready for Phase 32 planning
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 32 (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-04-09 — Milestone v3.2 started
+Status: Roadmap created
+Last activity: 2026-04-09 — v3.2 roadmap written (6 phases, 69 requirements mapped)
 
 Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
-**Velocity (v1.0-v3.0 history):**
+**Velocity (v1.0-v3.1 history):**
 
-- Total plans completed: 44 (across v3.0) + 27 (v1.0-v2.0) = 71
+- Total plans completed: 44 (across v3.0) + 27 (v1.0-v2.0) + 12 (v3.1) = 83
 - Average duration: ~5 min/plan
-- Total execution time: ~6 hours
+- Total execution time: ~7 hours
 
-**By Phase:** -- (v3.1 not started)
+**By Phase:** -- (v3.2 not started)
 
 **Recent Trend:**
 
-- Last 5 plans (v3.0): stable
+- Last milestone (v3.1): 3 phases, 12 plans
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -54,12 +54,15 @@ Progress: [░░░░░░░░░░] 0%
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-Key decisions relevant to v3.1:
+Key decisions relevant to v3.2:
 
-- [v3.1 Research]: PM is read-path only -- never gates the pipeline
-- [v3.1 Research]: roadmap.json is the foundational artifact -- design and lock first
-- [v3.1 Research]: Pause/resume PM context ships in Phase 1 to avoid costly retrofit
-- [v3.1 Research]: Zero new npm packages -- builds entirely on existing infrastructure
+- [v3.2 Research]: Phase 32 is a hard prerequisite gate — no v3.2 work starts until Neon DDL applied and schema consistent
+- [v3.2 Research]: Zero new npm dependencies — schema and command extension only
+- [v3.2 Research]: All conditional logic goes in Node.js lib files, not markdown commands
+- [v3.2 Research]: Research system requires two-command separation — interrogation gate cannot be skipped
+- [v3.2 Research]: Dashboard work batched into Phase 37 to minimize context-switch cost
+- [v3.2 Roadmap]: Phase 35 (MGMT + CFG + UI tooling) depends on Phase 33 not Phase 34 — no research dependency
+- [v3.2 Roadmap]: Phase 36 (HTASK + DBG) depends on Phase 33 — enriched tasks and debug commands need core lib patterns
 - [Phase 01]: readRoadmap returns empty milestones on missing file (D-08) — fail-safe default prevents crashes in new projects
 - [Phase 01]: feature_id=null default in buildRecord keeps all existing callers unaffected (D-09)
 - [Phase 01]: task-completions.jsonl sidecar (append-only) — no forge-log.md mutation on task completion
@@ -82,16 +85,17 @@ Key decisions relevant to v3.1:
 ### Roadmap Evolution
 
 - v3.0 archived (13 phases, shipped 2026-04-09)
-- v3.1 roadmap created: 3 phases, 30 requirements
+- v3.1 roadmap created: 3 phases, 30 requirements — archived (shipped 2026-04-09)
+- v3.2 roadmap created: 6 phases (32-37), 69 requirements mapped
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-- [Phase 1]: roadmap.json schema design is the critical path -- changing it later cascades across all PM commands
-- [Phase 2]: Event-driven vs file-scanning for dashboard latency needs validation with real project count
+- Phase 32: Neon DDL must be applied manually before Phase 32 plans execute — confirm production access
+- Phase 33: wave-planner.js Kahn's algorithm implementation is the critical path for wave-structured planning
 
 ### Quick Tasks Completed
 
@@ -102,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T19:27:48.631Z
-Stopped at: Completed quick/260409-kam-new-project-and-new-milestone-commands
+Last session: 2026-04-09T20:30:00.000Z
+Stopped at: v3.2 roadmap created
 Resume file: None
