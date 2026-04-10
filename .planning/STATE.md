@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v3.2
 milestone_name: Idea-to-Shipped Journey
 status: executing
-stopped_at: Completed 37-02-PLAN.md
-last_updated: "2026-04-10T18:34:32.130Z"
+stopped_at: Completed 37-01-PLAN.md
+last_updated: "2026-04-10T18:34:38.240Z"
 last_activity: 2026-04-10
 progress:
   total_phases: 7
@@ -114,6 +114,8 @@ Key decisions relevant to v3.2:
 - [Phase 37]: roadmap-tree returns parse_warnings array — defensive parsing per plan spec
 - [Phase 37]: audit-milestone.md uses atomic tmp+rename for report write — consistent with all other seraphim commands
 - [Phase 37]: audit-uat.md and stats.md are read-only commands — audit/stats should not mutate project state
+- [Phase 37-01]: verify.md mandates REQUIRES_HUMAN_JUDGMENT in every report — verifier subagent prompt enforces this
+- [Phase 37-01]: uat.md derives UAT items from VERIFICATION.md tables on first run, accumulates across sessions
 
 ### Roadmap Evolution
 
@@ -159,6 +161,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-10T18:34:25.790Z
-Stopped at: Completed 37-02-PLAN.md
+Last session: 2026-04-10T18:34:38.235Z
+Stopped at: Completed 37-01-PLAN.md
 Resume file: None
