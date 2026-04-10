@@ -52,12 +52,12 @@
 
 ## Verification
 
-- [ ] **VFY-01**: User can verify built features via `/seraphim:verify` with goal-backward traceability
-- [ ] **VFY-02**: Every verification report contains at least one REQUIRES_HUMAN_JUDGMENT item
-- [ ] **VFY-03**: User can validate phase completion via `/seraphim:validate` with Nyquist gap auditing
-- [ ] **VFY-04**: User can run conversational UAT via `/seraphim:uat` with persistent UAT.md state
-- [ ] **VFY-05**: User can audit milestone completion via `/seraphim:audit-milestone` checking cross-phase integration
-- [ ] **VFY-06**: User can run cross-phase UAT audit via `/seraphim:audit-uat` surfacing unresolved items
+- [x] **VFY-01**: User can verify built features via `/seraphim:verify` with goal-backward traceability
+- [x] **VFY-02**: Every verification report contains at least one REQUIRES_HUMAN_JUDGMENT item
+- [x] **VFY-03**: User can validate phase completion via `/seraphim:validate` with Nyquist gap auditing
+- [x] **VFY-04**: User can run conversational UAT via `/seraphim:uat` with persistent UAT.md state
+- [x] **VFY-05**: User can audit milestone completion via `/seraphim:audit-milestone` checking cross-phase integration
+- [x] **VFY-06**: User can run cross-phase UAT audit via `/seraphim:audit-uat` surfacing unresolved items
 
 ## Debugging
 
@@ -97,10 +97,10 @@
 
 ## Visualization & Reporting
 
-- [ ] **VIZ-01**: Dashboard shows progress bars and completion % per phase and milestone
+- [x] **VIZ-01**: Dashboard shows progress bars and completion % per phase and milestone
 - [ ] **VIZ-02**: Dashboard shows velocity tracking (rolling 7-day completion rate)
-- [ ] **VIZ-03**: Dashboard shows wave progress panels (per-wave breakdown)
-- [ ] **VIZ-04**: User can view comprehensive project statistics via `/seraphim:stats`
+- [x] **VIZ-03**: Dashboard shows wave progress panels (per-wave breakdown)
+- [x] **VIZ-04**: User can view comprehensive project statistics via `/seraphim:stats`
 - [ ] **VIZ-05**: Full roadmap tree view in dashboard with phases/waves/tasks/costs
 
 ## Configuration
@@ -188,16 +188,16 @@
 | DBG-02 | Phase 36 | Complete |
 | DBG-03 | Phase 36 | Complete |
 | DBG-04 | Phase 36 | Complete |
-| VFY-01 | Phase 37 | Pending |
-| VFY-02 | Phase 37 | Pending |
-| VFY-03 | Phase 37 | Pending |
-| VFY-04 | Phase 37 | Pending |
-| VFY-05 | Phase 37 | Pending |
-| VFY-06 | Phase 37 | Pending |
-| VIZ-01 | Phase 37 | Pending |
+| VFY-01 | Phase 37 | Complete |
+| VFY-02 | Phase 37 | Complete |
+| VFY-03 | Phase 37 | Complete |
+| VFY-04 | Phase 37 | Complete |
+| VFY-05 | Phase 37 | Complete |
+| VFY-06 | Phase 37 | Complete |
+| VIZ-01 | Phase 37 | Complete |
 | VIZ-02 | Phase 37 | Pending |
-| VIZ-03 | Phase 37 | Pending |
-| VIZ-04 | Phase 37 | Pending |
+| VIZ-03 | Phase 37 | Complete |
+| VIZ-04 | Phase 37 | Complete |
 | VIZ-05 | Phase 37 | Pending |
 
 ---
