@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v3.2
 milestone_name: Idea-to-Shipped Journey
 status: executing
-stopped_at: Completed 36.1-01-PLAN.md
-last_updated: "2026-04-10T18:07:24.923Z"
+stopped_at: Completed 36.1-02-PLAN.md
+last_updated: "2026-04-10T18:07:32.055Z"
 last_activity: 2026-04-10
 progress:
   total_phases: 7
@@ -105,6 +105,7 @@ Key decisions relevant to v3.2:
 - [Phase 36]: repair.js is pure logic with no I/O — caller handles all state writes
 - [Phase 36.1]: discover.md: single discovery.md replaces external.md+internal.md split (D-06)
 - [Phase 36.1]: envision.md: zero APPROACH markers — convergent single vision (D-07); discussion topics AI-proposed human-reordered (D-10)
+- [Phase 36.1-02]: Judge Pass 2 is the blueprint author — Architect produces plans, Judge produces blueprint
 
 ### Roadmap Evolution
 
@@ -142,9 +143,10 @@ None.
 | Phase 36 P02 | 8 | 2 tasks | 3 files |
 | Phase 36 P03 | 3 | 1 tasks | 2 files |
 | Phase 36.1 P01 | 12 | 2 tasks | 2 files |
+| Phase 36.1 P02 | 8 | 2 tasks | 2 files |
 
 ## Session Continuity
 
-Last session: 2026-04-10T18:07:17.919Z
-Stopped at: Completed 36.1-01-PLAN.md
+Last session: 2026-04-10T18:07:32.050Z
+Stopped at: Completed 36.1-02-PLAN.md
 Resume file: None
