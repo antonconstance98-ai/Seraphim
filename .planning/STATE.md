@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.2
 milestone_name: Idea-to-Shipped Journey
-status: verifying
-stopped_at: Completed 36.1-03-PLAN.md
-last_updated: "2026-04-10T18:15:32.152Z"
+status: executing
+stopped_at: Completed 37-03-PLAN.md
+last_updated: "2026-04-10T18:33:58.414Z"
 last_activity: 2026-04-10
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 22
-  completed_plans: 22
+  total_plans: 26
+  completed_plans: 23
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Six wings, six phases, six cognitive tasks -- each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
-**Current focus:** Phase 36.1 — pipeline-redesign-discover-envision-judge-forge
+**Current focus:** Phase 37 — verification-dashboard
 
 ## Current Position
 
-Phase: 37
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 37 (verification-dashboard) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 Last activity: 2026-04-10
 
 Progress: [░░░░░░░░░░] 0%
@@ -109,6 +109,9 @@ Key decisions relevant to v3.2:
 - [Phase 36.1]: forge.md: per-build-phase GSD cycle with fresh agent context (no context bleed, D-28)
 - [Phase 36.1]: run.md: autonomous lockout gate — blocks until vision.md is Judge-approved (D-30/D-31)
 - [Phase 36.1]: run.md: Architect->Judge rework loop capped at 1 via incrementLoop (D-35)
+- [Phase 37]: planning/route.ts uses PLANNING_DIR env var with cwd fallback — matches existing plugin pattern
+- [Phase 37]: velocity/route.ts omits edge runtime — execSync requires Node.js (Pitfall 5)
+- [Phase 37]: roadmap-tree returns parse_warnings array — defensive parsing per plan spec
 
 ### Roadmap Evolution
 
@@ -148,9 +151,10 @@ None.
 | Phase 36.1 P01 | 12 | 2 tasks | 2 files |
 | Phase 36.1 P02 | 8 | 2 tasks | 2 files |
 | Phase 36.1 P03 | 322 | 2 tasks | 2 files |
+| Phase 37 P03 | 5 | 2 tasks | 5 files |
 
 ## Session Continuity
 
-Last session: 2026-04-10T18:12:22.456Z
-Stopped at: Completed 36.1-03-PLAN.md
+Last session: 2026-04-10T18:33:53.669Z
+Stopped at: Completed 37-03-PLAN.md
 Resume file: None

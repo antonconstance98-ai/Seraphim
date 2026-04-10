@@ -142,7 +142,7 @@ Plans:
 Plans:
 - [ ] 37-01-PLAN.md — Core verification commands (verify, uat, validate)
 - [ ] 37-02-PLAN.md — Audit and stats commands (audit-milestone, audit-uat, stats)
-- [ ] 37-03-PLAN.md — Dashboard API routes + progress/wave panels
+- [x] 37-03-PLAN.md — Dashboard API routes + progress/wave panels
 - [ ] 37-04-PLAN.md — Velocity chart, roadmap tree, page integration
 **UI hint**: yes
 
@@ -158,7 +158,7 @@ Plans:
 | 35. Phase Management + Config + UI Tooling | 4/4 | Complete    | 2026-04-10 |
 | 36. Human Tasks + Debugging | 3/3 | Complete    | 2026-04-10 |
 | 36.1. Pipeline Redesign | 3/3 | Complete    | 2026-04-10 |
-| 37. Verification + Dashboard | 0/4 | Not started | - |
+| 37. Verification + Dashboard | 1/4 | In Progress|  |
 
 ---
 
