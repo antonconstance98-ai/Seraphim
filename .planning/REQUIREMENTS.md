@@ -110,9 +110,9 @@
 
 ## UI & Quality
 
-- [ ] **UI-01**: User can generate UI design contract via `/seraphim:ui-spec` for frontend phases
-- [ ] **UI-02**: User can run retroactive 6-pillar UI audit via `/seraphim:ui-review`
-- [ ] **UI-03**: User can generate tests for completed phase via `/seraphim:add-tests`
+- [x] **UI-01**: User can generate UI design contract via `/seraphim:ui-spec` for frontend phases
+- [x] **UI-02**: User can run retroactive 6-pillar UI audit via `/seraphim:ui-review`
+- [x] **UI-03**: User can generate tests for completed phase via `/seraphim:add-tests`
 
 ## Future Requirements (deferred to v3.3+)
 
@@ -178,9 +178,9 @@
 | MGMT-08 | Phase 35 | Pending |
 | CFG-01 | Phase 35 | Pending |
 | CFG-02 | Phase 35 | Pending |
-| UI-01 | Phase 35 | Pending |
-| UI-02 | Phase 35 | Pending |
-| UI-03 | Phase 35 | Pending |
+| UI-01 | Phase 35 | Complete |
+| UI-02 | Phase 35 | Complete |
+| UI-03 | Phase 35 | Complete |
 | HTASK-01 | Phase 36 | Pending |
 | HTASK-02 | Phase 36 | Pending |
 | HTASK-03 | Phase 36 | Pending |
