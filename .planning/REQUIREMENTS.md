@@ -28,10 +28,10 @@
 
 - [x] **PLAN-01**: Roadmap.json extended with waves, dependency graph, and success criteria per feature
 - [x] **PLAN-02**: Dependency resolution via Kahn's algorithm in `lib/wave-planner.js`
-- [ ] **PLAN-03**: User can generate wave-structured PLAN.md via `/seraphim:plan` with tasks and done-criteria
+- [x] **PLAN-03**: User can generate wave-structured PLAN.md via `/seraphim:plan` with tasks and done-criteria
 - [ ] **PLAN-04**: User can lock implementation decisions before planning via `/seraphim:discuss` producing CONTEXT.md
 - [ ] **PLAN-05**: User can surface Claude's assumptions about a phase via `/seraphim:assumptions`
-- [ ] **PLAN-06**: Plan verification loop — planner + checker agents with revision (max 3 iterations)
+- [x] **PLAN-06**: Plan verification loop — planner + checker agents with revision (max 3 iterations)
 
 ## Execution
 
@@ -40,7 +40,7 @@
 - [ ] **EXEC-03**: User can run all remaining phases autonomously via `/seraphim:autonomous` (discuss→plan→execute per phase)
 - [ ] **EXEC-04**: User can execute small ad-hoc tasks via `/seraphim:quick` with atomic commits and state tracking
 - [ ] **EXEC-05**: User can execute trivial tasks inline via `/seraphim:fast` (no subagents, no ceremony)
-- [ ] **EXEC-06**: Wave-based parallel execution with dependency analysis and agent grouping
+- [x] **EXEC-06**: Wave-based parallel execution with dependency analysis and agent grouping
 
 ## Research
 
@@ -147,16 +147,16 @@
 | REQ-04 | Phase 33 | Complete |
 | PLAN-01 | Phase 33 | Complete |
 | PLAN-02 | Phase 33 | Complete |
-| PLAN-03 | Phase 33 | Pending |
+| PLAN-03 | Phase 33 | Complete |
 | PLAN-04 | Phase 33 | Pending |
 | PLAN-05 | Phase 33 | Pending |
-| PLAN-06 | Phase 33 | Pending |
+| PLAN-06 | Phase 33 | Complete |
 | EXEC-01 | Phase 33 | Pending |
 | EXEC-02 | Phase 33 | Pending |
 | EXEC-03 | Phase 33 | Pending |
 | EXEC-04 | Phase 33 | Pending |
 | EXEC-05 | Phase 33 | Pending |
-| EXEC-06 | Phase 33 | Pending |
+| EXEC-06 | Phase 33 | Complete |
 | RSRCH-01 | Phase 34 | Pending |
 | RSRCH-02 | Phase 34 | Pending |
 | RSRCH-03 | Phase 34 | Pending |

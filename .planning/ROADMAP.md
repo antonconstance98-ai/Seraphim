@@ -57,7 +57,7 @@ Plans:
 - [x] 33-01-PLAN.md — Core lib modules (seed-store.js, requirements.js, wave-planner.js)
 - [ ] 33-02-PLAN.md — Seed/note/todo commands (seed, note, add-todo, check-todos, promote)
 - [ ] 33-03-PLAN.md — Requirements + discuss + assumptions commands
-- [ ] 33-04-PLAN.md — Plan command with wave resolution and checker loop
+- [x] 33-04-PLAN.md — Plan command with wave resolution and checker loop
 - [ ] 33-05-PLAN.md — Execution commands (execute, execute-plan, autonomous, quick, fast)
 **UI hint**: yes
 
@@ -114,7 +114,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 32. Foundations | 3/3 | Complete    | 2026-04-10 |
-| 33. Core Command Layer | 1/5 | In Progress|  |
+| 33. Core Command Layer | 2/5 | In Progress|  |
 | 34. Research + Session + Navigation | 0/? | Not started | - |
 | 35. Phase Management + Config + UI Tooling | 0/? | Not started | - |
 | 36. Human Tasks + Debugging | 0/? | Not started | - |
