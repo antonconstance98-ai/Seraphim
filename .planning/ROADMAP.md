@@ -105,9 +105,9 @@ Plans:
   4. A failed task triggers automatic RETRY/DECOMPOSE/PRUNE/ESCALATE repair within the configured budget before surfacing to human
 **Plans:** 4 plans
 Plans:
-- [ ] 34-01-PLAN.md — Research tracker lib + scope/run commands
-- [ ] 34-02-PLAN.md — Session management (pause/resume/report)
-- [ ] 34-03-PLAN.md — Navigation routing (next/do/progress)
+- [x] 34-01-PLAN.md — Research tracker lib + scope/run commands
+- [x] 34-02-PLAN.md — Session management (pause/resume/report)
+- [x] 34-03-PLAN.md — Navigation routing (next/do/progress)
 - [x] 34-04-PLAN.md — Codebase mapping with parallel agents
 
 ### Phase 37: Verification + Dashboard
@@ -124,7 +124,7 @@ Plans:
 - [ ] 34-01-PLAN.md — Research tracker lib + scope/run commands
 - [ ] 34-02-PLAN.md — Session management (pause/resume/report)
 - [ ] 34-03-PLAN.md — Navigation routing (next/do/progress)
-- [ ] 34-04-PLAN.md — Codebase mapping with parallel agents
+- [x] 34-04-PLAN.md — Codebase mapping with parallel agents
 **UI hint**: yes
 
 ---

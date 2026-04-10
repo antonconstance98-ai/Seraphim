@@ -4,7 +4,7 @@ milestone: v3.2
 milestone_name: Idea-to-Shipped Journey
 status: verifying
 stopped_at: Completed 34-03-PLAN.md
-last_updated: "2026-04-10T04:52:36.526Z"
+last_updated: "2026-04-10T04:52:42.217Z"
 last_activity: 2026-04-10
 progress:
   total_phases: 6
@@ -94,6 +94,7 @@ Key decisions relevant to v3.2:
 - [Phase 34]: research-tracker.js follows requirements.js atomic tmp+rename pattern
 - [Phase 34]: pause.md is session-level (no arguments) replacing pipeline-scoped version
 - [Phase 34]: resume.md deletes HANDOFF.json immediately after reading (delete-before-inject pattern)
+- [Phase 34]: next.md uses dynamic directory glob (not hardcoded paths) per pitfall-4 in RESEARCH.md
 
 ### Roadmap Evolution
 

@@ -74,9 +74,9 @@
 
 ## Navigation & Routing
 
-- [ ] **NAV-01**: User can auto-advance to next logical step via `/seraphim:next` (discuss→plan→execute→verify progression)
-- [ ] **NAV-02**: User can route freeform text to the right command via `/seraphim:do`
-- [ ] **NAV-03**: User can check project progress and route to next action via `/seraphim:progress`
+- [x] **NAV-01**: User can auto-advance to next logical step via `/seraphim:next` (discuss→plan→execute→verify progression)
+- [x] **NAV-02**: User can route freeform text to the right command via `/seraphim:do`
+- [x] **NAV-03**: User can check project progress and route to next action via `/seraphim:progress`
 
 ## Session Management
 
@@ -165,9 +165,9 @@
 | SESS-01 | Phase 34 | Complete |
 | SESS-02 | Phase 34 | Complete |
 | SESS-03 | Phase 34 | Complete |
-| NAV-01 | Phase 34 | Pending |
-| NAV-02 | Phase 34 | Pending |
-| NAV-03 | Phase 34 | Pending |
+| NAV-01 | Phase 34 | Complete |
+| NAV-02 | Phase 34 | Complete |
+| NAV-03 | Phase 34 | Complete |
 | MGMT-01 | Phase 35 | Pending |
 | MGMT-02 | Phase 35 | Pending |
 | MGMT-03 | Phase 35 | Pending |
