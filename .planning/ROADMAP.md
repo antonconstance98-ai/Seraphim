@@ -109,6 +109,16 @@ Plans:
 - [x] 36-02-PLAN.md — Debug/forensics commands and repair.js strategy cascade
 - [x] 36-03-PLAN.md — Pipeline enrichment wiring and auto-repair integration
 
+### Phase 36.1: Pipeline Redesign — Discover, Envision, Judge, Forge (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 36
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 36.1 to break down)
+
 ### Phase 37: Verification + Dashboard
 **Goal**: Users can verify built features against requirements with goal-backward traceability, run UAT, and see full progress visualization in the dashboard
 **Depends on**: Phase 36, Phase 33

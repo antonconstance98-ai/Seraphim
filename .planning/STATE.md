@@ -109,6 +109,7 @@ Key decisions relevant to v3.2:
 - v3.0 archived (13 phases, shipped 2026-04-09)
 - v3.1 roadmap created: 3 phases, 30 requirements — archived (shipped 2026-04-09)
 - v3.2 roadmap created: 6 phases (32-37), 69 requirements mapped
+- Phase 36.1 inserted after Phase 36: Pipeline Redesign — Discover, Envision, Judge, Forge (URGENT)
 
 ### Pending Todos
 
