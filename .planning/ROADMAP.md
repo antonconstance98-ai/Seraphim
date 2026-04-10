@@ -52,7 +52,13 @@ Plans:
   3. User can run `/seraphim:plan` and receive a wave-structured PLAN.md where dependencies are resolved via Kahn's algorithm before tasks appear in a wave
   4. User can run `/seraphim:execute` and have all plans in a phase execute with wave-based parallelism (independent tasks run together, dependents wait)
   5. User can run `/seraphim:discuss` before planning and get a CONTEXT.md with locked implementation decisions
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 33-01-PLAN.md — Core lib modules (seed-store.js, requirements.js, wave-planner.js)
+- [ ] 33-02-PLAN.md — Seed/note/todo commands (seed, note, add-todo, check-todos, promote)
+- [ ] 33-03-PLAN.md — Requirements + discuss + assumptions commands
+- [ ] 33-04-PLAN.md — Plan command with wave resolution and checker loop
+- [ ] 33-05-PLAN.md — Execution commands (execute, execute-plan, autonomous, quick, fast)
 **UI hint**: yes
 
 ### Phase 34: Research + Session + Navigation
@@ -108,7 +114,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 32. Foundations | 3/3 | Complete    | 2026-04-10 |
-| 33. Core Command Layer | 0/? | Not started | - |
+| 33. Core Command Layer | 0/5 | Not started | - |
 | 34. Research + Session + Navigation | 0/? | Not started | - |
 | 35. Phase Management + Config + UI Tooling | 0/? | Not started | - |
 | 36. Human Tasks + Debugging | 0/? | Not started | - |
