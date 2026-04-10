@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.2
 milestone_name: Idea-to-Shipped Journey
-status: verifying
-stopped_at: Completed 36-03-PLAN.md
-last_updated: "2026-04-10T14:27:34.136Z"
+status: executing
+stopped_at: Completed 36.1-01-PLAN.md
+last_updated: "2026-04-10T18:07:24.923Z"
 last_activity: 2026-04-10
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 5
-  total_plans: 19
-  completed_plans: 19
+  total_plans: 22
+  completed_plans: 21
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Six wings, six phases, six cognitive tasks -- each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
-**Current focus:** Phase 36 — human-tasks-debugging
+**Current focus:** Phase 36.1 — pipeline-redesign-discover-envision-judge-forge
 
 ## Current Position
 
-Phase: 37
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 36.1 (pipeline-redesign-discover-envision-judge-forge) — EXECUTING
+Plan: 3 of 3
+Status: Ready to execute
 Last activity: 2026-04-10
 
 Progress: [░░░░░░░░░░] 0%
@@ -103,6 +103,8 @@ Key decisions relevant to v3.2:
 - [Phase 36]: skills_to_learn stored as comma-separated string in marker attrs; split on display
 - [Phase 36]: Used ?? null for enrichment field fallbacks in ingest route to distinguish empty string from absent
 - [Phase 36]: repair.js is pure logic with no I/O — caller handles all state writes
+- [Phase 36.1]: discover.md: single discovery.md replaces external.md+internal.md split (D-06)
+- [Phase 36.1]: envision.md: zero APPROACH markers — convergent single vision (D-07); discussion topics AI-proposed human-reordered (D-10)
 
 ### Roadmap Evolution
 
@@ -139,9 +141,10 @@ None.
 | Phase 36 P01 | 5 | 2 tasks | 4 files |
 | Phase 36 P02 | 8 | 2 tasks | 3 files |
 | Phase 36 P03 | 3 | 1 tasks | 2 files |
+| Phase 36.1 P01 | 12 | 2 tasks | 2 files |
 
 ## Session Continuity
 
-Last session: 2026-04-10T14:24:48.062Z
-Stopped at: Completed 36-03-PLAN.md
+Last session: 2026-04-10T18:07:17.919Z
+Stopped at: Completed 36.1-01-PLAN.md
 Resume file: None
