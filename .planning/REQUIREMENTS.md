@@ -10,9 +10,9 @@
 ## Idea Capture
 
 - [ ] **SEED-01**: User can capture a raw idea via `/seraphim:seed` with braindump-style freeform input
-- [ ] **SEED-02**: Seeds stored in `.planning/seeds/` with SEED-NNN.md format and index.jsonl for lookups
+- [x] **SEED-02**: Seeds stored in `.planning/seeds/` with SEED-NNN.md format and index.jsonl for lookups
 - [ ] **SEED-03**: User can promote a seed to a feature with requirements via `/seraphim:promote`
-- [ ] **SEED-04**: Seeds have trigger conditions that auto-surface during new-milestone when scope matches
+- [x] **SEED-04**: Seeds have trigger conditions that auto-surface during new-milestone when scope matches
 - [ ] **SEED-05**: User can capture zero-friction notes via `/seraphim:note` (one write, no questions)
 - [ ] **SEED-06**: User can add structured todos via `/seraphim:add-todo` with area tagging
 - [ ] **SEED-07**: User can list and select pending todos via `/seraphim:check-todos`
@@ -22,12 +22,12 @@
 - [ ] **REQ-01**: User can define requirements with REQ-IDs via `/seraphim:requirements` (AI suggests, human approves)
 - [ ] **REQ-02**: Requirements grouped by category with v1/future/out-of-scope scoping
 - [ ] **REQ-03**: REQ traceability matrix mapping REQ-IDs to phases, features, and verification status
-- [ ] **REQ-04**: `lib/requirements.js` manages REQ-ID CRUD following roadmap.js atomic write pattern
+- [x] **REQ-04**: `lib/requirements.js` manages REQ-ID CRUD following roadmap.js atomic write pattern
 
 ## Planning
 
-- [ ] **PLAN-01**: Roadmap.json extended with waves, dependency graph, and success criteria per feature
-- [ ] **PLAN-02**: Dependency resolution via Kahn's algorithm in `lib/wave-planner.js`
+- [x] **PLAN-01**: Roadmap.json extended with waves, dependency graph, and success criteria per feature
+- [x] **PLAN-02**: Dependency resolution via Kahn's algorithm in `lib/wave-planner.js`
 - [ ] **PLAN-03**: User can generate wave-structured PLAN.md via `/seraphim:plan` with tasks and done-criteria
 - [ ] **PLAN-04**: User can lock implementation decisions before planning via `/seraphim:discuss` producing CONTEXT.md
 - [ ] **PLAN-05**: User can surface Claude's assumptions about a phase via `/seraphim:assumptions`
@@ -135,18 +135,18 @@
 | FOUND-03 | Phase 32 | Complete |
 | FOUND-04 | Phase 32 | Complete |
 | SEED-01 | Phase 33 | Pending |
-| SEED-02 | Phase 33 | Pending |
+| SEED-02 | Phase 33 | Complete |
 | SEED-03 | Phase 33 | Pending |
-| SEED-04 | Phase 33 | Pending |
+| SEED-04 | Phase 33 | Complete |
 | SEED-05 | Phase 33 | Pending |
 | SEED-06 | Phase 33 | Pending |
 | SEED-07 | Phase 33 | Pending |
 | REQ-01 | Phase 33 | Pending |
 | REQ-02 | Phase 33 | Pending |
 | REQ-03 | Phase 33 | Pending |
-| REQ-04 | Phase 33 | Pending |
-| PLAN-01 | Phase 33 | Pending |
-| PLAN-02 | Phase 33 | Pending |
+| REQ-04 | Phase 33 | Complete |
+| PLAN-01 | Phase 33 | Complete |
+| PLAN-02 | Phase 33 | Complete |
 | PLAN-03 | Phase 33 | Pending |
 | PLAN-04 | Phase 33 | Pending |
 | PLAN-05 | Phase 33 | Pending |
