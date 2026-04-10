@@ -92,8 +92,8 @@
 - [x] **MGMT-04**: User can complete milestone via `/seraphim:complete-milestone` with archival and git tagging
 - [x] **MGMT-05**: User can create clean PR branch filtering .planning/ via `/seraphim:pr-branch`
 - [x] **MGMT-06**: User can validate .planning/ directory integrity via `/seraphim:health`
-- [ ] **MGMT-07**: User can manage parallel workstreams via `/seraphim:workstreams`
-- [ ] **MGMT-08**: User can manage phases from interactive command center via `/seraphim:manager`
+- [x] **MGMT-07**: User can manage parallel workstreams via `/seraphim:workstreams`
+- [x] **MGMT-08**: User can manage phases from interactive command center via `/seraphim:manager`
 
 ## Visualization & Reporting
 
@@ -105,8 +105,8 @@
 
 ## Configuration
 
-- [ ] **CFG-01**: Model profiles (quality/balanced/budget/inherit) control agent routing per command
-- [ ] **CFG-02**: User can configure workflow settings via `/seraphim:settings`
+- [x] **CFG-01**: Model profiles (quality/balanced/budget/inherit) control agent routing per command
+- [x] **CFG-02**: User can configure workflow settings via `/seraphim:settings`
 
 ## UI & Quality
 
@@ -174,10 +174,10 @@
 | MGMT-04 | Phase 35 | Complete |
 | MGMT-05 | Phase 35 | Complete |
 | MGMT-06 | Phase 35 | Complete |
-| MGMT-07 | Phase 35 | Pending |
-| MGMT-08 | Phase 35 | Pending |
-| CFG-01 | Phase 35 | Pending |
-| CFG-02 | Phase 35 | Pending |
+| MGMT-07 | Phase 35 | Complete |
+| MGMT-08 | Phase 35 | Complete |
+| CFG-01 | Phase 35 | Complete |
+| CFG-02 | Phase 35 | Complete |
 | UI-01 | Phase 35 | Complete |
 | UI-02 | Phase 35 | Complete |
 | UI-03 | Phase 35 | Complete |
