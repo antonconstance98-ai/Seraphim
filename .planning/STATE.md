@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.2
 milestone_name: Idea-to-Shipped Journey
-status: Roadmap created
-stopped_at: Phase 32 context gathered
-last_updated: "2026-04-10T00:22:00.804Z"
-last_activity: 2026-04-09 — v3.2 roadmap written (6 phases, 69 requirements mapped)
+status: executing
+stopped_at: Completed 32-02-PLAN.md
+last_updated: "2026-04-10T00:36:38.828Z"
+last_activity: 2026-04-10
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 3
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Six wings, six phases, six cognitive tasks -- each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
-**Current focus:** v3.2 Idea-to-Shipped Journey — roadmap created, ready for Phase 32 planning
+**Current focus:** Phase 32 — foundations
 
 ## Current Position
 
-Phase: 32 (not started)
-Plan: —
-Status: Roadmap created
-Last activity: 2026-04-09 — v3.2 roadmap written (6 phases, 69 requirements mapped)
+Phase: 32 (foundations) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-10
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -81,6 +81,8 @@ Key decisions relevant to v3.2:
 - [Phase 03-01]: PM queries follow getSql() pattern — consistent with existing query functions, zero new deps
 - [Phase 03]: CostSparkline uses dynamic import of chart.js/auto inside useEffect to avoid SSR issues
 - [Phase 03-02]: PipelineProgress uses indexOf(pipelinePhase) for completeCount — phases before current shown complete
+- [Phase 32-02]: feature_id resolves active roadmap feature via readRoadmap in-progress status check, not pipeline phase string
+- [Phase 32-02]: Graceful null fallback in try/catch when roadmap.json is absent or unreadable
 
 ### Roadmap Evolution
 
@@ -106,6 +108,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-10T00:22:00.800Z
-Stopped at: Phase 32 context gathered
-Resume file: .planning/phases/32-foundations/32-CONTEXT.md
+Last session: 2026-04-10T00:36:38.823Z
+Stopped at: Completed 32-02-PLAN.md
+Resume file: None

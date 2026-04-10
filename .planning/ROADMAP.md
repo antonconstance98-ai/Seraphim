@@ -39,7 +39,7 @@
 **Plans:** 3 plans
 Plans:
 - [ ] 32-01-PLAN.md — Neon DDL migration + schema unification (project_name)
-- [ ] 32-02-PLAN.md — feature_id wiring through decisions pipeline
+- [x] 32-02-PLAN.md — feature_id wiring through decisions pipeline
 - [ ] 32-03-PLAN.md — Schema extension audit document
 
 ### Phase 33: Core Command Layer
@@ -107,7 +107,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 32. Foundations | 0/3 | Planned | - |
+| 32. Foundations | 1/3 | In Progress|  |
 | 33. Core Command Layer | 0/? | Not started | - |
 | 34. Research + Session + Navigation | 0/? | Not started | - |
 | 35. Phase Management + Config + UI Tooling | 0/? | Not started | - |

@@ -4,7 +4,7 @@
 
 - [ ] **FOUND-01**: v3.1 Neon DDL applied — all PM tables exist in production Neon
 - [ ] **FOUND-02**: Schema consistency — `project` vs `project_name` mismatch resolved across all tables
-- [ ] **FOUND-03**: `feature_id` flows through decisions-logger to Neon
+- [x] **FOUND-03**: `feature_id` flows through decisions-logger to Neon
 - [ ] **FOUND-04**: Schema extension audit — every v3.2 data concept extends existing structures (no parallel files)
 
 ## Idea Capture
@@ -132,7 +132,7 @@
 |--------|-------|--------|
 | FOUND-01 | Phase 32 | Pending |
 | FOUND-02 | Phase 32 | Pending |
-| FOUND-03 | Phase 32 | Pending |
+| FOUND-03 | Phase 32 | Complete |
 | FOUND-04 | Phase 32 | Pending |
 | SEED-01 | Phase 33 | Pending |
 | SEED-02 | Phase 33 | Pending |
