@@ -109,15 +109,25 @@ Plans:
 - [x] 36-02-PLAN.md — Debug/forensics commands and repair.js strategy cascade
 - [x] 36-03-PLAN.md — Pipeline enrichment wiring and auto-repair integration
 
-### Phase 36.1: Pipeline Redesign — Discover, Envision, Judge, Forge (INSERTED)
+### Phase 36.1: Pipeline Redesign — Discover, Envision, Judge, Architect, Forge (INSERTED)
 
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
+**Goal:** Redesign the full Seraphim pipeline: interactive Discover with web research rounds, convergent Envision (one vision), two-pass Judge (light vision review + adversarial architecture review), Architect producing multiple technical plans, GSD-style Forge with per-phase research/discuss/plan/execute/verify cycles, and autonomous lockout gate
 **Depends on:** Phase 36
-**Plans:** 0 plans
+**Requirements**: PIPE-01, PIPE-02, PIPE-03, PIPE-04, PIPE-05, PIPE-06, PIPE-07, PIPE-08, PIPE-09, PIPE-10, PIPE-11, PIPE-12
+**Success Criteria** (what must be TRUE):
+  1. Discover runs interactive round-loop research with human steering, outputs single discovery.md with 5-7 curated links
+  2. Envision converges discovery into ONE unified vision.md (no alternatives, no APPROACH markers)
+  3. Judge supports --mode vision (light collaborative review) and --mode architecture (adversarial stress-test + blueprint creation)
+  4. Architect reads vision.md (not judgment.md) and produces 2-4 technical plans with SERAPHIM:PLAN markers
+  5. Judge architecture mode produces blueprint.md precise enough for a local LLM to follow
+  6. Forge runs full GSD cycle (research->discuss->plan->execute->verify) per build phase with fresh agent context
+  7. run.md orchestrates the 7-phase sequence with autonomous lockout and Architect rework loop (max 1)
+**Plans:** 3 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 36.1 to break down)
+- [ ] 36.1-01-PLAN.md — Discover + Envision rewrites (interactive rounds, convergent vision)
+- [ ] 36.1-02-PLAN.md — Judge + Architect rewrites (two-pass judge, technical plan generation)
+- [ ] 36.1-03-PLAN.md — Forge + run.md rewrites (GSD-style execution, pipeline orchestration)
 
 ### Phase 37: Verification + Dashboard
 **Goal**: Users can verify built features against requirements with goal-backward traceability, run UAT, and see full progress visualization in the dashboard
@@ -147,6 +157,7 @@ Plans:
 | 34. Research + Session + Navigation | 4/4 | Complete    | 2026-04-10 |
 | 35. Phase Management + Config + UI Tooling | 4/4 | Complete    | 2026-04-10 |
 | 36. Human Tasks + Debugging | 3/3 | Complete    | 2026-04-10 |
+| 36.1. Pipeline Redesign | 0/3 | Not started | - |
 | 37. Verification + Dashboard | 0/? | Not started | - |
 
 ---
