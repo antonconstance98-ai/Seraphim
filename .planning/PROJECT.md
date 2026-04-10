@@ -30,21 +30,19 @@ Six-phase creative pipeline (Discover→Crucible) with 9 models, 5 profiles, ada
 
 Full project management layer: roadmaps with milestone-feature hierarchy, feature queues with WIP limits and dependency guards, human task inbox (decision/research/review/validation/skills), pause/resume PM context, milestone archival with cost attribution, cross-project overview terminal command, PM data sync to Neon, dashboard PM panels (roadmap tree, task management, cross-project overview with sparklines). 3 phases, 12 plans, 30 requirements.
 
-## Current Milestone: v3.2 Idea-to-Shipped Journey
+## Shipped: v3.2 Idea-to-Shipped Journey (2026-04-10)
 
-**Goal:** Bring the full idea-to-shipped development workflow into Seraphim as native commands, with the dashboard as the project control center.
-
-**Target features:**
-- Seed/Idea Capture — braindump sessions merged into Seraphim (from Thought Orphanage)
-- Research System — categorized research with human interrogation before AI research
-- Requirements Definition — REQ-IDs, v1/future/out-of-scope scoping
-- Phased Roadmaps — waves, dependencies, success criteria (richer than flat feature list)
-- Discuss Phase — lock decisions before planning
-- Planning System — wave-structured PLAN.md with tasks and done-criteria
-- Verification — goal-backward verification, UAT
-- Enriched Human Tasks — skills to learn, research tasks, high-leverage thought tasks
-- Progress Visualization — bars, completion %, velocity tracking on dashboard
-- Dashboard — full roadmap view with phases/waves/tasks/costs/metrics as the control center
+Full idea-to-shipped development workflow as native Seraphim commands. 7 phases, 26 plans, 69 requirements. Key deliverables:
+- Seed capture, requirements definition (REQ-IDs), phased roadmaps with waves and dependencies
+- Wave-structured planning with deep task specs, parallel execution with worktree isolation
+- Research system (scope + run commands), session management (pause/resume/report)
+- Navigation routing (next/do/progress), codebase mapping with parallel agents
+- Phase lifecycle management (add/insert/remove), unified workflow settings
+- Human task inbox, systematic debugging with persistent state, forensics
+- Pipeline redesign: Discover (interactive round-loop), Envision (convergent vision), Judge (two-pass vision+architecture), Architect (N technical plans), Forge (GSD-style per-phase cycle)
+- Goal-backward verification, conversational UAT, Nyquist gap auditing
+- Dashboard progress panels, 7-day velocity chart, roadmap tree, milestone auditing
+- Automated test suite: 65 tests covering all pipeline commands and dashboard components
 
 **Previous target features (v3.0):**
 - Standalone Claude Code plugin at `~/.claude/plugins/seraphim/`
@@ -62,11 +60,9 @@ Full project management layer: roadmaps with milestone-feature hierarchy, featur
 
 ## Current State
 
-**v3.2 started 2026-04-09.** Building the idea-to-shipped journey — bringing GSD-style workflow commands (seed capture, research, requirements, phased roadmaps, planning, verification) into Seraphim as native commands, with the dashboard as the full project control center.
+**v3.2 shipped 2026-04-10.** Full idea-to-shipped workflow with 40+ slash commands, redesigned 6-phase pipeline, verification system, and dashboard visualization. 65-test automated verification suite.
 
-**Previous:** v3.1 shipped 2026-04-09. Full PM system: 8 slash commands, Neon sync, dashboard PM panels.
-
-**Tech debt (8 items from v3.1):** Neon DDL pending manual application, empty state wrong command reference, ARIA gaps, typography weight deviations, no error boundaries, cost_usd stub, feature_id not passed to decisions-logger.
+**Tech debt (from v3.2 audit):** Pre-existing TypeScript error in dashboard `ingest/route.ts`. Residual v3.1 items: Neon DDL pending, ARIA gaps, no error boundaries, cost_usd stub.
 
 ## Requirements
 

@@ -1,5 +1,37 @@
 # Milestones
 
+## v3.2 Idea-to-Shipped Journey (Shipped: 2026-04-10)
+
+**Phases completed:** 7 phases, 26 plans, 10 tasks
+
+**Key accomplishments:**
+
+- Task 1 — Migration infrastructure:
+- Task 1
+- 7 v3.2 data concepts audited against existing structures — 6 extend in-place, only research.json is a justified new file
+- 1. [Rule 1 - Bug] parseFrontmatter stripping quotes from string values
+- One-liner:
+- One-liner:
+- execute.md
+- One-liner:
+- pause.md
+- next.md
+- Markdown command that spawns 4 parallel mapper agents writing structure/conventions/stack/concerns analysis to .planning/codebase/ with an index.md linking all four files
+- ROADMAP.md manipulation library with parse/mutate/write and three phase lifecycle commands (add/insert/remove) for interactive milestone restructuring
+- One-liner:
+- Workstream tracking, interactive phase manager, and unified workflow settings via three new /seraphim commands writing to .planning/workstreams/ and .planning/config.json
+- One-liner:
+- One-liner:
+- One-liner:
+- One-liner:
+- One-liner:
+- One-liner:
+- audit-milestone.md
+- One-liner:
+- One-liner:
+
+---
+
 ## v3.1 Seraphim Project Management (Shipped: 2026-04-09)
 
 **Phases completed:** 3 phases, 12 plans, 10 tasks
