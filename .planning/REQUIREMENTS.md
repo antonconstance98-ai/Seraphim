@@ -68,9 +68,9 @@
 
 ## Human Tasks
 
-- [ ] **HTASK-01**: Human task inbox enriched with skills-to-learn field
-- [ ] **HTASK-02**: Human task inbox enriched with thought-prompt field for high-leverage thinking
-- [ ] **HTASK-03**: Human task inbox enriched with research-task field
+- [x] **HTASK-01**: Human task inbox enriched with skills-to-learn field
+- [x] **HTASK-02**: Human task inbox enriched with thought-prompt field for high-leverage thinking
+- [x] **HTASK-03**: Human task inbox enriched with research-task field
 
 ## Navigation & Routing
 
@@ -181,9 +181,9 @@
 | UI-01 | Phase 35 | Complete |
 | UI-02 | Phase 35 | Complete |
 | UI-03 | Phase 35 | Complete |
-| HTASK-01 | Phase 36 | Pending |
-| HTASK-02 | Phase 36 | Pending |
-| HTASK-03 | Phase 36 | Pending |
+| HTASK-01 | Phase 36 | Complete |
+| HTASK-02 | Phase 36 | Complete |
+| HTASK-03 | Phase 36 | Complete |
 | DBG-01 | Phase 36 | Pending |
 | DBG-02 | Phase 36 | Pending |
 | DBG-03 | Phase 36 | Pending |

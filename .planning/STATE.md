@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v3.2
 milestone_name: Idea-to-Shipped Journey
-status: verifying
-stopped_at: Completed 35-03-PLAN.md
-last_updated: "2026-04-10T14:03:56.579Z"
+status: executing
+stopped_at: Completed 36-01-PLAN.md
+last_updated: "2026-04-10T14:21:35.465Z"
 last_activity: 2026-04-10
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 16
-  completed_plans: 16
+  total_plans: 19
+  completed_plans: 17
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Six wings, six phases, six cognitive tasks -- each assigned to the model that does it best. The human orchestrates. AI converges. Adaptive intelligence makes the system smarter over time.
-**Current focus:** Phase 35 — phase-management-config-ui-tooling
+**Current focus:** Phase 36 — human-tasks-debugging
 
 ## Current Position
 
-Phase: 36
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 36 (human-tasks-debugging) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-04-10
 
 Progress: [░░░░░░░░░░] 0%
@@ -100,6 +100,8 @@ Key decisions relevant to v3.2:
 - [Phase 35-01]: removePhase blocks on started phases — completed plan count check guards against data loss
 - [Phase 35-01]: insertPhase uses decimal suffix auto-increment for urgent mid-milestone phase insertion
 - [Phase 35]: settings.md validates toggle names against explicit allowlist before any write (Pitfall 5)
+- [Phase 36]: skills_to_learn stored as comma-separated string in marker attrs; split on display
+- [Phase 36]: Used ?? null for enrichment field fallbacks in ingest route to distinguish empty string from absent
 
 ### Roadmap Evolution
 
@@ -132,9 +134,10 @@ None.
 | Phase 34 P03 | 10 | 2 tasks | 3 files |
 | Phase 35 P02 | 5 | 2 tasks | 3 files |
 | Phase 35 P03 | 12 | 2 tasks | 3 files |
+| Phase 36 P01 | 5 | 2 tasks | 4 files |
 
 ## Session Continuity
 
-Last session: 2026-04-10T13:48:47.657Z
-Stopped at: Completed 35-03-PLAN.md
+Last session: 2026-04-10T14:21:26.277Z
+Stopped at: Completed 36-01-PLAN.md
 Resume file: None
