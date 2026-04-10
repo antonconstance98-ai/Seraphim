@@ -75,7 +75,7 @@ Plans:
 - [ ] 34-01-PLAN.md — Research tracker lib + scope/run commands
 - [ ] 34-02-PLAN.md — Session management (pause/resume/report)
 - [ ] 34-03-PLAN.md — Navigation routing (next/do/progress)
-- [ ] 34-04-PLAN.md — Codebase mapping with parallel agents
+- [x] 34-04-PLAN.md — Codebase mapping with parallel agents
 
 ### Phase 35: Phase Management + Config + UI Tooling
 **Goal**: Users can manage the full phase lifecycle from interactive commands, configure workflow settings, and run UI audits and test generation
@@ -135,7 +135,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 32. Foundations | 3/3 | Complete    | 2026-04-10 |
 | 33. Core Command Layer | 5/5 | Complete    | 2026-04-10 |
-| 34. Research + Session + Navigation | 0/4 | Planned | - |
+| 34. Research + Session + Navigation | 1/4 | In Progress|  |
 | 35. Phase Management + Config + UI Tooling | 0/? | Not started | - |
 | 36. Human Tasks + Debugging | 0/? | Not started | - |
 | 37. Verification + Dashboard | 0/? | Not started | - |
