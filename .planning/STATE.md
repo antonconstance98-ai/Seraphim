@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v3.2
 milestone_name: Idea-to-Shipped Journey
 status: executing
-stopped_at: Completed 36-01-PLAN.md
-last_updated: "2026-04-10T14:21:35.465Z"
+stopped_at: Completed 36-02-PLAN.md
+last_updated: "2026-04-10T14:22:26.159Z"
 last_activity: 2026-04-10
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 19
-  completed_plans: 17
+  completed_plans: 18
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 36 (human-tasks-debugging) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-10
 
@@ -102,6 +102,7 @@ Key decisions relevant to v3.2:
 - [Phase 35]: settings.md validates toggle names against explicit allowlist before any write (Pitfall 5)
 - [Phase 36]: skills_to_learn stored as comma-separated string in marker attrs; split on display
 - [Phase 36]: Used ?? null for enrichment field fallbacks in ingest route to distinguish empty string from absent
+- [Phase 36]: repair.js is pure logic with no I/O — caller handles all state writes
 
 ### Roadmap Evolution
 
@@ -135,9 +136,10 @@ None.
 | Phase 35 P02 | 5 | 2 tasks | 3 files |
 | Phase 35 P03 | 12 | 2 tasks | 3 files |
 | Phase 36 P01 | 5 | 2 tasks | 4 files |
+| Phase 36 P02 | 8 | 2 tasks | 3 files |
 
 ## Session Continuity
 
-Last session: 2026-04-10T14:21:26.277Z
-Stopped at: Completed 36-01-PLAN.md
+Last session: 2026-04-10T14:22:26.157Z
+Stopped at: Completed 36-02-PLAN.md
 Resume file: None

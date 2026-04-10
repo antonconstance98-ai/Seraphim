@@ -106,7 +106,7 @@ Plans:
 **Plans:** 3 plans
 Plans:
 - [x] 36-01-PLAN.md — Human task enrichment (migration, push-client, ingest, inbox)
-- [ ] 36-02-PLAN.md — Debug/forensics commands and repair.js strategy cascade
+- [x] 36-02-PLAN.md — Debug/forensics commands and repair.js strategy cascade
 - [ ] 36-03-PLAN.md — Pipeline enrichment wiring and auto-repair integration
 
 ### Phase 37: Verification + Dashboard
@@ -136,7 +136,7 @@ Plans:
 | 33. Core Command Layer | 5/5 | Complete    | 2026-04-10 |
 | 34. Research + Session + Navigation | 4/4 | Complete    | 2026-04-10 |
 | 35. Phase Management + Config + UI Tooling | 4/4 | Complete    | 2026-04-10 |
-| 36. Human Tasks + Debugging | 1/3 | In Progress|  |
+| 36. Human Tasks + Debugging | 2/3 | In Progress|  |
 | 37. Verification + Dashboard | 0/? | Not started | - |
 
 ---

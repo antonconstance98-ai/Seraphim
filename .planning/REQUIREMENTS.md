@@ -61,10 +61,10 @@
 
 ## Debugging
 
-- [ ] **DBG-01**: User can debug systematically via `/seraphim:debug` with persistent state across resets
+- [x] **DBG-01**: User can debug systematically via `/seraphim:debug` with persistent state across resets
 - [ ] **DBG-02**: Autonomous root-cause analysis agents for UAT gaps
-- [ ] **DBG-03**: User can run post-mortem investigation via `/seraphim:forensics` (read-only, diagnostic)
-- [ ] **DBG-04**: Failed task auto-repair with RETRY/DECOMPOSE/PRUNE/ESCALATE strategies
+- [x] **DBG-03**: User can run post-mortem investigation via `/seraphim:forensics` (read-only, diagnostic)
+- [x] **DBG-04**: Failed task auto-repair with RETRY/DECOMPOSE/PRUNE/ESCALATE strategies
 
 ## Human Tasks
 
@@ -184,10 +184,10 @@
 | HTASK-01 | Phase 36 | Complete |
 | HTASK-02 | Phase 36 | Complete |
 | HTASK-03 | Phase 36 | Complete |
-| DBG-01 | Phase 36 | Pending |
+| DBG-01 | Phase 36 | Complete |
 | DBG-02 | Phase 36 | Pending |
-| DBG-03 | Phase 36 | Pending |
-| DBG-04 | Phase 36 | Pending |
+| DBG-03 | Phase 36 | Complete |
+| DBG-04 | Phase 36 | Complete |
 | VFY-01 | Phase 37 | Pending |
 | VFY-02 | Phase 37 | Pending |
 | VFY-03 | Phase 37 | Pending |
