@@ -107,7 +107,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 32. Foundations | 3/3 | Complete   | 2026-04-10 |
+| 32. Foundations | 3/3 | Complete    | 2026-04-10 |
 | 33. Core Command Layer | 0/? | Not started | - |
 | 34. Research + Session + Navigation | 0/? | Not started | - |
 | 35. Phase Management + Config + UI Tooling | 0/? | Not started | - |
